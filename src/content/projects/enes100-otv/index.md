@@ -9,9 +9,11 @@ disciplines: [Robotics, Autonomy, Mechanical Design, 3D Printing, Manufacturing]
 tools: [FDM 3D printing, Laser cutting]
 skills: [Design for 3D printing, Fabrication, Mechanical troubleshooting, Teamwork]
 featured: true
+cover: ./cover.png
+coverAlt: The Over Terrain Vehicle assembly, with mecanum wheels, electronics deck, crane mast and arms
 model: /models/otv.glb
-modelOrientation: -90deg 0deg 0deg
-modelOrbit: 35deg 70deg 105%
+modelOrientation: 0deg -90deg 0deg
+modelOrbit: 135deg 68deg 95%
 credit: ENES100 Introduction to Engineering Design, University of Maryland, Fall 2025. Team Builders, eight members. The CAD models were made by a teammate.
 ---
 

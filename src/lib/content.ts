@@ -13,12 +13,18 @@ export async function getProjects() {
   );
 }
 
-/** Projects shown on the home page. */
+/** Projects shown on the home page: finished work with an image leads, then work in progress. */
+const featuredOrder = { Complete: 0, 'In progress': 1, Planned: 2, Idea: 3, Paused: 4 } as const;
 export async function getFeatured() {
   const all = await getProjects();
   return all
     .filter((p) => p.data.featured)
-    .sort((a, b) => statusOrder[a.data.status] - statusOrder[b.data.status]);
+    .sort(
+      (a, b) =>
+        Number(!b.data.cover) - Number(!a.data.cover) === 0
+          ? featuredOrder[a.data.status] - featuredOrder[b.data.status]
+          : Number(!a.data.cover) - Number(!b.data.cover),
+    );
 }
 
 /** Map of tool name (lowercase) -> projects that used it. */
