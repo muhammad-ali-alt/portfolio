@@ -39,7 +39,13 @@ The first finished part is one jaw of the gripper. Its features, in the order th
 | Cut-Extrude5, LPattern4 | Serrated teeth on the gripping face, made once and patterned |
 | Hex pocket | Six sided pocket on the top face |
 
-PLACEHOLDER: Explain in your own words what the hex pocket, the slots and the serrated teeth are for. One sentence each.
+### Why the features are there
+
+**Hex pocket.** A hex nut sits inside the pocket and can't rotate, so the bolt can be tightened or loosened from the other side with one tool. This is called a captive nut.
+
+**Three slots.** They cut material and weight, which also means a shorter print and less filament. PLACEHOLDER: confirm against the tutorial whether they have another purpose.
+
+**Serrated teeth.** The teeth put the same grip force onto a much smaller area, so the pressure on the object goes up and the teeth dig in slightly. That locks the object in place instead of relying only on friction, which (F = μN) doesn't depend on contact area.
 
 ## Next
 
