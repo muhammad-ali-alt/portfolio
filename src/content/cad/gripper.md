@@ -10,7 +10,10 @@ images:
   - src: ../../assets/cad/grip-iso.png
     alt: Gripper jaw, isometric view
     label: Isometric
-formats: [SLDPRT]
+model: /models/grip.glb
+formats: [SLDPRT, STL, GLB]
+stats:
+  envelope: 49.0 × 14.0 × 8.5 mm
 project: robotic-arm
 ---
 

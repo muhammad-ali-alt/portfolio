@@ -10,6 +10,7 @@ tools: [SolidWorks]
 skills: [Part modeling, Linear patterns, Mirror features]
 featured: true
 cover: ./grip-iso.png
+model: /models/grip.glb
 coverAlt: Gripper jaw in SolidWorks, isometric view, showing the pivot hole, hex nut pocket, three slots and serrated tip
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:

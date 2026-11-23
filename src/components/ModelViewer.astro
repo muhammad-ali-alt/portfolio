@@ -16,10 +16,13 @@ const { src, alt, number = '', placeholder = src.includes('placeholder') } = Ast
     camera-controls
     touch-action="pan-y"
     interaction-prompt="none"
-    shadow-intensity="0.6"
-    exposure="1.05"
+    shadow-intensity="1"
+    shadow-softness="0.8"
+    exposure="0.55"
+    tone-mapping="commerce"
     environment-image="neutral"
-    camera-orbit="35deg 70deg auto"
+    camera-orbit="35deg 65deg 62%"
+    field-of-view="30deg"
     loading="lazy"
     reveal="auto"
   >
@@ -27,7 +30,7 @@ const { src, alt, number = '', placeholder = src.includes('placeholder') } = Ast
   </model-viewer>
   <div class="hud mono" aria-hidden="true">
     <span>{number} · 3D</span>
-    <span class="orbit">θ 35° φ 70°</span>
+    <span class="orbit">θ 35° φ 65°</span>
   </div>
   <figcaption class="mono">
     <span>Drag to rotate · Scroll or pinch to zoom · Right drag to pan</span>
@@ -49,8 +52,8 @@ const { src, alt, number = '', placeholder = src.includes('placeholder') } = Ast
       if (o) orbit.textContent = `θ ${Math.round((o.theta * 180) / Math.PI)}° φ ${Math.round((o.phi * 180) / Math.PI)}°`;
     });
     fig.querySelector('[data-act="reset"]')!.addEventListener('click', () => {
-      mv.cameraOrbit = '35deg 70deg auto';
-      mv.fieldOfView = 'auto';
+      mv.cameraOrbit = '35deg 65deg 62%';
+      mv.fieldOfView = '30deg';
       mv.cameraTarget = 'auto auto auto';
     });
     const spin = fig.querySelector('[data-act="spin"]')!;
