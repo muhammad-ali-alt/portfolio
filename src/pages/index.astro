@@ -98,7 +98,7 @@ const [lead, ...rest] = featured;
     <div class="feat-grid">
       {lead && (
         <a class="lead card" href={`/work/${lead.id}/`}>
-          <Plate src={lead.data.cover} alt={lead.data.coverAlt} number={lead.data.number} ratio="5 / 4" eager sizes="(max-width: 900px) 100vw, 60vw" />
+          <Plate src={lead.data.cover} alt={lead.data.coverAlt} number={lead.data.number} ratio="3 / 2" eager sizes="(max-width: 900px) 100vw, 60vw" />
           <div class="card-meta">
             <span class="mono">{lead.data.number}</span>
             <span class="status mono" data-status={lead.data.status}>{lead.data.status}</span>

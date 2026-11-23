@@ -24,7 +24,7 @@ const kinds = [...new Set(entries.map((e) => e.data.kind))];
       {entries.map((e) => (
         <li>
           <a href={`/cad/${e.id}/`}>
-            <Plate src={e.data.images[0]?.src} alt={e.data.images[0]?.alt} number={e.data.number} ratio="1 / 1" sizes="(max-width: 700px) 100vw, 33vw" />
+            <Plate src={e.data.images[0]?.src} alt={e.data.images[0]?.alt} number={e.data.number} ratio="3 / 2" sizes="(max-width: 700px) 100vw, 33vw" />
             <div class="meta">
               <span class="mono">{e.data.number}</span>
               <span class="mono kind">{e.data.kind}</span>

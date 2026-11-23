@@ -14,7 +14,9 @@ interface Props {
   eager?: boolean;
   caption?: string;
 }
-const { src, alt = '', number, ratio = '4 / 3', sizes = '(max-width: 800px) 100vw, 50vw', eager = false } = Astro.props;
+const { src, alt = '', number, ratio: r = '4 / 3', sizes = '(max-width: 800px) 100vw, 50vw', eager = false } = Astro.props;
+// "auto" keeps the image's own proportions so nothing gets cropped off
+const ratio = r === 'auto' ? (src ? `${src.width} / ${src.height}` : '16 / 9') : r;
 ---
 <div class="plate" style={`aspect-ratio: ${ratio}`}>
   {src ? (

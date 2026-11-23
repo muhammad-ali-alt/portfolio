@@ -12,9 +12,9 @@ export const site = {
   // Shown in Google results and link previews.
   description:
     'Muhammad Ali, mechanical engineering student at the University of Maryland. CAD, robotics, motorsport, aerospace and data, documented as I build it.',
-  email: 'you@example.com', // PLACEHOLDER: put your real email here
+  email: 'ali.mcrofton@gmail.com',
   links: [
-    { label: 'LinkedIn', href: '' }, // PLACEHOLDER: paste your LinkedIn URL
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/m-ali-umd' },
     { label: 'GitHub', href: 'https://github.com/muhammad-ali-alt' },
   ],
   // Put your PDF at public/resume.pdf and change this to '/resume.pdf'.

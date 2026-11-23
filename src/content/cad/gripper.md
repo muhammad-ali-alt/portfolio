@@ -1,14 +1,19 @@
 ---
-title: Robotic Arm Gripper
+title: Robotic Arm Gripper Jaw
 number: C-001
-kind: Mechanism
-summary: The gripper for the desktop robotic arm, the first finished piece of MA-001.
+kind: Part
+summary: One jaw of the gripper for the six axis desktop robotic arm, the first finished part of MA-001.
 date: 2026-11-01  # PLACEHOLDER date
 software: SolidWorks
-purpose: End effector for the desktop robotic arm.
-model: /models/placeholder-gripper.glb  # PLACEHOLDER: replace with the real export
-formats: [SLDASM, STEP, GLB]
+purpose: Gripping jaw for the robotic arm's end effector.
+images:
+  - src: ../../assets/cad/grip-iso.png
+    alt: Gripper jaw, isometric view
+    label: Isometric
+formats: [SLDPRT]
 project: robotic-arm
 ---
 
-PLACEHOLDER: Design notes. How many parts, how it is actuated, anything you would change next time. The 3D view above is a placeholder block model until you export the real gripper.
+Single solid body built from an extrusion, cut features, a mirror and two linear patterns (slots and teeth). Modeled following the CADelics 6-Axis Robotic Arm Series tutorial.
+
+PLACEHOLDER: What you would change next time, and why.
