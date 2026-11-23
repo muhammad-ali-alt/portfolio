@@ -52,6 +52,8 @@ const projects = defineCollection({
       cover: image().optional(),
       coverAlt: z.string().optional(),
       model: z.string().optional(), // path to a .glb in /public/models
+      modelOrientation: z.string().optional(), // e.g. "-90deg 0deg 0deg" if it exported on its side
+      modelOrbit: z.string().optional(), // starting camera, e.g. "35deg 65deg 100%"
       modelPoster: image().optional(),
       credit: z.string().optional(), // tutorials, teammates, sources
       revisions: z
@@ -74,6 +76,8 @@ const cad = defineCollection({
       purpose: z.string().optional(),
       sample: z.boolean().default(false),
       model: z.string().optional(),
+      modelOrientation: z.string().optional(),
+      modelOrbit: z.string().optional(),
       images: z.array(z.object({ src: image(), alt: z.string(), label: z.string().optional() })).default([]),
       formats: z.array(z.string()).default([]),
       downloads: z.array(z.object({ label: z.string(), file: z.string() })).default([]),

@@ -45,7 +45,7 @@ const relatedNotes = (await getCollection('notebook')).filter((n) => n.data.proj
 
     <div class="hero">
       {d.model ? (
-        <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} />
+        <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} />
       ) : (
         <Plate src={d.cover} alt={d.coverAlt} number={d.number} ratio="auto" eager sizes="100vw" />
       )}

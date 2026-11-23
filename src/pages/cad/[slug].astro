@@ -35,7 +35,7 @@ const specs = [
     <div class="layout">
       <div class="view">
         {d.model ? (
-          <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} />
+          <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} />
         ) : (
           <Plate src={d.images[0]?.src} alt={d.images[0]?.alt} number={d.number} ratio="4 / 3" eager />
         )}
