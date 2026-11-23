@@ -34,7 +34,7 @@ const groups = [
                 <span class="note">{t.note}</span>
                 <span class="mono since">{t.since && `Since ${t.since}`}</span>
                 <span class="used">
-                  {used.length ? used.map((p) => <a class="mono" href={`/work/${p.id}/`} title={p.data.title}>{p.data.number}</a>) : <span class="mono none">No project yet</span>}
+                  {used.map((p) => <a class="mono" href={`/work/${p.id}/`} title={p.data.title}>{p.data.number}</a>)}
                 </span>
               </li>
             );

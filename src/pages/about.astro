@@ -78,6 +78,22 @@ const isPh = (s: string) => s.startsWith('PLACEHOLDER');
       </div>
     </section>
 
+    <!-- work history and involvement -->
+    <section class="history">
+      <div class="section-head"><span class="label">Record</span><h2>Work history</h2><span class="label">{about.experience.length}</span></div>
+      <ol class="jobs">
+        {about.experience.map((j) => (
+          <li>
+            <span class="mono when">{j.when}</span>
+            <span class="role"><strong>{j.role}</strong><span>{j.org}</span></span>
+            <span class="jnote">{j.note}</span>
+          </li>
+        ))}
+      </ol>
+      <div class="section-head inv-head"><span class="label">Now</span><h2>Teams and involvement</h2><span></span></div>
+      <ul class="inv">{about.involvement.map((x) => <li>{x}</li>)}</ul>
+    </section>
+
     <!-- small facts, like notes in the margin of a drawing -->
     <section class="notes">
       <h2 class="label">Notes</h2>
@@ -148,6 +164,17 @@ const isPh = (s: string) => s.startsWith('PLACEHOLDER');
   .ph { color: var(--graphite); font-style: italic; }
   li.ph, p.ph { border-left: 2px dashed var(--accent); padding-left: 10px; }
 
+  .history { margin-top: clamp(64px, 9vw, 120px); }
+  .jobs, .inv { list-style: none; margin: 0; padding: 0; }
+  .jobs li { display: grid; grid-template-columns: 11rem minmax(0, 1.2fr) minmax(0, 1.5fr); gap: 1rem; padding: 16px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .when { color: var(--graphite); }
+  .role { display: grid; gap: 2px; }
+  .role strong { font-family: var(--f-display); font-weight: 600; font-size: 1.15rem; }
+  .role span { color: var(--graphite); font-size: 0.95rem; }
+  .jnote { font-size: 0.98rem; line-height: 1.45; }
+  @media (max-width: 760px) { .jobs li { grid-template-columns: 1fr; gap: 4px; } }
+  .inv-head { margin-top: clamp(40px, 6vw, 64px); }
+  .inv li { padding: 12px 0; border-bottom: 1px solid var(--rule); font-family: var(--f-display); font-size: 1.05rem; }
   .notes { margin-top: clamp(56px, 8vw, 100px); max-width: 60ch; }
   .notes h2 { font-family: var(--f-mono); font-size: var(--t-mono); font-weight: 450; margin-bottom: 10px; }
   .notes ol { margin: 0; padding-left: 1.4em; font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.7; }

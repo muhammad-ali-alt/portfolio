@@ -8,10 +8,10 @@ export const site = {
   wordmark: 'Ali Works',
   role: 'Mechanical Engineering',
   school: 'University of Maryland',
-  year: 'Sophomore',
+  year: 'Second year',
   // Shown in Google results and link previews.
   description:
-    'Muhammad Ali, mechanical engineering student at the University of Maryland. CAD, robotics, motorsport, aerospace and data, documented as I build it.',
+    'Muhammad Ali, mechanical engineering track student at the University of Maryland. Team builds, CAD, motorsport, rocketry and data, documented as I build them.',
   email: 'ali.mcrofton@gmail.com',
   links: [
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/m-ali-umd' },

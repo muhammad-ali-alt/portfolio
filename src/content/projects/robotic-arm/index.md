@@ -1,6 +1,6 @@
 ---
 title: Desktop Robotic Arm
-number: MA-001
+number: MA-005
 summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw is done, the rest of the arm is next.
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
