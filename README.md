@@ -81,9 +81,13 @@ Allowed disciplines and contexts are listed in `src/content.config.ts`. Add a ne
 | Drawings | **PDF** | From the drawing file: File, Save As, PDF |
 | 3D printing download | STL | File, Save As, STL |
 
-**GLB export.** If your SolidWorks version lists glTF or GLB under Save As, use it. If it does not:
-Save As STL (or OBJ), open it in [Blender](https://www.blender.org) (free), then File, Export, glTF 2.0, format **GLB**.
-Keep each GLB under about 10 MB. If it is bigger, in Blender use the Decimate modifier or check "Compression" in the export options.
+**GLB export.** Save As STL from SolidWorks, then run the converter in this repo:
+
+```bash
+python tools/stl2glb.py "C:/path/to/part.STL" public/models/part.glb
+```
+
+It converts millimetres to metres, smooths curved surfaces, keeps sharp edges sharp, and prints the part's size so you can sanity check it. Needs numpy (`pip install numpy`). The gripper jaw came out at 69 KB. Keep any model under about 10 MB.
 
 Put the file in `public/models/` and point the project's `model:` field at `/models/your-file.glb`.
 
