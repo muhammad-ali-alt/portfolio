@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 
-// Change `site` to your real domain once you have one (Phase 6).
+// The site's public address. Change it if you buy a custom domain.
 export default defineConfig({
-  site: 'https://example.com',
+  site: 'https://aliworks-umd.netlify.app',
 });
