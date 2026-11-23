@@ -1,0 +1,92 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Plate from '../../components/Plate.astro';
+import ModelViewer from '../../components/ModelViewer.astro';
+import { fmtMonth } from '../../lib/content';
+
+export async function getStaticPaths() {
+  return (await getCollection('cad')).map((e) => ({ params: { slug: e.id }, props: { entry: e } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const project = d.project ? await getEntry(d.project) : undefined;
+const specs = [
+  ['Type', d.kind],
+  ['Software', d.software],
+  ['Created', fmtMonth(d.date)],
+  ['Purpose', d.purpose],
+  ['Parts', d.stats?.parts],
+  ['Mass', d.stats?.mass],
+  ['Envelope', d.stats?.envelope],
+  ['Formats', d.formats.join(', ')],
+].filter(([, v]) => v);
+---
+<Base title={d.title} description={d.summary} sheet={`${d.number} · ${d.title}`}>
+  <article class="wrap">
+    <header class="head">
+      <a class="label back" href="/cad/">← CAD library</a>
+      <span class="mono num">{d.number} · {d.kind}</span>
+      <h1>{d.title}</h1>
+    </header>
+
+    <div class="layout">
+      <div class="view">
+        {d.model ? (
+          <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} />
+        ) : (
+          <Plate src={d.images[0]?.src} alt={d.images[0]?.alt} number={d.number} ratio="4 / 3" eager />
+        )}
+
+        {d.images.length > 0 && (
+          <ul class="angles">
+            {d.images.map((img) => (
+              <li>
+                <Image src={img.src} alt={img.alt} width={600} data-zoom />
+                {img.label && <span class="mono">{img.label}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <aside class="spec">
+        <p class="summary">{d.summary}</p>
+        <dl>
+          {specs.map(([k, v]) => (<div><dt class="label">{k}</dt><dd>{v}</dd></div>))}
+        </dl>
+        {project && (
+          <a class="proj" href={`/work/${project.id}/`}>
+            <span class="label">Part of</span>
+            <span><span class="mono">{project.data.number}</span> {project.data.title} →</span>
+          </a>
+        )}
+        {d.downloads.length > 0 && (
+          <ul class="dl">{d.downloads.map((f) => <li><a href={f.file} download>{f.label} ↓</a></li>)}</ul>
+        )}
+        <div class="prose notes"><p class="label">Design notes</p><Content /></div>
+      </aside>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .head { padding-block: clamp(28px, 5vw, 64px) 24px; display: grid; gap: 12px; }
+  .back { text-decoration: none; width: fit-content; }
+  .num { color: var(--accent-ink); font-size: 0.85rem; }
+  .layout { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .angles { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .angles img { aspect-ratio: 1; object-fit: cover; border: 1px solid var(--rule); cursor: zoom-in; }
+  .angles span { display: block; font-size: 0.68rem; color: var(--graphite); margin-top: 4px; }
+  .spec { display: grid; gap: 24px; }
+  .summary { font-size: 1.15rem; line-height: 1.45; margin: 0; }
+  dl { margin: 0; border-top: 1.5px solid var(--ink); }
+  dl div { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1rem; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+  dd { margin: 0; font-family: var(--f-display); font-size: 0.98rem; }
+  .proj { display: grid; gap: 4px; padding: 14px; background: var(--paper-2); border-left: 3px solid var(--accent); text-decoration: none; font-family: var(--f-display); font-weight: 550; }
+  .dl { list-style: none; padding: 0; margin: 0; font-family: var(--f-mono); font-size: 0.8rem; }
+  .notes { font-size: 1rem; }
+</style>

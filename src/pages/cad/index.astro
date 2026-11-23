@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Plate from '../../components/Plate.astro';
+
+const entries = (await getCollection('cad')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const kinds = [...new Set(entries.map((e) => e.data.kind))];
+---
+<Base title="CAD library" sheet="03 · CAD library" description="CAD parts, assemblies and mechanisms by Muhammad Ali, viewable in 3D.">
+  <section class="wrap">
+    <header class="page-head">
+      <span class="label">02 / CAD</span>
+      <h1>CAD library</h1>
+      <p>Parts, assemblies and mechanisms, including ones that never became a full project. Entries marked 3D can be rotated in the browser.</p>
+    </header>
+
+    {kinds.length > 1 && (
+      <div class="kinds label">
+        {kinds.map((k) => <span>{k} · {entries.filter((e) => e.data.kind === k).length}</span>)}
+      </div>
+    )}
+
+    <ul class="drawer">
+      {entries.map((e) => (
+        <li>
+          <a href={`/cad/${e.id}/`}>
+            <Plate src={e.data.images[0]?.src} alt={e.data.images[0]?.alt} number={e.data.number} ratio="1 / 1" sizes="(max-width: 700px) 100vw, 33vw" />
+            <div class="meta">
+              <span class="mono">{e.data.number}</span>
+              <span class="mono kind">{e.data.kind}</span>
+              {e.data.model && <span class="badge mono">3D</span>}
+            </div>
+            <h2>{e.data.title}{e.data.sample && <span class="sample-tag">Sample</span>}</h2>
+            <p>{e.data.summary}</p>
+          </a>
+        </li>
+      ))}
+      <li class="slot" aria-hidden="true">
+        <div class="slot-box"><span class="mono">C-{String(entries.length + 1).padStart(3, '0')}</span><span class="label">Next model goes here</span></div>
+      </li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .page-head { padding-block: clamp(32px, 6vw, 88px) clamp(24px, 4vw, 48px); display: grid; gap: 14px; }
+  .page-head p { color: var(--graphite); max-width: 52ch; margin: 0; }
+  .kinds { display: flex; gap: 1.5rem; flex-wrap: wrap; padding-bottom: 14px; }
+  .drawer {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    border-top: 1px solid var(--ink); border-left: 1px solid var(--rule);
+  }
+  .drawer > li { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .drawer a { display: grid; gap: 10px; padding: 14px 14px 20px; text-decoration: none; height: 100%; align-content: start; }
+  .drawer a:hover { color: inherit; background: var(--paper-2); }
+  .drawer a:hover :global(.plate img) { transform: scale(1.04) rotate(-0.5deg); }
+  .meta { display: flex; gap: 10px; align-items: center; color: var(--graphite); font-size: 0.72rem; }
+  .badge { margin-left: auto; color: var(--accent-ink); border: 1px solid currentColor; padding: 1px 6px; }
+  h2 { font-size: 1.25rem; font-stretch: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .drawer p { color: var(--graphite); font-size: 0.95rem; line-height: 1.45; margin: 0; }
+  .slot { padding: 14px; }
+  .slot-box { aspect-ratio: 1; border: 1px dashed var(--rule); display: grid; place-content: center; text-align: center; gap: 6px; color: var(--graphite); }
+</style>

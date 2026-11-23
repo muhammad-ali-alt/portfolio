@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import { toolbox } from '../data/toolbox';
+import { getToolUsage } from '../lib/content';
+
+const usage = await getToolUsage();
+// Tools that appear in projects but are not listed in toolbox.ts
+const listed = new Set(toolbox.flatMap((g) => g.items.map((i) => i.name.toLowerCase())));
+const unlisted = [...usage.keys()].filter((k) => !listed.has(k));
+const groups = [
+  ...toolbox,
+  ...(unlisted.length
+    ? [{ group: 'Also used in projects', items: unlisted.map((k) => ({ name: usage.get(k)![0].data.tools.find((t) => t.toLowerCase() === k)!, since: '', note: '' })) }]
+    : []),
+];
+---
+<Base title="Toolbox" sheet="05 · Toolbox" description="Software, methods and engineering fundamentals Muhammad Ali uses, each linked to the projects that use it.">
+  <section class="wrap">
+    <header class="page-head">
+      <span class="label">04 / Toolbox</span>
+      <h1>Toolbox</h1>
+      <p>No skill bars. A percentage says nothing about whether someone can design a part. Instead, each tool links to the work where I used it.</p>
+    </header>
+
+    {groups.map((g, gi) => (
+      <section class="group">
+        <div class="section-head"><span class="label">{String(gi + 1).padStart(2, '0')}</span><h2>{g.group}</h2><span class="label">{g.items.length}</span></div>
+        <ul>
+          {g.items.map((t) => {
+            const used = usage.get(t.name.toLowerCase()) ?? [];
+            return (
+              <li>
+                <span class="name">{t.name}</span>
+                <span class="note">{t.note}</span>
+                <span class="mono since">{t.since && `Since ${t.since}`}</span>
+                <span class="used">
+                  {used.length ? used.map((p) => <a class="mono" href={`/work/${p.id}/`} title={p.data.title}>{p.data.number}</a>) : <span class="mono none">No project yet</span>}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))}
+  </section>
+</Base>
+
+<style>
+  .page-head { padding-block: clamp(32px, 6vw, 88px) clamp(24px, 4vw, 48px); display: grid; gap: 14px; }
+  .page-head p { color: var(--graphite); max-width: 52ch; margin: 0; }
+  .group + .group { margin-top: clamp(40px, 6vw, 72px); }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) 7rem minmax(0, 3fr);
+    gap: 1rem; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--rule);
+  }
+  .name { font-family: var(--f-display); font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
+  .note, .since { color: var(--graphite); font-size: 0.95rem; }
+  .used { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .used a { text-decoration: none; border: 1px solid var(--rule); padding: 2px 7px; }
+  .used a:hover { border-color: var(--accent); }
+  .none { color: var(--graphite); font-size: 0.7rem; }
+  @media (max-width: 760px) {
+    li { grid-template-columns: 1fr auto; gap: 4px 1rem; }
+    .note { grid-column: 1 / -1; grid-row: 2; }
+    .since { display: none; }
+  }
+</style>

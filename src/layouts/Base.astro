@@ -1,0 +1,232 @@
+---
+// The frame every page sits inside: <head>, navigation, and the
+// closing "back cover" at the bottom of every page.
+import '../styles/global.css';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  sheet: string; // which "sheet" of the site this is, shown in the footer title block
+}
+const { title, description = site.description, sheet } = Astro.props;
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}, ${site.school}`;
+const path = Astro.url.pathname;
+
+const nav = [
+  { n: '01', label: 'Work', href: '/work/' },
+  { n: '02', label: 'CAD', href: '/cad/' },
+  { n: '03', label: 'Notebook', href: '/notebook/' },
+  { n: '04', label: 'Toolbox', href: '/toolbox/' },
+  { n: '05', label: 'About', href: '/about/' },
+];
+const built = new Date().toISOString().slice(0, 10);
+const links = site.links.filter((l) => l.href);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta name="theme-color" content="#efece5" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="canonical" href={new URL(path, Astro.site)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="masthead wrap">
+      <a class="wordmark" href="/" aria-label={`${site.name}, home`}>
+        <span class="wm-mark" aria-hidden="true">MA</span>
+        <span class="wm-text">
+          <strong>{site.name}</strong>
+          <span class="label">{site.role}</span>
+        </span>
+      </a>
+      <nav aria-label="Main">
+        <ul>
+          {nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={path.startsWith(item.href) ? 'page' : undefined}>
+                <span class="nav-n mono">{item.n}</span>{item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <!-- BACK COVER: closes every page like the title block on a drawing -->
+    <footer class="back-cover">
+      <div class="wrap">
+        <p class="closing">
+          Looking for someone to design, build, test and write it down?
+          <span class="accent">I am looking for a summer 2027 mechanical engineering internship.</span>
+        </p>
+        <div class="tb" role="group" aria-label="Contact and site information">
+          <div class="tb-cell tb-wide">
+            <span class="label">Contact</span>
+            <a class="tb-email" href={`mailto:${site.email}`}>{site.email}</a>
+          </div>
+          <div class="tb-cell">
+            <span class="label">Elsewhere</span>
+            <span>
+              {links.map((l, i) => (<>{i > 0 && ', '}<a href={l.href} rel="me">{l.label}</a></>))}
+              {site.resume && (<>, <a href={site.resume}>Resume (PDF)</a></>)}
+            </span>
+          </div>
+          <div class="tb-cell">
+            <span class="label">Drawn by</span>
+            <span>{site.initials}</span>
+          </div>
+          <div class="tb-cell">
+            <span class="label">Checked by</span>
+            <a href={`mailto:${site.email}?subject=Checked%20your%20work`}>You? Send feedback</a>
+          </div>
+          <div class="tb-cell">
+            <span class="label">Sheet</span>
+            <span>{sheet}</span>
+          </div>
+          <div class="tb-cell">
+            <span class="label">Last revised</span>
+            <span class="mono">{built}</span>
+          </div>
+          <div class="tb-cell tb-name">
+            <span class="label">Title</span>
+            <span>{site.wordmark}, {site.school}</span>
+          </div>
+        </div>
+        <p class="hint label">Press <kbd>G</kbd> to see the construction grid.</p>
+      </div>
+    </footer>
+
+    <div class="construction-grid" aria-hidden="true">
+      <div class="wrap cg">{Array.from({ length: 12 }).map(() => <span />)}</div>
+    </div>
+
+    <dialog class="lightbox" aria-label="Enlarged image">
+      <form method="dialog"><button class="lb-close mono" aria-label="Close">Close ✕</button></form>
+      <img alt="" />
+      <p class="lb-cap mono"></p>
+    </dialog>
+
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>
+
+<style>
+  @view-transition { navigation: auto; }
+
+  .masthead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem 2rem;
+    flex-wrap: wrap;
+    padding-block: 18px;
+  }
+  .wordmark { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .wm-mark {
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-stretch: 125%;
+    font-size: 0.95rem;
+    letter-spacing: -0.02em;
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    background: var(--ink); color: var(--paper);
+    transition: background 0.2s;
+  }
+  .wordmark:hover .wm-mark { background: var(--accent); color: #fff; }
+  .wm-text { display: grid; line-height: 1.15; }
+  .wm-text strong { font-family: var(--f-display); font-size: 1rem; font-weight: 650; }
+  .wordmark:hover { color: inherit; }
+
+  nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; }
+  nav a {
+    font-family: var(--f-display);
+    font-size: 0.95rem;
+    font-weight: 550;
+    text-decoration: none;
+    display: inline-flex; align-items: baseline; gap: 6px;
+    padding-block: 6px;
+    border-bottom: 1.5px solid transparent;
+  }
+  nav a[aria-current='page'] { border-bottom-color: var(--accent); }
+  .nav-n { color: var(--graphite); font-size: 0.68rem; }
+  @media (max-width: 560px) {
+    .wm-text .label { display: none; }
+    nav ul { gap: 2px 14px; }
+    nav a { font-size: 0.88rem; }
+    .nav-n { display: none; }
+  }
+
+  .back-cover {
+    margin-top: clamp(80px, 12vw, 180px);
+    background: var(--ink);
+    color: var(--paper);
+    padding-block: clamp(56px, 8vw, 110px) 32px;
+    --rule: color-mix(in srgb, var(--paper) 22%, transparent);
+    --graphite: color-mix(in srgb, var(--paper) 60%, transparent);
+  }
+  .back-cover a:hover { color: var(--accent); }
+  .back-cover .accent { color: var(--accent); }
+  .closing {
+    font-family: var(--f-display);
+    font-size: clamp(1.6rem, 1rem + 2.8vw, 3.4rem);
+    font-weight: 600;
+    font-stretch: 105%;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    max-width: 22ch;
+    margin-bottom: clamp(40px, 6vw, 80px);
+  }
+  .closing .accent { display: block; margin-top: 0.5em; font-size: 0.5em; line-height: 1.3; max-width: 34ch; font-weight: 500; letter-spacing: -0.01em; }
+  .tb {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--rule);
+    border-width: 1px 0 0 1px;
+  }
+  .tb-cell {
+    border: 1px solid var(--rule);
+    border-width: 0 1px 1px 0;
+    padding: 12px 14px 14px;
+    display: grid; gap: 4px; align-content: start;
+    font-family: var(--f-display); font-size: 0.95rem;
+    min-width: 0; overflow-wrap: anywhere;
+  }
+  .tb-wide { grid-column: span 2; }
+  .tb-email { font-size: clamp(1rem, 0.8rem + 1vw, 1.4rem); font-weight: 600; }
+  @media (max-width: 760px) {
+    .tb { grid-template-columns: 1fr 1fr; }
+    .tb-name { grid-column: span 2; }
+  }
+  .hint { margin-top: 28px; margin-bottom: 0; }
+  kbd { font-family: var(--f-mono); border: 1px solid var(--rule); padding: 0 5px; }
+  @media (pointer: coarse) { .hint { display: none; } }
+
+  .cg { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--gutter); height: 100%; }
+  .cg span { background: color-mix(in srgb, var(--accent) 7%, transparent); border-inline: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+
+  .lightbox {
+    border: 0; padding: 0; max-width: 100vw; max-height: 100vh; width: 100vw; height: 100vh;
+    background: color-mix(in srgb, var(--paper) 96%, transparent);
+    color: var(--ink);
+  }
+  .lightbox[open] { display: grid; grid-template-rows: auto 1fr auto; }
+  .lightbox::backdrop { background: transparent; }
+  .lightbox img { max-width: calc(100% - 32px); max-height: 100%; margin: auto; object-fit: contain; min-height: 0; }
+  .lb-close { justify-self: end; margin: 16px; background: none; border: 1px solid var(--ink); color: var(--ink); padding: 6px 10px; cursor: pointer; }
+  .lb-cap { text-align: center; padding: 12px 16px 20px; margin: 0; }
+</style>

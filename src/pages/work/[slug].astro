@@ -1,0 +1,160 @@
+---
+// One page per project, generated automatically from each folder
+// in src/content/projects. You never edit this file to add a project.
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Plate from '../../components/Plate.astro';
+import ModelViewer from '../../components/ModelViewer.astro';
+import Revisions from '../../components/Revisions.astro';
+import { getProjects, fmtMonth, latestRev } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((p, i) => ({
+    params: { slug: p.id },
+    props: { project: p, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+const { project, next } = Astro.props;
+const d = project.data;
+const { Content, headings } = await render(project);
+const toc = headings.filter((h) => h.depth === 2);
+const relatedCad = (await getCollection('cad')).filter((c) => c.data.project?.id === project.id);
+const relatedNotes = (await getCollection('notebook')).filter((n) => n.data.project?.id === project.id);
+---
+<Base title={d.title} description={d.summary} sheet={`${d.number} · ${d.title}`}>
+  <article class="wrap">
+    <header class="p-head">
+      <a class="back label" href="/work/">← Index of work</a>
+      <div class="p-num mono">{d.number}{d.sample && <span class="sample-tag">Sample, not real work</span>}</div>
+      <h1>{d.title}</h1>
+      <p class="p-sum">{d.summary}</p>
+    </header>
+
+    <!-- Title block: the facts, laid out like the corner of a drawing -->
+    <dl class="tblock">
+      <div><dt class="label">Drawing no.</dt><dd class="mono">{d.number}</dd></div>
+      <div><dt class="label">Rev</dt><dd class="rev">{latestRev(project)}</dd></div>
+      <div><dt class="label">Status</dt><dd class="status mono" data-status={d.status}>{d.status}</dd></div>
+      <div><dt class="label">Started</dt><dd>{fmtMonth(d.date)}</dd></div>
+      <div><dt class="label">Context</dt><dd>{d.context}</dd></div>
+      <div class="wide"><dt class="label">Discipline</dt><dd>{d.disciplines.join(', ')}</dd></div>
+      <div class="wide"><dt class="label">Tools</dt><dd>{d.tools.join(', ') || '—'}</dd></div>
+    </dl>
+
+    <div class="hero">
+      {d.model ? (
+        <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} />
+      ) : (
+        <Plate src={d.cover} alt={d.coverAlt} number={d.number} ratio="16 / 8" eager sizes="100vw" />
+      )}
+    </div>
+
+    <Revisions revisions={d.revisions} />
+
+    <div class="body">
+      <aside class="side">
+        <div class="side-inner">
+          {toc.length > 0 && (
+            <nav aria-label="Sections on this page">
+              <p class="label">Sections</p>
+              <ol>
+                {toc.map((h, i) => (
+                  <li><a href={`#${h.slug}`}><span class="mono">{String(i + 1).padStart(2, '0')}</span>{h.text}</a></li>
+                ))}
+              </ol>
+            </nav>
+          )}
+          {d.skills.length > 0 && (
+            <div><p class="label">Skills shown</p><p class="small">{d.skills.join(', ')}</p></div>
+          )}
+          {d.downloads.length > 0 && (
+            <div>
+              <p class="label">Files</p>
+              <ul class="dl">{d.downloads.map((f) => <li><a href={f.file} download>{f.label} ↓</a></li>)}</ul>
+            </div>
+          )}
+          {d.credit && (<div><p class="label">Credit</p><p class="small">{d.credit}</p></div>)}
+        </div>
+      </aside>
+
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+
+    {(relatedCad.length > 0 || relatedNotes.length > 0) && (
+      <section class="related">
+        <div class="section-head"><span class="label">Linked</span><h2>From the CAD library and notebook</h2><span></span></div>
+        <ul>
+          {relatedCad.map((c) => (
+            <li><a href={`/cad/${c.id}/`}><span class="mono">{c.data.number}</span> {c.data.title} <span class="label">CAD · {c.data.kind}</span></a></li>
+          ))}
+          {relatedNotes.map((n) => (
+            <li><a href={`/notebook/#${n.id}`}><span class="mono">{n.data.date.toISOString().slice(0, 10)}</span> {n.data.title} <span class="label">Notebook · {n.data.type}</span></a></li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <a class="next" href={`/work/${next.id}/`}>
+      <span class="label">Next entry</span>
+      <span class="next-title"><span class="mono">{next.data.number}</span>{next.data.title} →</span>
+    </a>
+  </article>
+</Base>
+
+<style>
+  .p-head { padding-block: clamp(28px, 5vw, 72px) clamp(24px, 3vw, 40px); display: grid; gap: 14px; }
+  .back { text-decoration: none; width: fit-content; }
+  .p-num { display: flex; gap: 12px; align-items: center; color: var(--accent-ink); font-size: 0.85rem; }
+  .p-head h1 { max-width: 16ch; }
+  .p-sum { font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem); max-width: 50ch; color: var(--graphite); margin: 0; }
+
+  .tblock {
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 0 0 clamp(24px, 3vw, 40px);
+    border-top: 1.5px solid var(--ink); border-left: 1px solid var(--rule);
+  }
+  .tblock > div { padding: 10px 12px 12px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); min-width: 0; }
+  .tblock .wide { grid-column: span 5; display: grid; grid-template-columns: 9rem 1fr; align-items: baseline; }
+  .tblock dt { margin-bottom: 4px; }
+  .tblock dd { margin: 0; font-family: var(--f-display); font-weight: 550; font-size: 1rem; }
+  .tblock .rev { font-weight: 750; font-size: 1.3rem; line-height: 1; color: var(--accent-ink); }
+  @media (max-width: 760px) {
+    .tblock { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tblock .wide { grid-column: span 2; grid-template-columns: 1fr; }
+  }
+
+  .hero { margin-bottom: clamp(24px, 4vw, 48px); }
+
+  .body { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: clamp(24px, 4vw, 64px); margin-top: 1rem; }
+  .side-inner { position: sticky; top: 24px; display: grid; gap: 28px; }
+  .side ol, .side ul { list-style: none; margin: 0; padding: 0; }
+  .side nav a { display: flex; gap: 10px; padding: 6px 0; text-decoration: none; font-family: var(--f-display); font-size: 0.95rem; border-bottom: 1px solid var(--rule); }
+  .side nav a .mono { color: var(--graphite); }
+  .side .label { margin-bottom: 8px; }
+  .small { font-size: 0.92rem; color: var(--graphite); line-height: 1.45; margin: 0; }
+  .dl a { font-family: var(--f-mono); font-size: 0.8rem; }
+  .prose :global(h2:first-child) { margin-top: 0; }
+  @media (max-width: 860px) {
+    .body { grid-template-columns: 1fr; }
+    .side-inner { position: static; }
+    .side nav { display: none; }
+  }
+
+  .related { margin-top: clamp(56px, 8vw, 100px); }
+  .related ul { list-style: none; margin: 0; padding: 0; }
+  .related a { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--rule); text-decoration: none; font-family: var(--f-display); font-size: 1.1rem; }
+  .related .label { margin-left: auto; }
+
+  .next {
+    display: grid; gap: 8px; margin-top: clamp(56px, 8vw, 100px);
+    padding: clamp(20px, 3vw, 36px) 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
+    text-decoration: none;
+  }
+  .next-title { font-family: var(--f-display); font-size: var(--t-h2); font-weight: 650; font-stretch: 108%; letter-spacing: -0.03em; line-height: 1.05; display: flex; gap: 0.5em; align-items: baseline; flex-wrap: wrap; transition: transform 0.4s var(--ease); }
+  .next-title .mono { font-size: 0.9rem; color: var(--graphite); }
+  .next:hover .next-title { transform: translateX(12px); }
+</style>

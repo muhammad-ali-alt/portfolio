@@ -1,0 +1,101 @@
+---
+// The notebook: every entry lives on this one page as an expandable
+// log line. Link to a single entry with /notebook/#entry-file-name
+import { getCollection, getEntry, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const entries = (await getCollection('notebook')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const rendered = await Promise.all(
+  entries.map(async (e) => ({
+    e,
+    Content: (await render(e)).Content,
+    project: e.data.project ? await getEntry(e.data.project) : undefined,
+  })),
+);
+const types = [...new Set(entries.map((e) => e.data.type))];
+---
+<Base title="Notebook" sheet="04 · Notebook" description="Engineering notebook: experiments, failures, calculations and lessons learned.">
+  <section class="wrap">
+    <header class="page-head">
+      <span class="label">03 / Notebook</span>
+      <h1>Notebook</h1>
+      <p>The process behind the work. Experiments, failed attempts, quick calculations and things I learned the hard way. Open any line to read it.</p>
+    </header>
+
+    <div class="legend label">
+      {types.map((t) => <span><i data-type={t}></i>{t}</span>)}
+    </div>
+
+    <ol class="log">
+      {rendered.map(({ e, Content, project }) => (
+        <li id={e.id}>
+          <details>
+            <summary>
+              <span class="mono date">{e.data.date.toISOString().slice(0, 10)}</span>
+              <span class="type mono" data-type={e.data.type}>{e.data.type}</span>
+              <span class="t">
+                <strong>{e.data.title}</strong>
+                {e.data.sample && <span class="sample-tag">Sample</span>}
+                {e.data.summary && <span class="s">{e.data.summary}</span>}
+              </span>
+              <span class="plus" aria-hidden="true"></span>
+            </summary>
+            <div class="entry prose">
+              <Content />
+              {project && <p class="mono">Linked project: <a href={`/work/${project.id}/`}>{project.data.number} {project.data.title}</a></p>}
+            </div>
+          </details>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Base>
+
+<script>
+  // Open the entry named in the URL (e.g. /notebook/#my-entry)
+  const open = () => {
+    if (!location.hash) return;
+    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    el?.querySelector('details')?.setAttribute('open', '');
+  };
+  open();
+  addEventListener('hashchange', open);
+</script>
+
+<style>
+  .page-head { padding-block: clamp(32px, 6vw, 88px) clamp(24px, 4vw, 48px); display: grid; gap: 14px; }
+  .page-head p { color: var(--graphite); max-width: 52ch; margin: 0; }
+  .legend { display: flex; gap: 1.4rem; flex-wrap: wrap; padding-bottom: 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  i[data-type], .type::before { width: 8px; height: 8px; display: inline-block; background: var(--graphite); }
+  [data-type='Failure']::before, i[data-type='Failure'] { background: var(--accent) !important; }
+  [data-type='Experiment']::before, i[data-type='Experiment'] { background: var(--ink) !important; }
+  [data-type='Idea']::before, i[data-type='Idea'] { background: transparent !important; border: 1px solid var(--ink); }
+  .log { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+  .log > li { border-bottom: 1px solid var(--rule); scroll-margin-top: 20px; }
+  summary {
+    list-style: none; cursor: pointer;
+    display: grid; grid-template-columns: 7rem 8rem minmax(0, 1fr) 24px; gap: 1rem; align-items: baseline;
+    padding: 18px 0;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover strong { color: var(--accent-ink); }
+  .date { color: var(--graphite); }
+  .type { display: inline-flex; align-items: center; gap: 8px; }
+  .type::before { content: ''; }
+  .t { display: grid; gap: 4px; justify-items: start; }
+  .t strong { font-family: var(--f-display); font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+  .s { color: var(--graphite); font-size: 0.95rem; }
+  .plus { position: relative; width: 14px; height: 14px; align-self: center; }
+  .plus::before, .plus::after { content: ''; position: absolute; background: var(--ink); left: 0; right: 0; top: 6.5px; height: 1px; transition: rotate 0.3s var(--ease); }
+  .plus::after { rotate: 90deg; }
+  details[open] .plus::after { rotate: 0deg; }
+  .entry { padding: 0 0 32px calc(15rem + 2rem); }
+  @media (max-width: 760px) {
+    summary { grid-template-columns: 1fr auto; }
+    .t { grid-column: 1 / -1; grid-row: 2; }
+    .plus { grid-column: 2; grid-row: 1; }
+    .type { display: none; }
+    .entry { padding-left: 0; }
+  }
+</style>

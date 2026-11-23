@@ -1,0 +1,49 @@
+---
+// Revision history drawn as a track. Each revision from the
+// project's front matter becomes one stop.
+import { fmtDay } from '../lib/content';
+interface Props { revisions: { rev: string; date: Date; note: string }[] }
+const { revisions } = Astro.props;
+---
+{revisions.length > 0 && (
+  <section class="revs" aria-labelledby="rev-h">
+    <h2 id="rev-h" class="label">Revision history</h2>
+    <ol style={`--n: ${revisions.length}`}>
+      {revisions.map((r, i) => (
+        <li class:list={{ current: i === revisions.length - 1 }}>
+          <span class="rev">{r.rev}</span>
+          <span class="mono date">{fmtDay(r.date)}</span>
+          <span class="note">{r.note}</span>
+        </li>
+      ))}
+    </ol>
+  </section>
+)}
+
+<style>
+  .revs { margin-block: 3rem; }
+  h2 { font-family: var(--f-mono); font-size: var(--t-mono); font-weight: 450; margin-bottom: 1rem; letter-spacing: 0.08em; }
+  ol {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    position: relative;
+  }
+  ol::before { content: ''; position: absolute; left: 0; right: 0; top: 17px; border-top: 1px solid var(--ink); }
+  li { position: relative; padding-right: 1.2rem; display: grid; gap: 6px; align-content: start; }
+  .rev {
+    width: 34px; height: 34px; display: grid; place-items: center;
+    font-family: var(--f-display); font-weight: 700; font-size: 0.95rem;
+    background: var(--paper); border: 1px solid var(--ink); position: relative;
+    transition: background 0.2s, color 0.2s;
+  }
+  li.current .rev, li:hover .rev { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .date { color: var(--graphite); }
+  .note { font-size: 0.95rem; line-height: 1.4; }
+  @media (max-width: 640px) {
+    ol { grid-template-columns: 1fr; gap: 1.2rem; padding-left: 0; }
+    ol::before { left: 17px; right: auto; top: 0; bottom: 0; border-top: 0; border-left: 1px solid var(--ink); }
+    li { grid-template-columns: 34px 1fr; column-gap: 14px; }
+    .date, .note { grid-column: 2; }
+    .rev { grid-row: span 2; }
+  }
+</style>

@@ -1,0 +1,93 @@
+---
+// Interactive 3D viewer for a .glb file, using Google's <model-viewer>.
+// The 3D library only downloads on pages that actually use this.
+interface Props {
+  src: string;      // e.g. "/models/gripper.glb"
+  alt: string;      // describe the model for screen readers
+  number?: string;
+  placeholder?: boolean;
+}
+const { src, alt, number = '', placeholder = src.includes('placeholder') } = Astro.props;
+---
+<figure class="mv">
+  <model-viewer
+    src={src}
+    alt={alt}
+    camera-controls
+    touch-action="pan-y"
+    interaction-prompt="none"
+    shadow-intensity="0.6"
+    exposure="1.05"
+    environment-image="neutral"
+    camera-orbit="35deg 70deg auto"
+    loading="lazy"
+    reveal="auto"
+  >
+    <div slot="progress-bar"></div>
+  </model-viewer>
+  <div class="hud mono" aria-hidden="true">
+    <span>{number} · 3D</span>
+    <span class="orbit">θ 35° φ 70°</span>
+  </div>
+  <figcaption class="mono">
+    <span>Drag to rotate · Scroll or pinch to zoom · Right drag to pan</span>
+    <span class="tools">
+      <button type="button" data-act="spin" aria-pressed="false">Spin</button>
+      <button type="button" data-act="reset">Reset view</button>
+    </span>
+  </figcaption>
+  {placeholder && <p class="ph label">Placeholder block model. Swap in your real .glb export.</p>}
+</figure>
+
+<script>
+  import('@google/model-viewer');
+  for (const fig of document.querySelectorAll<HTMLElement>('figure.mv')) {
+    const mv = fig.querySelector('model-viewer') as any;
+    const orbit = fig.querySelector('.orbit')!;
+    mv.addEventListener('camera-change', () => {
+      const o = mv.getCameraOrbit?.();
+      if (o) orbit.textContent = `θ ${Math.round((o.theta * 180) / Math.PI)}° φ ${Math.round((o.phi * 180) / Math.PI)}°`;
+    });
+    fig.querySelector('[data-act="reset"]')!.addEventListener('click', () => {
+      mv.cameraOrbit = '35deg 70deg auto';
+      mv.fieldOfView = 'auto';
+      mv.cameraTarget = 'auto auto auto';
+    });
+    const spin = fig.querySelector('[data-act="spin"]')!;
+    spin.addEventListener('click', () => {
+      const on = !mv.hasAttribute('auto-rotate');
+      mv.toggleAttribute('auto-rotate', on);
+      spin.setAttribute('aria-pressed', String(on));
+    });
+  }
+</script>
+
+<style>
+  .mv { position: relative; margin: 0; background: var(--paper-2); }
+  model-viewer {
+    display: block;
+    width: 100%; aspect-ratio: 16 / 10; min-height: 320px;
+    background:
+      linear-gradient(var(--rule) 1px, transparent 1px) 0 0 / 40px 40px,
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px) 0 0 / 40px 40px;
+    background-color: var(--paper-2);
+    --poster-color: transparent;
+  }
+  model-viewer:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .hud {
+    position: absolute; top: 10px; left: 12px; right: 12px;
+    display: flex; justify-content: space-between; pointer-events: none;
+    color: var(--graphite); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  figcaption {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    padding: 10px 12px; border-top: 1px solid var(--rule); color: var(--graphite); font-size: 0.7rem;
+  }
+  .tools { display: flex; gap: 6px; }
+  button {
+    font: inherit; color: var(--ink); background: none; cursor: pointer;
+    border: 1px solid var(--rule); padding: 4px 10px;
+  }
+  button:hover, button[aria-pressed='true'] { border-color: var(--accent); color: var(--accent-ink); }
+  .ph { position: absolute; bottom: 52px; left: 12px; margin: 0; color: var(--accent-ink); font-size: 0.65rem; }
+</style>

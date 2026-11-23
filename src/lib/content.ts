@@ -1,0 +1,38 @@
+// Helpers that read the content folders and sort them.
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export type Project = CollectionEntry<'projects'>;
+
+const statusOrder = { 'In progress': 0, Planned: 1, Idea: 2, Paused: 3, Complete: 4 } as const;
+
+/** All projects: real ones first, newest first. */
+export async function getProjects() {
+  const all = await getCollection('projects');
+  return all.sort(
+    (a, b) => Number(a.data.sample) - Number(b.data.sample) || b.data.date.valueOf() - a.data.date.valueOf(),
+  );
+}
+
+/** Projects shown on the home page. */
+export async function getFeatured() {
+  const all = await getProjects();
+  return all
+    .filter((p) => p.data.featured)
+    .sort((a, b) => statusOrder[a.data.status] - statusOrder[b.data.status]);
+}
+
+/** Map of tool name (lowercase) -> projects that used it. */
+export async function getToolUsage() {
+  const map = new Map<string, Project[]>();
+  for (const p of await getProjects()) {
+    for (const t of p.data.tools) {
+      const k = t.toLowerCase();
+      map.set(k, [...(map.get(k) ?? []), p]);
+    }
+  }
+  return map;
+}
+
+export const fmtMonth = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+export const fmtDay = (d: Date) => d.toISOString().slice(0, 10);
+export const latestRev = (p: Project) => p.data.revisions.at(-1)?.rev ?? '—';
