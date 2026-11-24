@@ -88,6 +88,20 @@ collections:
       - { label: Cover image, name: cover, widget: image, required: false, hint: 'Transparent renders look best. Shown on cards and the project page.' }
       - { label: Cover image description, name: coverAlt, widget: string, required: false, hint: 'What the image shows, for screen readers.' }
       - { label: 3D model (.glb), name: model, widget: file, required: false, media_folder: /public/models, public_folder: /models, hint: 'Send STL or STEP exports through tools/stl2glb.py first. Keep under 10 MB.' }
+      - label: Several 3D models side by side
+        name: models
+        widget: list
+        default: []
+        required: false
+        allow_reorder: true
+        summary: '{{fields.label}}'
+        hint: 'Optional, for iterations or variants. Each gets its own viewer. Used instead of the single 3D model above.'
+        fields:
+          - { label: Model (.glb), name: src, widget: file, media_folder: /public/models, public_folder: /models }
+          - { label: Label, name: label, widget: string, hint: 'e.g. Rev A, lightweight' }
+          - { label: Note, name: note, widget: string, required: false, hint: 'e.g. 38.5 cm³ of material' }
+          - { label: Starting camera, name: orbit, widget: string, required: false }
+          - { label: Rotation, name: orientation, widget: string, required: false }
       - { label: 3D model rotation, name: modelOrientation, widget: string, required: false, hint: 'Only if the model loads on its side, e.g. 0deg -90deg 0deg' }
       - { label: 3D starting camera, name: modelOrbit, widget: string, required: false, hint: 'angle around, angle down, distance. e.g. 35deg 65deg 90%' }
       - label: Sections

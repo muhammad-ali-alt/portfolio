@@ -57,7 +57,16 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
     </dl>
 
     <div class="hero">
-      {d.model ? (
+      {d.models.length > 0 ? (
+        <div class="models" style={`--n: ${Math.min(d.models.length, 3)}`}>
+          {d.models.map((m) => (
+            <div class="model">
+              <p class="model-label"><strong>{m.label}</strong>{m.note && <span class="mono">{m.note}</span>}</p>
+              <ModelViewer src={m.src} alt={`3D model: ${d.title}, ${m.label}`} number={d.number} orientation={m.orientation} orbit={m.orbit} />
+            </div>
+          ))}
+        </div>
+      ) : d.model ? (
         <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} poster={poster} />
       ) : (
         <Plate src={d.cover} alt={d.coverAlt} number={d.number} ratio="auto" eager sizes="100vw" />
@@ -167,6 +176,11 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
     .tblock .wide { grid-column: span 2; grid-template-columns: 1fr; }
   }
 
+  .models { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: var(--gap); }
+  .model-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 0 0 10px; font-family: var(--f-heading); font-size: 1.1rem; }
+  .model-label .mono { font-size: 0.75rem; color: var(--graphite); }
+  .models :global(model-viewer) { height: clamp(300px, 34vw, 520px); }
+  @media (max-width: 860px) { .models { grid-template-columns: 1fr; } }
   .fig { margin: 2em 0; }
   .fig img, .fig video { width: 100%; border: var(--bw) solid var(--rule); border-radius: var(--radius); background: var(--surface); }
   .fig figcaption { margin-top: 8px; font-size: 0.75rem; color: var(--graphite); }

@@ -141,7 +141,7 @@ const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65
       applyMaterial(s.material);
     };
     applySettings();
-    mv.addEventListener('load', () => { originals = null; applyMaterial(read3d().material); });
+    mv.addEventListener('load', () => { fig.classList.add('is-loaded'); originals = null; applyMaterial(read3d().material); });
     addEventListener('aw-theme', applySettings);
 
     const orbitLabel = fig.querySelector('.orbit')!;
@@ -193,7 +193,7 @@ const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65
   .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; }
   .progress span { display: block; height: 100%; width: 30%; background: var(--accent); animation: load 1.2s var(--ease) infinite; }
   @keyframes load { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
-  model-viewer[loaded] .progress { display: none; }
+  .mv.is-loaded .progress { display: none; }
 
   .hud {
     position: absolute; top: 10px; left: 12px; right: 12px;

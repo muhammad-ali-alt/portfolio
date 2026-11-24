@@ -78,6 +78,10 @@ const projects = defineCollection({
       cover: img(image).optional(),
       coverAlt: z.string().optional(),
       model: z.string().optional(), // path to a .glb in /public/models
+      // Several models shown side by side, each in its own viewer (e.g. design iterations).
+      models: z
+        .array(z.object({ src: z.string(), label: z.string(), note: z.string().optional(), orbit: z.string().optional(), orientation: z.string().optional() }))
+        .default([]),
       modelOrientation: z.string().optional(), // e.g. "-90deg 0deg 0deg" if it exported on its side
       modelOrbit: z.string().optional(), // starting camera, e.g. "35deg 65deg 100%"
       modelPoster: img(image).optional(),

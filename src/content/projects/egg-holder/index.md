@@ -9,6 +9,9 @@ disciplines: [Aerospace, Mechanical Design, 3D Printing]
 tools: [SolidWorks, FDM 3D printing]
 featured: true
 cover: ./cover.png
+models:
+  - { src: /models/egg-holder-light.glb, label: 'Rev A, lightweight', note: '38.5 cm³ of material', orbit: 35deg 62deg 100% }
+  - { src: /models/egg-holder-full.glb, label: 'Rev B, full', note: '85.0 cm³ of material', orbit: 35deg 62deg 100% }
 coverAlt: The two egg holder iterations side by side, the lightweight open frame on the left and the full solid wall version on the right
 specs:
   - { label: Envelope, value: 120.6 × 63.5 × 120.7 mm (both versions) }
@@ -58,7 +61,7 @@ Volumes are measured from the STL exports. Solid PLA mass uses a density of 1.24
 
 The lightweight version uses **55% less material**. The question the two versions answer: is the extra stiffness of a solid wall worth more than doubling the mass?
 
-Rotate either one in 3D in the CAD library: [lightweight](/cad/egg-holder-light/), [full](/cad/egg-holder-full/).
+Both are rotatable in 3D at the top of this page, and in the CAD library: [lightweight](/cad/egg-holder-light/), [full](/cad/egg-holder-full/).
 
 PLACEHOLDER: Which version you picked and why, once you have print weights or drop test results.
 
