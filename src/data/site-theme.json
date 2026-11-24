@@ -45,20 +45,20 @@
     "displayCase": "upper"
   },
   "layout": {
-    "density": "balanced",
+    "density": "custom",
     "maxWidth": 1440,
     "gutter": 40,
     "sectionGap": 140,
     "elementGap": 48,
     "navGap": 22,
-    "radius": 28,
+    "radius": 12,
     "border": 1,
     "shadow": "subtle",
-    "details": "reduced",
+    "details": "full",
     "stackCards": true
   },
   "background": {
-    "style": "solid",
+    "style": "gradient",
     "gridSize": 40,
     "gridOpacity": 0.35,
     "textureOpacity": 0.3
@@ -69,16 +69,16 @@
     "stops": [
       {
         "color": "#ffa125",
-        "pos": 0
+        "pos": 66
       },
       {
         "color": "#ede8e6",
         "pos": 100
       }
     ],
-    "intensity": 10,
+    "intensity": 15,
     "targets": {
-      "page": false,
+      "page": true,
       "hero": false,
       "cards": false,
       "accents": false,
@@ -95,7 +95,7 @@
     "stagger": 70,
     "scrollReveal": true,
     "hover": "lively",
-    "pageTransition": "sweep",
+    "pageTransition": "fade",
     "parallax": 0,
     "smoothScroll": true,
     "textRise": true
@@ -104,12 +104,12 @@
     "autoRotate": false,
     "rotateSpeed": 20,
     "exposure": 0.65,
-    "shadow": 1,
-    "shadowSoftness": 0.8,
-    "environment": "neutral",
-    "material": "original",
+    "shadow": 2,
+    "shadowSoftness": 1,
+    "environment": "legacy",
+    "material": "satin",
     "zoom": 100,
     "sensitivity": 1,
-    "backdrop": "plain"
+    "backdrop": "grid"
   }
 }
