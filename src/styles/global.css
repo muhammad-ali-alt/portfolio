@@ -34,6 +34,7 @@
   --accent: #ff4f00;       /* primary: international orange */
   --accent-ink: #c23a00;   /* primary, readable as text */
   --on-accent: #ffffff;    /* text on primary */
+  --accent-inv: #ff4f00;   /* primary on inverted areas like the back cover */
   --secondary: #17171a;    /* data marks */
   --tertiary: #5f5e5a;     /* quiet marks */
   --emph: #c23a00;         /* emphasis inside text */

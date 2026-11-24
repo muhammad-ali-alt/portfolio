@@ -71,6 +71,16 @@ export const THEMES: Record<string, { label: string; note: string; patch: DeepPa
     note: 'The original: warm paper, black ink, one international orange. Follows your device into a graphite night mode.',
     patch: { ...clone({ colors: DEFAULTS.colors, darkColors: DEFAULTS.darkColors }), scheme: 'auto', typePreset: 'editorial', motionPreset: 'original', layout: { radius: 0, border: 1, shadow: 'none', details: 'full', ...DENSITY.balanced, density: 'balanced' }, background: { style: 'solid' }, three: { backdrop: 'grid', exposure: 0.55, environment: 'neutral' } },
   },
+  helk: {
+    label: 'Helk',
+    note: 'Deep teal and petrol with aqua text and warm yellow accents. Brown carries emphasis in the day palette.',
+    patch: {
+      colors: { bg: '#dceeed', bg2: '#c0e0de', surface: '#c0e0de', text: '#122c34', text2: '#506d75', border: '#a1c0bf', primary: '#143642', secondary: '#5a3a31', tertiary: '#506d75', accent: '#5a3a31', highlight: '#ffc857' },
+      darkColors: { bg: '#122c34', bg2: '#143642', surface: '#1e404b', text: '#c0e0de', text2: '#8caaab', border: '#385459', primary: '#ffc857', secondary: '#c0e0de', tertiary: '#8caaab', accent: '#ffc857', highlight: '#ffc857' },
+      scheme: 'dark', typePreset: 'editorial', motionPreset: 'original',
+      layout: { radius: 0, border: 1, shadow: 'none', details: 'full', ...DENSITY.balanced, density: 'balanced' }, background: { style: 'solid' }, three: { backdrop: 'grid', exposure: 0.7, environment: 'neutral' },
+    },
+  },
   industrial: {
     label: 'Industrial Minimal',
     note: 'Cool grey surfaces, heavy black type, a restrained safety orange.',

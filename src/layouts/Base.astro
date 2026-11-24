@@ -28,7 +28,9 @@ const links = site.links.filter((l) => l.href);
 
 // The published theme (src/data/site-theme.json) is baked into every page.
 // A theme saved in the Studio overrides it in that browser only (see the boot script).
-const theme = computeTheme(sanitize(publishedTheme));
+const publishedSettings = sanitize(publishedTheme);
+const theme = computeTheme(publishedSettings);
+const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkColors : publishedSettings.colors).bg;
 ---
 <!doctype html>
 <html lang="en" {...theme.attrs} data-site-attrs={JSON.stringify(theme.attrs)}>
@@ -39,7 +41,7 @@ const theme = computeTheme(sanitize(publishedTheme));
     <meta name="description" content={description} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
-    <meta name="theme-color" content="#efece5" />
+    <meta name="theme-color" content={themeBg} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="canonical" href={new URL(path, Astro.site)} />
     <style is:inline id="site-theme" set:html={theme.css}></style>
@@ -222,8 +224,8 @@ const theme = computeTheme(sanitize(publishedTheme));
     --rule: color-mix(in srgb, var(--paper) 22%, transparent);
     --graphite: color-mix(in srgb, var(--paper) 60%, transparent);
   }
-  .back-cover a:hover { color: var(--accent); }
-  .back-cover .accent { color: var(--accent); }
+  .back-cover a:hover { color: var(--accent-inv); }
+  .back-cover .accent { color: var(--accent-inv); }
   .closing {
     font-size: calc(clamp(1.6rem, 1rem + 2.8vw, 3.4rem) * var(--h-scale));
     font-weight: calc(var(--w-display) - 150);

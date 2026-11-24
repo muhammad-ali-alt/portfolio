@@ -53,6 +53,7 @@ function paletteVars(p: Palette): Record<string, string> {
     '--accent': p.primary,
     '--accent-ink': ensureContrast(p.primary, p.bg, 4.5),
     '--on-accent': onColor(p.primary),
+    '--accent-inv': ensureContrast(p.primary, p.text, 4.5), // primary on inverted areas (text colored background)
     '--secondary': p.secondary,
     '--tertiary': p.tertiary,
     '--emph': ensureContrast(p.accent, p.bg, 4.5),

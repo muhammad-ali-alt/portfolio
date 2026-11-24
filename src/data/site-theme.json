@@ -1,1 +1,112 @@
-{ "version": 1, "preset": "drafting" }
+{
+  "version": 1,
+  "preset": "helk",
+  "scheme": "dark",
+  "colors": {
+    "bg": "#dceeed",
+    "bg2": "#c0e0de",
+    "surface": "#c0e0de",
+    "text": "#122c34",
+    "text2": "#506d75",
+    "border": "#a1c0bf",
+    "primary": "#143642",
+    "secondary": "#5a3a31",
+    "tertiary": "#506d75",
+    "accent": "#5a3a31",
+    "highlight": "#ffc857"
+  },
+  "darkColors": {
+    "bg": "#122c34",
+    "bg2": "#143642",
+    "surface": "#1e404b",
+    "text": "#c0e0de",
+    "text2": "#8caaab",
+    "border": "#385459",
+    "primary": "#ffc857",
+    "secondary": "#c0e0de",
+    "tertiary": "#8caaab",
+    "accent": "#ffc857",
+    "highlight": "#ffc857"
+  },
+  "type": {
+    "display": "archivo",
+    "heading": "archivo",
+    "body": "sourceSerif",
+    "ui": "jetbrainsMono",
+    "baseScale": 1,
+    "headingScale": 1,
+    "displayWeight": 750,
+    "headingWeight": 650,
+    "bodyWeight": 400,
+    "lineHeight": 1.55,
+    "headingTracking": -0.02,
+    "displayWidth": 118,
+    "measure": 68
+  },
+  "layout": {
+    "density": "balanced",
+    "maxWidth": 1440,
+    "gutter": 40,
+    "sectionGap": 140,
+    "elementGap": 48,
+    "navGap": 22,
+    "radius": 0,
+    "border": 1,
+    "shadow": "none",
+    "details": "full"
+  },
+  "background": {
+    "style": "solid",
+    "gridSize": 40,
+    "gridOpacity": 0.35,
+    "textureOpacity": 0.3
+  },
+  "gradient": {
+    "type": "linear",
+    "angle": 160,
+    "stops": [
+      {
+        "color": "#143642",
+        "pos": 0
+      },
+      {
+        "color": "#dceeed",
+        "pos": 100
+      }
+    ],
+    "intensity": 10,
+    "targets": {
+      "page": false,
+      "hero": false,
+      "cards": false,
+      "accents": false,
+      "buttons": false
+    }
+  },
+  "motion": {
+    "enabled": true,
+    "style": "none",
+    "direction": "up",
+    "distance": 16,
+    "duration": 500,
+    "easing": "smooth",
+    "stagger": 60,
+    "scrollReveal": false,
+    "hover": "subtle",
+    "pageTransition": "fade",
+    "parallax": 0,
+    "smoothScroll": true
+  },
+  "three": {
+    "autoRotate": false,
+    "rotateSpeed": 20,
+    "exposure": 0.7,
+    "shadow": 1,
+    "shadowSoftness": 0.8,
+    "environment": "neutral",
+    "material": "original",
+    "zoom": 100,
+    "sensitivity": 1,
+    "backdrop": "grid"
+  }
+}
