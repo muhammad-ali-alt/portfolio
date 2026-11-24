@@ -1,0 +1,83 @@
+---
+// Two draggable shapes that merge when they touch, like liquid.
+// How it works: an SVG filter blurs both shapes, then sharpens the edges
+// again by boosting alpha contrast (the "20 -7" in the matrix). Where the
+// blurs overlap they fuse into one outline. It is an image filter, not a
+// fluid simulation. No animation library: CSS transitions and pointer events.
+---
+<div class="goo" aria-hidden="true">
+  <svg class="goo-defs" width="0" height="0" focusable="false">
+    <defs>
+      <filter id="goo-filter">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="4.4" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -7" result="goo" />
+        <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+    </defs>
+  </svg>
+  <p class="goo-hint label">Drag the shapes</p>
+  <ul class="goo-stage">
+    <li class="goo-shape goo-block" data-drag></li>
+    <li class="goo-shape goo-dot" data-drag></li>
+  </ul>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('.goo')) {
+    const still =
+      document.documentElement.dataset.motion === 'off' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Entrance: the block grows out of a circle, like the original spring animation.
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.add(still ? 'is-still' : 'is-in')));
+
+    for (const el of root.querySelectorAll<HTMLElement>('[data-drag]')) {
+      let x = 0, y = 0, startX = 0, startY = 0;
+      el.addEventListener('pointerdown', (e) => {
+        el.setPointerCapture(e.pointerId);
+        startX = e.clientX - x; startY = e.clientY - y;
+        el.classList.add('is-dragging');
+      });
+      el.addEventListener('pointermove', (e) => {
+        if (!el.hasPointerCapture(e.pointerId)) return;
+        x = e.clientX - startX; y = e.clientY - startY;
+        el.style.translate = `${x}px ${y}px`;
+      });
+      const end = (e: PointerEvent) => { el.releasePointerCapture?.(e.pointerId); el.classList.remove('is-dragging'); };
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+    }
+  }
+</script>
+
+<style>
+  .goo { position: relative; display: grid; justify-items: center; gap: 28px; padding-block: 40px 70px; user-select: none; }
+  .goo-defs { position: absolute; }
+  .goo-hint { position: relative; margin: 0; }
+  .goo-hint::after {
+    content: ''; position: absolute; left: 50%; top: calc(100% + 6px); width: 1px; height: 40px;
+    background: linear-gradient(to bottom, transparent, var(--ink));
+  }
+  .goo-stage {
+    list-style: none; margin: 60px 0 0; padding: 0; position: relative;
+    width: 200px; height: 110px; display: flex; justify-content: center; align-items: flex-end;
+    filter: url(#goo-filter);
+  }
+  .goo-shape { background: var(--ink); cursor: grab; touch-action: none; }
+  .goo-shape.is-dragging { cursor: grabbing; }
+  .goo-dot { width: 48px; height: 48px; border-radius: 50%; position: relative; z-index: 1; }
+  /* starts as a circle sitting on the dot, then grows into a block above it */
+  .goo-block {
+    position: absolute; left: 50%; bottom: 0; margin-left: -25px;
+    width: 50px; height: 50px; border-radius: 40px;
+    --spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+    transition:
+      transform calc(0.55s * var(--speed)) var(--spring),
+      width calc(0.6s * var(--speed)) var(--spring) calc(0.15s * var(--speed)),
+      height calc(0.6s * var(--speed)) var(--spring) calc(0.15s * var(--speed)),
+      margin-left calc(0.6s * var(--speed)) var(--spring) calc(0.15s * var(--speed)),
+      border-radius calc(0.6s * var(--speed)) var(--spring) calc(0.15s * var(--speed));
+  }
+  .goo.is-in .goo-block, .goo.is-still .goo-block {
+    transform: translateY(-60px); width: 200px; height: 100px; margin-left: -100px; border-radius: 10px;
+  }
+  .goo.is-still .goo-block { transition: none; }
+</style>

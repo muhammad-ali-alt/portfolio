@@ -1,0 +1,32 @@
+---
+// Shown for any address that does not exist. Netlify serves this automatically.
+import Base from '../layouts/Base.astro';
+import GooeyBlobs from '../components/GooeyBlobs.astro';
+---
+<Base title="Sheet not found" sheet="404 · Not found" description="This page does not exist.">
+  <section class="wrap nf">
+    <div class="nf-text">
+      <span class="label">Error 404</span>
+      <h1>Sheet not found.</h1>
+      <p>This drawing number is not in the set. It may have been renamed, or the link has a typo.</p>
+      <ul class="nf-links">
+        <li><a href="/">Back to the cover →</a></li>
+        <li><a href="/work/">Index of work →</a></li>
+      </ul>
+      <p class="nf-note mono">While you are here: the shapes merge because of a blur and threshold image filter, not physics. It just happens to look like two droplets joining.</p>
+    </div>
+    <GooeyBlobs />
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gap); align-items: center;
+    padding-block: clamp(40px, 8vw, 120px) 0; min-height: 60vh;
+  }
+  .nf-text { display: grid; gap: 16px; align-content: start; }
+  .nf-text p { margin: 0; color: var(--graphite); max-width: 44ch; }
+  .nf-links { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; font-family: var(--f-heading); font-size: 1.1rem; }
+  .nf-note { font-size: 0.75rem; max-width: 52ch; }
+  @media (max-width: 760px) { .nf { grid-template-columns: 1fr; } }
+</style>
