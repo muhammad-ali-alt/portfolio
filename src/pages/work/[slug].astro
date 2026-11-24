@@ -56,20 +56,26 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
       {d.specs.map((sp) => <div class="wide"><dt class="label">{sp.label}</dt><dd>{sp.value}</dd></div>)}
     </dl>
 
+    <!-- Main view: the assembly (`model`). Individual parts (`models`) sit under it as a
+         subset; with no assembly yet, the parts take the main spot. -->
     <div class="hero">
-      {d.models.length > 0 ? (
-        <div class="models" style={`--n: ${Math.min(d.models.length, 3)}`}>
-          {d.models.map((m) => (
-            <div class="model">
-              <p class="model-label"><strong>{m.label}</strong>{m.note && <span class="mono">{m.note}</span>}</p>
-              <ModelViewer src={m.src} alt={`3D model: ${d.title}, ${m.label}`} number={d.number} orientation={m.orientation} orbit={m.orbit} />
-            </div>
-          ))}
-        </div>
-      ) : d.model ? (
+      {d.model ? (
         <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} poster={poster} />
-      ) : (
+      ) : d.models.length === 0 ? (
         <Plate src={d.cover} alt={d.coverAlt} number={d.number} ratio="auto" eager sizes="100vw" />
+      ) : null}
+      {d.models.length > 0 && (
+        <section class="parts" aria-label="Parts">
+          {d.model && <div class="section-head"><span class="label">Parts</span><h2>Individual parts</h2><span class="label">{d.models.length}</span></div>}
+          <div class="models" style={`--n: ${Math.min(d.models.length, 3)}`}>
+            {d.models.map((m) => (
+              <div class="model">
+                <p class="model-label"><strong>{m.label}</strong>{m.note && <span class="mono">{m.note}</span>}</p>
+                <ModelViewer src={m.src} alt={`3D model: ${d.title}, ${m.label}`} number={d.number} orientation={m.orientation} orbit={m.orbit} />
+              </div>
+            ))}
+          </div>
+        </section>
       )}
     </div>
 
@@ -176,6 +182,8 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
     .tblock .wide { grid-column: span 2; grid-template-columns: 1fr; }
   }
 
+  .hero > :global(.mv) + .parts { margin-top: clamp(32px, 5vw, 64px); }
+  .parts .section-head { margin-bottom: 16px; }
   .models { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: var(--gap); }
   .model-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 0 0 10px; font-family: var(--f-heading); font-size: 1.1rem; }
   .model-label .mono { font-size: 0.75rem; color: var(--graphite); }

@@ -1,7 +1,7 @@
 ---
 title: Desktop Robotic Arm
 number: MA-004
-summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw is done, the rest of the arm is next.
+summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw and gripper actuator are done; the rest of the arm is next.
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
 context: Personal
@@ -10,13 +10,18 @@ tools: [SolidWorks]
 skills: [Part modeling, Linear patterns, Mirror features]
 featured: true
 cover: ./cover.png
-model: /models/grip.glb
+models:
+  - { src: /models/grip.glb, label: Gripper jaw, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
+  - { src: /models/gripper-actuator.glb, label: Gripper actuator, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 100% }
 coverAlt: Gripper jaw, isometric render, showing the pivot hole, hex nut pocket, three slots and serrated tip
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
   - rev: A
     date: 2026-11-01   # PLACEHOLDER date
     note: Gripper jaw modeled.
+  - rev: B
+    date: 2026-11-24   # PLACEHOLDER date
+    note: Gripper actuator modeled.
 ---
 
 ## Objective
@@ -52,8 +57,18 @@ Its features, in the order they were built:
 
 **Serrated teeth.** The teeth put the same grip force onto a much smaller area, so the pressure on the object goes up and the teeth dig in slightly. That locks the object in place instead of relying only on friction, which (F = μN) doesn't depend on contact area.
 
+## Gripper actuator
+
+The second finished part drives the gripper. It fits in a 31.0 × 30.9 × 35.0 mm envelope and uses 16.5 cm³ of material, measured from the STL export.
+
+![The gripper actuator, isometric render](./actuator.png)
+
+PLACEHOLDER: How the actuator moves the jaws, and how it connects to the jaw's pivot hole.
+
 ## Next
 
+- [x] Gripper jaw
+- [x] Gripper actuator
 - [ ] Base and turntable
 - [ ] Shoulder and elbow joints
 - [ ] Wrist

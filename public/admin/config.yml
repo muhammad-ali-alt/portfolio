@@ -199,6 +199,7 @@ collections:
     fields:
       - { label: Title, name: title, widget: string }
       - { label: Number, name: number, widget: string, hint: 'e.g. C-003' }
+      - { label: Series, name: series, widget: string, required: false, hint: 'Groups related parts in the CAD library. Use the same name for every part, e.g. Desktop Robotic Arm' }
       - { label: Kind, name: kind, widget: select, options: [Part, Assembly, Mechanism, Concept, Surface model, Printable part, Reverse engineering, Experiment] }
       - { label: Summary, name: summary, widget: text }
       - { label: Date, name: date, widget: datetime, default: '{{now}}', format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false }
