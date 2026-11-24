@@ -1,20 +1,20 @@
 ---
-import { getCollection, getEntry, render } from 'astro:content';
+import { render } from 'astro:content';
 import { getImage } from 'astro:assets';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Plate from '../../components/Plate.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
-import { fmtMonth } from '../../lib/content';
+import { fmtMonth, getCad, linkedProject } from '../../lib/content';
 
 export async function getStaticPaths() {
-  return (await getCollection('cad')).map((e) => ({ params: { slug: e.id }, props: { entry: e } }));
+  return (await getCad()).map((e) => ({ params: { slug: e.id }, props: { entry: e } }));
 }
 const { entry } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
-const poster = d.modelPoster ? (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src : undefined;
-const project = d.project ? await getEntry(d.project) : undefined;
+const poster = !d.modelPoster ? undefined : typeof d.modelPoster === 'string' ? d.modelPoster : (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src;
+const project = await linkedProject(d.project);
 const specs = [
   ['Type', d.kind],
   ['Software', d.software],
@@ -46,7 +46,7 @@ const specs = [
           <ul class="angles">
             {d.images.map((img) => (
               <li>
-                <Image src={img.src} alt={img.alt} width={600} data-zoom />
+                {typeof img.src === 'string' ? <img src={img.src} alt={img.alt} data-zoom /> : <Image src={img.src} alt={img.alt} width={600} data-zoom />}
                 {img.label && <span class="mono">{img.label}</span>}
               </li>
             ))}

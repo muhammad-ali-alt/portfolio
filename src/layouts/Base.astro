@@ -2,7 +2,7 @@
 // The frame every page sits inside: <head>, navigation, and the
 // closing "back cover" at the bottom of every page.
 import '../styles/global.css';
-import { site } from '../data/site';
+import { site } from '../lib/data';
 import publishedTheme from '../data/site-theme.json';
 import { sanitize } from '../theme/schema';
 import { computeTheme } from '../theme/compute';
@@ -11,8 +11,9 @@ interface Props {
   title?: string;
   description?: string;
   sheet: string; // which "sheet" of the site this is, shown in the footer title block
+  admin?: boolean; // admin pages: hidden from search engines, no closing section
 }
-const { title, description = site.description, sheet } = Astro.props;
+const { title, description = site.description, sheet, admin = false } = Astro.props;
 const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}, ${site.school}`;
 const path = Astro.url.pathname;
 
@@ -39,6 +40,7 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {admin && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta name="theme-color" content={themeBg} />
@@ -102,11 +104,11 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
     </main>
 
     <!-- BACK COVER: closes every page like the title block on a drawing -->
-    <footer class="back-cover">
+    {!admin && <footer class="back-cover">
       <div class="wrap">
-        <p class="closing display">
-          Looking for someone to design, build, test and write it down?
-          <span class="accent">I am looking for a summer 2027 mechanical engineering internship.</span>
+        <p class="closing display" data-edit="/admin/#/collections/pages/entries/site" data-edit-label="Edit closing and contact">
+          {site.closing}
+          {site.cta && <span class="accent">{site.cta}</span>}
         </p>
         <div class="tb" role="group" aria-label="Contact and site information">
           <div class="tb-cell tb-wide">
@@ -143,7 +145,7 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
         </div>
         <p class="hint label">Press <kbd>G</kbd> to see the construction grid.</p>
       </div>
-    </footer>
+    </footer>}
 
     <div class="construction-grid" aria-hidden="true">
       <div class="wrap cg">{Array.from({ length: 12 }).map(() => <span />)}</div>

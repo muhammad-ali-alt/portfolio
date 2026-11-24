@@ -1,5 +1,6 @@
 // Small site wide behaviors. Each one is independent.
 import './motion';
+import './editmode';
 
 // 1. Press G to toggle the construction grid (the easter egg).
 document.addEventListener('keydown', (e) => {

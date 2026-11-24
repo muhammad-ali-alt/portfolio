@@ -8,6 +8,7 @@
    ───────────────────────────────────────────────────────────── */
 
 /* Fonts are self hosted. A browser downloads only the ones in use. */
+@import 'katex/dist/katex.min.css';
 @import '@fontsource-variable/archivo/wdth.css';
 @import '@fontsource-variable/source-serif-4/opsz.css';
 @import '@fontsource-variable/source-serif-4/opsz-italic.css';
@@ -361,6 +362,30 @@ html[data-textrise='on'] .tr.tr-in .wi { transform: none; }
 
 /* Display case */
 html[data-case='upper'] h1, html[data-case='upper'] .display { text-transform: uppercase; }
+
+/* Edit mode (only visible to you when signed in to the CMS; see scripts/editmode.ts) */
+.em-bar {
+  position: fixed; left: 12px; bottom: 12px; z-index: 250; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-family: var(--f-mono); font-size: 0.72rem;
+}
+.em-bar a, .em-toggle {
+  font: inherit; text-decoration: none; cursor: pointer; padding: 8px 11px; border-radius: 999px;
+  background: var(--ink); color: var(--paper); border: 0; box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
+}
+.em-bar a:hover, .em-toggle:hover { background: var(--accent); color: var(--on-accent); }
+.em-toggle { display: inline-flex; align-items: center; gap: 8px; }
+.em-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--graphite); }
+.em-toggle[aria-pressed='true'] .em-dot { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
+.em-more { display: none; gap: 6px; }
+html.edit-mode .em-more { display: inline-flex; }
+html.edit-mode { box-shadow: inset 0 3px 0 var(--accent); }
+html.edit-mode [data-edit] { position: relative; outline: 1px dashed color-mix(in srgb, var(--accent) 70%, transparent); outline-offset: 6px; }
+.em-btn {
+  position: absolute; top: -14px; right: 0; z-index: 30; white-space: nowrap;
+  font-family: var(--f-mono); font-size: 0.7rem; text-decoration: none; letter-spacing: 0.02em;
+  padding: 4px 9px; border-radius: 999px; background: var(--accent); color: var(--on-accent);
+}
+.em-btn:hover { color: var(--on-accent); filter: brightness(1.08); }
 
 /* Global motion switch */
 html[data-motion='off'] *, html[data-motion='off'] *::before, html[data-motion='off'] *::after {

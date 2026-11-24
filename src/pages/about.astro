@@ -7,12 +7,16 @@
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Base from '../layouts/Base.astro';
-import { about } from '../data/about';
-import { site } from '../data/site';
+import { about, site, experience, education, achievements } from '../lib/data';
+import { md } from '../lib/markdown';
 
+// Portrait: uploaded in the CMS (about.portrait), or src/assets/portrait.jpg as a fallback.
 const found = import.meta.glob<{ default: ImageMetadata }>('../assets/portrait.{jpg,jpeg,png,webp}', { eager: true });
-const portrait = Object.values(found)[0]?.default;
+const portraitAsset = Object.values(found)[0]?.default;
 const isPh = (s: string) => s.startsWith('PLACEHOLDER');
+const WORK = ['Job', 'Internship', 'Research'];
+const work = experience.filter((e) => WORK.includes(e.type));
+const involvement = experience.filter((e) => !WORK.includes(e.type));
 ---
 <Base title="About" sheet="06 · About" description={`About ${site.name}, mechanical engineering student at the ${site.school}.`}>
   <article class="wrap">
@@ -22,15 +26,17 @@ const isPh = (s: string) => s.startsWith('PLACEHOLDER');
     </header>
 
     <!-- SPREAD 1: portrait + parts list -->
-    <section class="spread">
+    <section class="spread" data-edit="/admin/#/collections/pages/entries/about" data-edit-label="Edit intro and portrait">
       <figure class="portrait">
         <div class="photo">
-          {portrait ? (
-            <Image src={portrait} alt={`Portrait of ${site.name}`} widths={[500, 800, 1200]} sizes="(max-width: 860px) 100vw, 45vw" loading="eager" />
+          {about.portrait ? (
+            <img src={about.portrait} alt={`Portrait of ${site.name}`} loading="eager" />
+          ) : portraitAsset ? (
+            <Image src={portraitAsset} alt={`Portrait of ${site.name}`} widths={[500, 800, 1200]} sizes="(max-width: 860px) 100vw, 45vw" loading="eager" />
           ) : (
             <div class="ph-photo mono">
               <span>Portrait goes here</span>
-              <span>Save as src/assets/portrait.jpg</span>
+              <span>Upload one in the CMS: About me, Portrait</span>
             </div>
           )}
           {about.callouts.map((c, i) => (
@@ -55,10 +61,10 @@ const isPh = (s: string) => s.startsWith('PLACEHOLDER');
     </section>
 
     <!-- SPREAD 2: story -->
-    <section class="story">
+    <section class="story" data-edit="/admin/#/collections/pages/entries/about" data-edit-label="Edit biography">
       <div class="col-a">
         <h2 class="label">Background</h2>
-        {about.story.map((p) => <p class:list={['dropcap-p', { ph: isPh(p) }]}>{p}</p>)}
+        <div class="bio" set:html={md(about.story)} />
         <h2 class="label">How I work on problems</h2>
         <p class:list={{ ph: isPh(about.approach) }}>{about.approach}</p>
       </div>
@@ -78,21 +84,61 @@ const isPh = (s: string) => s.startsWith('PLACEHOLDER');
       </div>
     </section>
 
+    <!-- education -->
+    {education.length > 0 && (
+      <section class="history" data-edit="/admin/#/collections/records/entries/education" data-edit-label="Edit education">
+        <div class="section-head"><span class="label">Record</span><h2>Education</h2><span class="label">{education.length}</span></div>
+        <ol class="jobs">
+          {education.map((e) => (
+            <li>
+              <span class="mono when">{e.dates}</span>
+              <span class="role"><strong>{e.institution}</strong><span>{e.program}{e.field && ` · ${e.field}`}</span></span>
+              <span class="jnote">
+                {e.description && <span>{e.description} </span>}
+                {e.coursework.length > 0 && <span class="course">{e.coursework.join(' · ')}</span>}
+                {e.achievements.length > 0 && <span class="course">{e.achievements.join(' · ')}</span>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+
     <!-- work history and involvement -->
-    <section class="history">
-      <div class="section-head"><span class="label">Record</span><h2>Work history</h2><span class="label">{about.experience.length}</span></div>
+    <section class="history" data-edit="/admin/#/collections/records/entries/experience" data-edit-label="Edit experience">
+      <div class="section-head"><span class="label">Record</span><h2>Work history</h2><span class="label">{work.length}</span></div>
       <ol class="jobs">
-        {about.experience.map((j) => (
+        {work.map((j) => (
           <li>
-            <span class="mono when">{j.when}</span>
-            <span class="role"><strong>{j.role}</strong><span>{j.org}</span></span>
-            <span class="jnote">{j.note}</span>
+            <span class="mono when">{j.dates}</span>
+            <span class="role"><strong>{j.role}</strong><span>{j.link ? <a href={j.link}>{j.org}</a> : j.org}</span></span>
+            <span class="jnote">{j.summary}{j.highlights.length > 0 && <ul class="hl">{j.highlights.map((h) => <li>{h}</li>)}</ul>}</span>
           </li>
         ))}
       </ol>
-      <div class="section-head inv-head"><span class="label">Now</span><h2>Teams and involvement</h2><span></span></div>
-      <ul class="inv">{about.involvement.map((x) => <li>{x}</li>)}</ul>
+      {involvement.length > 0 && (
+        <>
+          <div class="section-head inv-head"><span class="label">Now</span><h2>Teams and involvement</h2><span></span></div>
+          <ul class="inv">{involvement.map((x) => <li><strong>{x.org}</strong>, {x.role.toLowerCase()} <span class="mono when">{x.dates}</span></li>)}</ul>
+        </>
+      )}
     </section>
+
+    <!-- achievements -->
+    {achievements.length > 0 && (
+      <section class="history" data-edit="/admin/#/collections/records/entries/achievements" data-edit-label="Edit achievements">
+        <div class="section-head"><span class="label">Record</span><h2>Achievements and certificates</h2><span class="label">{achievements.length}</span></div>
+        <ul class="inv">
+          {achievements.map((a) => (
+            <li class="ach">
+              <span class="mono when">{a.type}</span>
+              <span>{a.link ? <a href={a.link}>{a.title}</a> : a.title}{a.issuer && <span class="iss">, {a.issuer}</span>}</span>
+              <span class="mono when">{a.date}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
 
     <!-- small facts, like notes in the margin of a drawing -->
     <section class="notes">
@@ -176,6 +222,15 @@ const isPh = (s: string) => s.startsWith('PLACEHOLDER');
   @media (max-width: 760px) { .jobs li { grid-template-columns: 1fr; gap: 4px; } }
   .inv-head { margin-top: clamp(40px, 6vw, 64px); }
   .inv li { padding: 12px 0; border-bottom: var(--bw) solid var(--rule); font-family: var(--f-heading); font-size: 1.05rem; }
+  .inv .when { margin-left: 8px; }
+  .ach { display: grid; grid-template-columns: 8rem 1fr auto; gap: 1rem; align-items: baseline; }
+  .ach .when { margin: 0; }
+  .iss { color: var(--graphite); }
+  @media (max-width: 640px) { .ach { grid-template-columns: 1fr; gap: 2px; } }
+  .course { display: block; margin-top: 4px; color: var(--graphite); font-size: 0.9rem; }
+  .hl { margin: 6px 0 0; padding-left: 1.1em; }
+  .bio :global(p) { font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem); line-height: 1.55; max-width: 58ch; }
+  .bio :global(p:first-child)::first-letter { font-family: var(--f-display); font-weight: var(--w-display); font-size: 3.3em; float: left; line-height: 0.85; margin: 0.06em 0.1em 0 0; color: var(--emph); }
   .notes { margin-top: clamp(56px, 8vw, 100px); max-width: 60ch; }
   .notes h2 { font-family: var(--f-mono); font-size: var(--t-mono); font-weight: 450; margin-bottom: 10px; }
   .notes ol { margin: 0; padding-left: 1.4em; font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.7; }

@@ -1,35 +1,42 @@
 ---
 // One page per project, generated automatically from each folder
 // in src/content/projects. You never edit this file to add a project.
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import { getImage } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Plate from '../../components/Plate.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
 import Revisions from '../../components/Revisions.astro';
-import { getProjects, fmtMonth, latestRev } from '../../lib/content';
+import { getAllProjects, getProjects, getCad, getNotebook, fmtMonth, latestRev, isUpload } from '../../lib/content';
+import { md } from '../../lib/markdown';
 
 export async function getStaticPaths() {
-  const projects = await getProjects();
-  return projects.map((p, i) => ({
-    params: { slug: p.id },
-    props: { project: p, next: projects[(i + 1) % projects.length] },
-  }));
+  // Archived projects keep their page; "Next entry" only cycles through listed ones.
+  const listed = await getProjects();
+  return (await getAllProjects()).map((p) => {
+    const i = listed.findIndex((x) => x.id === p.id);
+    return { params: { slug: p.id }, props: { project: p, next: listed[(i + 1) % listed.length] } };
+  });
 }
 
 const { project, next } = Astro.props;
 const d = project.data;
 const { Content, headings } = await render(project);
 // Still image shown in the 3D viewer until the model loads
-const poster = d.modelPoster ? (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src : undefined;
-const toc = headings.filter((h) => h.depth === 2);
-const relatedCad = (await getCollection('cad')).filter((c) => c.data.project?.id === project.id);
-const relatedNotes = (await getCollection('notebook')).filter((n) => n.data.project?.id === project.id);
+const poster = !d.modelPoster ? undefined : isUpload(d.modelPoster) ? d.modelPoster : (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src;
+// Sections added in the CMS come first, then any write up in the body.
+const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const sections = d.sections.map((s) => ({ ...s, slug: `s-${slugify(s.title)}`, html: md(s.body) }));
+const toc = [...sections.map((s) => ({ slug: s.slug, text: s.title })), ...headings.filter((h) => h.depth === 2)];
+const relatedCad = (await getCad()).filter((c) => c.data.project === project.id);
+const relatedNotes = (await getNotebook()).filter((n) => n.data.project === project.id);
+const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
 ---
 <Base title={d.title} description={d.summary} sheet={`${d.number} · ${d.title}`}>
   <article class="wrap">
-    <header class="p-head">
+    <header class="p-head" data-edit={edit} data-edit-label="Edit project">
       <a class="back label" href="/work/">← Index of work</a>
+      {d.archived && <span class="sample-tag">Archived</span>}
       <div class="p-num mono">{d.number}{d.sample && <span class="sample-tag">Sample, not real work</span>}</div>
       <h1>{d.title}</h1>
       <p class="p-sum">{d.summary}</p>
@@ -40,10 +47,13 @@ const relatedNotes = (await getCollection('notebook')).filter((n) => n.data.proj
       <div><dt class="label">Drawing no.</dt><dd class="mono">{d.number}</dd></div>
       <div><dt class="label">Rev</dt><dd class="rev">{latestRev(project)}</dd></div>
       <div><dt class="label">Status</dt><dd class="status mono" data-status={d.status}>{d.status}</dd></div>
-      <div><dt class="label">Started</dt><dd>{fmtMonth(d.date)}</dd></div>
+      <div><dt class="label">{d.endDate ? 'Dates' : 'Started'}</dt><dd>{fmtMonth(d.date)}{d.endDate && ` to ${fmtMonth(d.endDate)}`}</dd></div>
       <div><dt class="label">Context</dt><dd>{d.context}</dd></div>
       <div class="wide"><dt class="label">Discipline</dt><dd>{d.disciplines.join(', ')}</dd></div>
       <div class="wide"><dt class="label">Tools</dt><dd>{d.tools.join(', ') || '—'}</dd></div>
+      {d.materials.length > 0 && <div class="wide"><dt class="label">Materials</dt><dd>{d.materials.join(', ')}</dd></div>}
+      {d.collaborators.length > 0 && <div class="wide"><dt class="label">With</dt><dd>{d.collaborators.join(', ')}</dd></div>}
+      {d.specs.map((sp) => <div class="wide"><dt class="label">{sp.label}</dt><dd>{sp.value}</dd></div>)}
     </dl>
 
     <div class="hero">
@@ -83,7 +93,34 @@ const relatedNotes = (await getCollection('notebook')).filter((n) => n.data.proj
       </aside>
 
       <div class="prose">
+        {sections.map((s) => (
+          <section class="cms-section" data-kind={s.kind}>
+            <h2 id={s.slug}>{s.title}</h2>
+            <Fragment set:html={s.html} />
+            {s.image && (
+              <figure class="fig">
+                <img src={s.image} alt={s.caption ?? s.title} loading="lazy" />
+                {s.caption && <figcaption class="mono">{s.caption}</figcaption>}
+              </figure>
+            )}
+          </section>
+        ))}
         <Content />
+        {d.gallery.length > 0 && (
+          <>
+            <h2 id="gallery">Gallery</h2>
+            <div class="gallery">
+              {d.gallery.map((g) => (
+                <figure class="fig">
+                  {g.kind === 'Video'
+                    ? <video src={g.src} controls preload="metadata" playsinline></video>
+                    : <img src={g.src} alt={g.caption || `${d.title}, ${g.kind.toLowerCase()}`} loading="lazy" />}
+                  {g.caption && <figcaption class="mono"><span class="label">{g.kind}</span> {g.caption}</figcaption>}
+                </figure>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
 
@@ -95,7 +132,7 @@ const relatedNotes = (await getCollection('notebook')).filter((n) => n.data.proj
             <li><a href={`/cad/${c.id}/`}><span class="mono">{c.data.number}</span> {c.data.title} <span class="label">CAD · {c.data.kind}</span></a></li>
           ))}
           {relatedNotes.map((n) => (
-            <li><a href={`/notebook/#${n.id}`}><span class="mono">{n.data.date.toISOString().slice(0, 10)}</span> {n.data.title} <span class="label">Notebook · {n.data.type}</span></a></li>
+            <li><a href={`/notebook/${n.id}/`}><span class="mono">{n.data.date.toISOString().slice(0, 10)}</span> {n.data.title} <span class="label">Notebook · {n.data.type}</span></a></li>
           ))}
         </ul>
       </section>
@@ -130,6 +167,12 @@ const relatedNotes = (await getCollection('notebook')).filter((n) => n.data.proj
     .tblock .wide { grid-column: span 2; grid-template-columns: 1fr; }
   }
 
+  .fig { margin: 2em 0; }
+  .fig img, .fig video { width: 100%; border: var(--bw) solid var(--rule); border-radius: var(--radius); background: var(--surface); }
+  .fig figcaption { margin-top: 8px; font-size: 0.75rem; color: var(--graphite); }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px; }
+  .gallery .fig { margin: 0; }
+  .gallery img { aspect-ratio: 4 / 3; object-fit: cover; cursor: zoom-in; }
   .hero { margin-bottom: clamp(24px, 4vw, 48px); }
 
   .body { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: clamp(24px, 4vw, 64px); margin-top: 1rem; }

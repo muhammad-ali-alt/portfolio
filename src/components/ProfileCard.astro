@@ -3,11 +3,11 @@
 // profile panel. The "grow" uses the browser's View Transitions, the
 // same idea as a shared layout animation, with no animation library.
 // Everything is styled from theme tokens, so the Studio controls it.
-// Portrait: save a photo as src/assets/portrait.jpg and it appears here.
+// Portrait: uploaded in the CMS (About me, Portrait), or src/assets/portrait.jpg as a fallback.
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
-import { site } from '../data/site';
-import { about } from '../data/about';
+import { site, about, experience } from '../lib/data';
+import { md } from '../lib/markdown';
 import { getProjects } from '../lib/content';
 
 const found = import.meta.glob<{ default: ImageMetadata }>('../assets/portrait.{jpg,jpeg,png,webp}', { eager: true });
@@ -18,7 +18,9 @@ const subtitle = `${site.role} track · ${site.school}`;
 <div class="pc">
   <button type="button" class="pc-card" aria-haspopup="dialog" aria-label={`Open profile: ${site.name}`}>
     <span class="pc-media" data-pc="img">
-      {portrait ? (
+      {about.portrait ? (
+        <img src={about.portrait} alt="" />
+      ) : portrait ? (
         <Image src={portrait} alt="" widths={[600, 1000]} sizes="(max-width: 700px) 100vw, 480px" />
       ) : (
         <span class="pc-empty mono">MA</span>
@@ -36,10 +38,12 @@ const subtitle = `${site.role} track · ${site.school}`;
     <div class="pc-panel">
       <form method="dialog"><button class="pc-close" aria-label="Close profile">✕</button></form>
       <div class="pc-media pc-media-lg" data-pc="img">
-        {portrait ? (
+        {about.portrait ? (
+          <img src={about.portrait} alt={`Portrait of ${site.name}`} />
+        ) : portrait ? (
           <Image src={portrait} alt={`Portrait of ${site.name}`} widths={[800, 1400]} sizes="(max-width: 760px) 100vw, 480px" />
         ) : (
-          <span class="pc-empty mono">MA<small>Portrait goes in src/assets/portrait.jpg</small></span>
+          <span class="pc-empty mono">MA<small>Upload a portrait in the CMS: About me</small></span>
         )}
       </div>
       <div class="pc-body">
@@ -49,7 +53,7 @@ const subtitle = `${site.role} track · ${site.school}`;
           <p class="pc-lead">{about.intro}</p>
           <div>
             <h4 class="label">Background</h4>
-            <p>{about.story[0]}</p>
+            <div class="pc-md" set:html={md(about.story.split(/\n\s*\n/)[0])} />
           </div>
           {current.length > 0 && (
             <div>
@@ -59,7 +63,7 @@ const subtitle = `${site.role} track · ${site.school}`;
           )}
           <div>
             <h4 class="label">Teams</h4>
-            <ul>{about.involvement.slice(0, 2).map((x) => <li>{x}</li>)}</ul>
+            <ul>{experience.filter((e) => e.type === 'Team').slice(0, 3).map((x) => <li>{x.org}, {x.role.toLowerCase()}</li>)}</ul>
           </div>
           <div class="pc-actions">
             <a class="pc-btn" href={`mailto:${site.email}`}>Email me</a>

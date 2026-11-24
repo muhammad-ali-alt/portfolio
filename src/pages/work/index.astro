@@ -11,7 +11,7 @@ const usedC = CONTEXTS.filter((c) => projects.some((p) => p.data.context === c))
 ---
 <Base title="Work" sheet="02 · Work index" description="Index of Muhammad Ali's engineering projects: CAD, robotics, motorsport, aerospace and data.">
   <section class="wrap">
-    <header class="page-head">
+    <header class="page-head" data-edit="/admin/#/collections/projects/new" data-edit-label="Add project">
       <span class="label">01 / Work</span>
       <h1>Index of work</h1>
       <p>Every project gets a number and stays here, finished or not. Filter by discipline or by where the work came from.</p>
@@ -37,7 +37,7 @@ const usedC = CONTEXTS.filter((c) => projects.some((p) => p.data.context === c))
         <span>No.</span><span>Title</span><span>Discipline</span><span>Context</span><span>Status</span><span>Started</span>
       </li>
       {projects.map((p) => (
-        <li class="row" data-d={p.data.disciplines.join('|')} data-c={p.data.context}>
+        <li class="row" data-edit={`/admin/#/collections/projects/entries/${p.id}/index`} data-edit-label="Edit" data-d={p.data.disciplines.join('|')} data-c={p.data.context}>
           <a href={`/work/${p.id}/`}>
             <span class="mono no">{p.data.number}</span>
             <span class="title">
@@ -52,7 +52,7 @@ const usedC = CONTEXTS.filter((c) => projects.some((p) => p.data.context === c))
           </a>
           {p.data.cover && (
             <template>
-              <Image src={p.data.cover} alt="" width={480} />
+              {typeof p.data.cover === 'string' ? <img src={p.data.cover} alt="" /> : <Image src={p.data.cover} alt="" width={480} />}
             </template>
           )}
         </li>

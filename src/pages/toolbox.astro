@@ -1,10 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
-import { toolbox } from '../data/toolbox';
+import { skills as toolbox } from '../lib/data';
 import { getToolUsage } from '../lib/content';
 
 const usage = await getToolUsage();
-// Tools that appear in projects but are not listed in toolbox.ts
+// Tools that appear in projects but are not listed in the Skills editor
 const listed = new Set(toolbox.flatMap((g) => g.items.map((i) => i.name.toLowerCase())));
 const unlisted = [...usage.keys()].filter((k) => !listed.has(k));
 const groups = [
@@ -16,7 +16,7 @@ const groups = [
 ---
 <Base title="Toolbox" sheet="05 · Toolbox" description="Software, methods and engineering fundamentals Muhammad Ali uses, each linked to the projects that use it.">
   <section class="wrap">
-    <header class="page-head">
+    <header class="page-head" data-edit="/admin/#/collections/records/entries/skills" data-edit-label="Edit skills">
       <span class="label">04 / Toolbox</span>
       <h1>Toolbox</h1>
       <p>No skill bars. A percentage says nothing about whether someone can design a part. Instead, each tool links to the work where I used it.</p>

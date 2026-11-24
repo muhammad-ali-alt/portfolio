@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "type": "Job",
+      "role": "Shift manager",
+      "org": "Dunkin', Crofton MD",
+      "dates": "Jun 2024 to now",
+      "summary": "Lead a crew of 10 to 11, assign stations and breaks, train new hires.",
+      "highlights": [],
+      "link": ""
+    },
+    {
+      "type": "Job",
+      "role": "Assistant mechanic and bookkeeper",
+      "org": "Sunoco Gas Station and Auto Repair, Gaithersburg MD",
+      "dates": "Jun 2022 to Jun 2026",
+      "summary": "Routine maintenance on about 20 vehicles a week; daily sales and fuel reconciliation.",
+      "highlights": [],
+      "link": ""
+    },
+    {
+      "type": "Internship",
+      "role": "AI and analytics intern",
+      "org": "The Reddix Group (remote)",
+      "dates": "Oct 2024 to Jan 2025",
+      "summary": "Reviewed technical decks and a white paper on the US quantum workforce for the CEO.",
+      "highlights": [],
+      "link": ""
+    },
+    {
+      "type": "Internship",
+      "role": "Research assistant intern",
+      "org": "Keystone Research Solutions (remote)",
+      "dates": "Aug to Sep 2024",
+      "summary": "Classified 240 data subjects across 5 Zooniverse research projects.",
+      "highlights": [],
+      "link": ""
+    },
+    {
+      "type": "Team",
+      "role": "Powertrain subteam member",
+      "org": "Terps Racing Baja SAE, University of Maryland",
+      "dates": "Oct 2026 to now",
+      "summary": "CVT case redesign.",
+      "highlights": [],
+      "link": ""
+    },
+    {
+      "type": "Team",
+      "role": "Liquids subteam and air brakes",
+      "org": "Terps Rockets, University of Maryland",
+      "dates": "Oct 2026 to now",
+      "summary": "Egg payload for FAR-OUT 2026-27.",
+      "highlights": [],
+      "link": ""
+    },
+    {
+      "type": "Leadership",
+      "role": "Undergraduate student member",
+      "org": "UMD University Senate, Academic Procedures and Standards Committee",
+      "dates": "Through 2027",
+      "summary": "",
+      "highlights": [],
+      "link": ""
+    },
+    {
+      "type": "Club",
+      "role": "Historian (photo and video)",
+      "org": "Pakistani Student Association, UMD",
+      "dates": "2026",
+      "summary": "Photos and videos to promote events.",
+      "highlights": [],
+      "link": ""
+    }
+  ]
+}

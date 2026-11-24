@@ -1,101 +1,146 @@
 ---
-// The notebook: every entry lives on this one page as an expandable
-// log line. Link to a single entry with /notebook/#entry-file-name
-import { getCollection, getEntry, render } from 'astro:content';
+// The notebook index: every published entry, searchable and filterable.
+// Each entry has its own page at /notebook/<entry>/.
 import Base from '../../layouts/Base.astro';
+import { getNotebook, fmtDay, linkedProject } from '../../lib/content';
 
-const entries = (await getCollection('notebook')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const rendered = await Promise.all(
-  entries.map(async (e) => ({
-    e,
-    Content: (await render(e)).Content,
-    project: e.data.project ? await getEntry(e.data.project) : undefined,
-  })),
-);
-const types = [...new Set(entries.map((e) => e.data.type))];
+const entries = await getNotebook();
+const rows = await Promise.all(entries.map(async (e) => ({ e, project: await linkedProject(e.data.project) })));
+const types = [...new Set(entries.map((e) => e.data.type))].sort();
+const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
+const projects = [...new Map(rows.filter((r) => r.project).map((r) => [r.project!.id, r.project!])).values()];
 ---
 <Base title="Notebook" sheet="04 · Notebook" description="Engineering notebook: experiments, failures, calculations and lessons learned.">
   <section class="wrap">
-    <header class="page-head">
+    <header class="page-head" data-edit="/admin/#/collections/notebook/new" data-edit-label="New notebook entry">
       <span class="label">03 / Notebook</span>
       <h1>Notebook</h1>
-      <p>The process behind the work. Experiments, failed attempts, quick calculations and things I learned the hard way. Open any line to read it.</p>
+      <p>The process behind the work. Experiments, failed attempts, quick calculations and things I learned the hard way.</p>
     </header>
 
-    <div class="legend label">
-      {types.map((t) => <span><i data-type={t}></i>{t}</span>)}
-    </div>
+    <form class="tools" role="search" onsubmit="return false">
+      <label class="search">
+        <span class="visually-hidden">Search the notebook</span>
+        <input type="search" id="nb-q" placeholder="Search entries" autocomplete="off" />
+      </label>
+      <label><span class="label">Category</span>
+        <select id="nb-type"><option value="">All</option>{types.map((t) => <option>{t}</option>)}</select>
+      </label>
+      {tags.length > 0 && (
+        <label><span class="label">Tag</span>
+          <select id="nb-tag"><option value="">All</option>{tags.map((t) => <option>{t}</option>)}</select>
+        </label>
+      )}
+      {projects.length > 0 && (
+        <label><span class="label">Project</span>
+          <select id="nb-proj"><option value="">All</option>{projects.map((p) => <option value={p.id}>{p.data.number} {p.data.title}</option>)}</select>
+        </label>
+      )}
+      <label><span class="label">Sort</span>
+        <select id="nb-sort"><option value="new">Newest first</option><option value="old">Oldest first</option></select>
+      </label>
+    </form>
+    <p class="count label" aria-live="polite"><span id="nb-count">{entries.length}</span> of {entries.length} entries</p>
 
-    <ol class="log">
-      {rendered.map(({ e, Content, project }) => (
-        <li id={e.id}>
-          <details>
-            <summary>
-              <span class="mono date">{e.data.date.toISOString().slice(0, 10)}</span>
-              <span class="type mono" data-type={e.data.type}>{e.data.type}</span>
-              <span class="t">
-                <strong>{e.data.title}</strong>
-                {e.data.sample && <span class="sample-tag">Sample</span>}
-                {e.data.summary && <span class="s">{e.data.summary}</span>}
-              </span>
-              <span class="plus" aria-hidden="true"></span>
-            </summary>
-            <div class="entry prose">
-              <Content />
-              {project && <p class="mono">Linked project: <a href={`/work/${project.id}/`}>{project.data.number} {project.data.title}</a></p>}
-            </div>
-          </details>
+    <ol class="log" id="nb-log">
+      {rows.map(({ e, project }) => (
+        <li
+          data-type={e.data.type} data-tags={e.data.tags.join('|')} data-proj={project?.id ?? ''}
+          data-date={e.data.date.valueOf()} data-pinned={e.data.pinned ? '1' : ''}
+          data-text={`${e.data.title} ${e.data.summary ?? ''} ${e.data.tags.join(' ')} ${e.body ?? ''}`.toLowerCase()}
+          data-edit={`/admin/#/collections/notebook/entries/${e.id}`} data-edit-label="Edit entry"
+        >
+          <a href={`/notebook/${e.id}/`}>
+            <span class="mono date">{fmtDay(e.data.date)}</span>
+            <span class="type mono" data-type={e.data.type}>{e.data.type}</span>
+            <span class="t">
+              <strong>{e.data.pinned && <span class="pin" title="Pinned">◆ </span>}{e.data.title}</strong>
+              {e.data.summary && <span class="s">{e.data.summary}</span>}
+              {(project || e.data.tags.length > 0) && (
+                <span class="meta mono">{project && <span>{project.data.number}</span>}{e.data.tags.map((t) => <span>#{t}</span>)}</span>
+              )}
+            </span>
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
         </li>
       ))}
     </ol>
+    <p class="empty" id="nb-empty" hidden>No entries match. Try a different search or filter.</p>
   </section>
 </Base>
 
 <script>
-  // Open the entry named in the URL (e.g. /notebook/#my-entry)
-  const open = () => {
-    if (!location.hash) return;
-    const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-    el?.querySelector('details')?.setAttribute('open', '');
-  };
-  open();
-  addEventListener('hashchange', open);
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T | null;
+  const list = $('nb-log')!;
+  const rows = [...list.children] as HTMLLIElement[];
+  const q = $<HTMLInputElement>('nb-q')!, type = $<HTMLSelectElement>('nb-type'), tag = $<HTMLSelectElement>('nb-tag');
+  const proj = $<HTMLSelectElement>('nb-proj'), sort = $<HTMLSelectElement>('nb-sort')!;
+  const params = new URLSearchParams(location.search);
+  // Filters can come from a link, e.g. /notebook/?project=robotic-arm
+  if (params.get('project') && proj) proj.value = params.get('project')!;
+  if (params.get('tag') && tag) tag.value = params.get('tag')!;
+  if (params.get('type') && type) type.value = params.get('type')!;
+
+  function apply() {
+    const words = q.value.toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    for (const r of rows) {
+      const ok =
+        words.every((w) => r.dataset.text!.includes(w)) &&
+        (!type?.value || r.dataset.type === type.value) &&
+        (!tag?.value || r.dataset.tags!.split('|').includes(tag.value)) &&
+        (!proj?.value || r.dataset.proj === proj.value);
+      r.hidden = !ok;
+      if (ok) shown++;
+    }
+    const dir = sort.value === 'old' ? 1 : -1;
+    rows
+      .sort((a, b) => Number(!!b.dataset.pinned) - Number(!!a.dataset.pinned) || dir * (+a.dataset.date! - +b.dataset.date!))
+      .forEach((r) => list.append(r));
+    $('nb-count')!.textContent = String(shown);
+    $('nb-empty')!.hidden = shown > 0;
+  }
+  [q, type, tag, proj, sort].forEach((el) => el?.addEventListener('input', apply));
+  apply();
 </script>
 
 <style>
   .page-head { padding-block: clamp(32px, 6vw, 88px) clamp(24px, 4vw, 48px); display: grid; gap: 14px; }
   .page-head p { color: var(--graphite); max-width: 52ch; margin: 0; }
-  .legend { display: flex; gap: 1.4rem; flex-wrap: wrap; padding-bottom: 12px; }
-  .legend span { display: inline-flex; align-items: center; gap: 6px; }
-  i[data-type], .type::before { width: 8px; height: 8px; display: inline-block; background: var(--tertiary); border-radius: min(var(--radius-btn), 4px); }
-  [data-type='Failure']::before, i[data-type='Failure'] { background: var(--accent) !important; }
-  [data-type='Experiment']::before, i[data-type='Experiment'] { background: var(--secondary) !important; }
-  [data-type='Idea']::before, i[data-type='Idea'] { background: transparent !important; border: var(--bw) solid var(--tertiary); }
-  .log { list-style: none; margin: 0; padding: 0; border-top: var(--bw) solid var(--ink); }
-  .log > li { border-bottom: var(--bw) solid var(--rule); scroll-margin-top: 20px; }
-  summary {
-    list-style: none; cursor: pointer;
-    display: grid; grid-template-columns: 7rem 8rem minmax(0, 1fr) 24px; gap: 1rem; align-items: baseline;
-    padding: 18px 0;
+  .tools { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end; border-top: var(--bw) solid var(--ink); padding-top: 16px; }
+  .tools label { display: grid; gap: 4px; }
+  .tools select, .tools input {
+    font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--paper);
+    border: var(--bw) solid var(--rule); border-radius: var(--radius-btn); padding: 7px 10px;
   }
-  summary::-webkit-details-marker { display: none; }
-  summary:hover strong { color: var(--accent-ink); }
+  .search { flex: 1 1 240px; }
+  .search input { width: 100%; }
+  .count { margin: 24px 0 8px; }
+  .log { list-style: none; margin: 0; padding: 0; border-top: var(--bw) solid var(--ink); }
+  .log > li { border-bottom: var(--bw) solid var(--rule); }
+  .log > li[hidden] { display: none; }
+  .log a {
+    display: grid; grid-template-columns: 7rem 9rem minmax(0, 1fr) 24px; gap: 1rem; align-items: baseline;
+    padding: 18px 0; text-decoration: none; transition: background calc(0.2s * var(--speed)), padding calc(0.3s * var(--speed)) var(--ease);
+  }
+  .log a:hover { color: inherit; background: color-mix(in srgb, var(--highlight) 6%, var(--paper-2)); padding-left: calc(5px * var(--hover-k)); }
+  .log a:hover strong { color: var(--accent-ink); }
   .date { color: var(--graphite); }
   .type { display: inline-flex; align-items: center; gap: 8px; }
-  .type::before { content: ''; }
+  .type::before { content: ''; width: 8px; height: 8px; display: inline-block; background: var(--tertiary); border-radius: min(var(--radius-btn), 4px); }
+  .type[data-type='Failure']::before { background: var(--accent); }
+  .type[data-type='Experiment']::before, .type[data-type='Design Log']::before { background: var(--secondary); }
+  .type[data-type='Idea']::before { background: transparent; border: var(--bw) solid var(--tertiary); }
   .t { display: grid; gap: 4px; justify-items: start; }
   .t strong { font-family: var(--f-heading); font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+  .pin { color: var(--accent-ink); font-size: 0.8em; }
   .s { color: var(--graphite); font-size: 0.95rem; }
-  .plus { position: relative; width: 14px; height: 14px; align-self: center; }
-  .plus::before, .plus::after { content: ''; position: absolute; background: var(--ink); left: 0; right: 0; top: 6.5px; height: 1px; transition: rotate calc(0.3s * var(--speed)) var(--ease); }
-  .plus::after { rotate: 90deg; }
-  details[open] .plus::after { rotate: 0deg; }
-  .entry { padding: 0 0 32px calc(15rem + 2rem); }
+  .meta { display: flex; gap: 10px; flex-wrap: wrap; color: var(--graphite); font-size: 0.72rem; }
+  .arrow { color: var(--graphite); }
+  .empty { padding: 32px 0; color: var(--graphite); }
   @media (max-width: 760px) {
-    summary { grid-template-columns: 1fr auto; }
+    .log a { grid-template-columns: 1fr auto; }
     .t { grid-column: 1 / -1; grid-row: 2; }
-    .plus { grid-column: 2; grid-row: 1; }
-    .type { display: none; }
-    .entry { padding-left: 0; }
+    .type, .arrow { display: none; }
   }
 </style>

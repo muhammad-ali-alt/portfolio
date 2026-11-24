@@ -1,0 +1,199 @@
+---
+// PORTFOLIO DASHBOARD
+// Nothing private is built into this page. Everything below is loaded in
+// your browser from GitHub with the login token the CMS saved after you
+// signed in, so a visitor who opens this URL only sees a sign in prompt.
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Dashboard" sheet="Admin · Dashboard" admin>
+  <section class="wrap dash">
+    <header class="d-head">
+      <span class="label">Edit Portfolio</span>
+      <h1>Dashboard</h1>
+      <p class="d-who mono" id="d-who">Checking sign in…</p>
+    </header>
+
+    <div id="d-signedout" class="d-card d-signin" hidden>
+      <h2>Sign in to manage your portfolio</h2>
+      <p>Sign in with GitHub in the editor. Only accounts with write access to the portfolio repository can change anything.</p>
+      <a class="d-btn d-primary" href="/admin/">Open the editor and sign in</a>
+    </div>
+
+    <div id="d-app" hidden>
+      <nav class="d-quick" aria-label="Quick actions">
+        <a class="d-btn d-primary" href="/admin/#/collections/projects/new">＋ New project</a>
+        <a class="d-btn d-primary" href="/admin/#/collections/notebook/new">＋ New notebook entry</a>
+        <a class="d-btn" href="/admin/#/collections/projects" title="In the editor, click Media in the top bar">Media library ↗</a>
+        <a class="d-btn" href="/admin/#/collections/pages/entries/about">Edit About me</a>
+        <a class="d-btn" href="/admin/#/workflow">Drafts and review</a>
+        <a class="d-btn" href="/studio/">Design studio</a>
+      </nav>
+
+      <div class="d-stats" id="d-stats" aria-live="polite"><p class="mono d-loading">Loading content from GitHub…</p></div>
+
+      <div class="d-grid">
+        <section class="d-card">
+          <h2>Drafts waiting to publish</h2>
+          <p class="d-note">Saved in the editor but not on the site yet.</p>
+          <ul class="d-list" id="d-drafts"><li class="d-empty">Loading…</li></ul>
+        </section>
+        <section class="d-card">
+          <h2>Needs attention</h2>
+          <p class="d-note">Hidden drafts, missing covers, and text still marked PLACEHOLDER.</p>
+          <ul class="d-list" id="d-todo"><li class="d-empty">Loading…</li></ul>
+        </section>
+        <section class="d-card">
+          <h2>Recent notebook entries</h2>
+          <ul class="d-list" id="d-notes"><li class="d-empty">Loading…</li></ul>
+        </section>
+        <section class="d-card">
+          <h2>Recently edited</h2>
+          <p class="d-note">Every save is a version you can go back to.</p>
+          <ul class="d-list" id="d-commits"><li class="d-empty">Loading…</li></ul>
+        </section>
+      </div>
+
+      <section class="d-card d-backup">
+        <h2>Backup and history</h2>
+        <p>Your whole portfolio, content and media, lives in your GitHub repository. Every save is kept as a version.</p>
+        <div class="d-row">
+          <a class="d-btn" id="d-zip" href="#">Download a backup (ZIP)</a>
+          <a class="d-btn" id="d-hist" href="#">Full version history</a>
+          <button class="d-btn" id="d-logout" type="button">Sign out</button>
+        </div>
+      </section>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { parse } from 'yaml';
+
+  const REPO = 'muhammad-ali-alt/portfolio';
+  const $ = (id: string) => document.getElementById(id)!;
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  let token = '';
+  try { token = JSON.parse(localStorage.getItem('decap-cms-user') || 'null')?.token ?? ''; } catch { /* storage blocked */ }
+
+  async function api(path: string, raw = false) {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/${path}`, {
+      headers: { Authorization: `token ${token}`, Accept: raw ? 'application/vnd.github.raw' : 'application/vnd.github+json' },
+    });
+    if (r.status === 401) throw new Error('signed-out');
+    if (!r.ok) throw new Error(`GitHub said ${r.status} for ${path}`);
+    return raw ? r.text() : r.json();
+  }
+  const front = (md: string) => {
+    const m = md.match(/^---\n([\s\S]*?)\n---/);
+    try { return { data: (m ? parse(m[1]) : {}) ?? {}, body: md }; } catch { return { data: {}, body: md }; }
+  };
+  const li = (html: string) => `<li>${html}</li>`;
+  const fill = (id: string, items: string[], empty: string) => { $(id).innerHTML = items.length ? items.join('') : `<li class="d-empty">${empty}</li>`; };
+  const day = (d: unknown) => (d ? new Date(d as string).toISOString().slice(0, 10) : '');
+
+  function signedOut() {
+    $('d-who').textContent = 'Not signed in';
+    $('d-signedout').hidden = false;
+    $('d-app').hidden = true;
+  }
+
+  async function load() {
+    if (!token) return signedOut();
+    $('d-app').hidden = false;
+    $('d-zip').setAttribute('href', `https://github.com/${REPO}/archive/refs/heads/main.zip`);
+    $('d-hist').setAttribute('href', `https://github.com/${REPO}/commits/main`);
+    try {
+      const [me, repo, tree, pulls, commits] = await Promise.all([
+        fetch('https://api.github.com/user', { headers: { Authorization: `token ${token}` } }).then((r) => (r.ok ? r.json() : null)),
+        api(''), api('git/trees/main?recursive=1'), api('pulls?state=open&per_page=50'), api('commits?per_page=8'),
+      ]);
+      $('d-who').textContent = `Signed in as ${me?.login ?? 'unknown'}${repo.permissions?.push ? ' · can edit' : ' · read only'}`;
+      const paths: string[] = tree.tree.map((t: { path: string }) => t.path);
+      const projPaths = paths.filter((p) => /^src\/content\/projects\/[^/]+\/index\.md$/.test(p));
+      const notePaths = paths.filter((p) => /^src\/content\/notebook\/[^/]+\.md$/.test(p));
+      const [projects, notes] = await Promise.all([
+        Promise.all(projPaths.map(async (p) => ({ slug: p.split('/')[3], ...front(await api(`contents/${p}`, true)) }))),
+        Promise.all(notePaths.map(async (p) => ({ slug: p.split('/').pop()!.replace(/\.md$/, ''), ...front(await api(`contents/${p}`, true)) }))),
+      ]);
+      const live = projects.filter((p) => !p.data.draft && !p.data.archived);
+      const cmsDrafts = pulls.filter((pr: { head: { ref: string } }) => pr.head.ref.startsWith('cms/'));
+      const stat = (n: number, label: string, href: string) => `<a class="d-stat" href="${href}"><strong>${n}</strong><span class="label">${esc(label)}</span></a>`;
+      $('d-stats').innerHTML = [
+        stat(live.length, 'Published projects', '/work/'),
+        stat(projects.filter((p) => p.data.featured && !p.data.draft).length, 'Featured', '/'),
+        stat(projects.filter((p) => p.data.draft).length + cmsDrafts.length, 'Drafts', '/admin/#/workflow'),
+        stat(notes.filter((n) => !n.data.draft).length, 'Notebook entries', '/notebook/'),
+      ].join('');
+
+      fill('d-drafts', cmsDrafts.map((pr: any) =>
+        li(`<a href="/admin/#/workflow">${esc(pr.title.replace(/^(Create|Update) /, ''))}</a><span class="mono">${day(pr.updated_at)}</span>`)), 'Nothing waiting. Everything saved is published.');
+
+      const todo: string[] = [];
+      for (const p of projects) {
+        const link = `/admin/#/collections/projects/entries/${p.slug}/index`;
+        const name = `${esc(p.data.number ?? '')} ${esc(p.data.title ?? p.slug)}`;
+        if (p.data.draft) todo.push(li(`<a href="${link}">${name}</a><span class="tag">Hidden draft</span>`));
+        if (!p.data.cover && !p.data.draft) todo.push(li(`<a href="${link}">${name}</a><span class="tag">No cover image</span>`));
+        const n = (p.body.match(/PLACEHOLDER/g) ?? []).length;
+        if (n) todo.push(li(`<a href="${link}">${name}</a><span class="tag">${n} placeholder${n > 1 ? 's' : ''}</span>`));
+      }
+      for (const e of notes) {
+        const link = `/admin/#/collections/notebook/entries/${e.slug}`;
+        if (e.data.draft) todo.push(li(`<a href="${link}">${esc(e.data.title)}</a><span class="tag">Hidden draft</span>`));
+        if (/PLACEHOLDER/.test(e.body)) todo.push(li(`<a href="${link}">${esc(e.data.title)}</a><span class="tag">Placeholder text</span>`));
+      }
+      fill('d-todo', todo, 'All clear.');
+
+      fill('d-notes', notes.sort((a, b) => String(b.data.date).localeCompare(String(a.data.date))).slice(0, 5).map((e) =>
+        li(`<a href="/admin/#/collections/notebook/entries/${e.slug}">${esc(e.data.title)}</a><span class="mono">${day(e.data.date)}</span>`)), 'No entries yet.');
+
+      fill('d-commits', commits.map((c: any) =>
+        li(`<a href="${c.html_url}" target="_blank" rel="noopener">${esc(c.commit.message.split('\n')[0])}</a><span class="mono">${day(c.commit.author.date)}</span>`)), 'No history yet.');
+    } catch (err) {
+      if ((err as Error).message === 'signed-out') return signedOut();
+      $('d-stats').innerHTML = `<p class="d-error">Could not load from GitHub: ${esc((err as Error).message)}. Check your connection and reload.</p>`;
+    }
+  }
+
+  $('d-logout').addEventListener('click', () => {
+    try { localStorage.removeItem('decap-cms-user'); } catch { /* storage blocked */ }
+    location.href = '/';
+  });
+  load();
+</script>
+
+<style>
+  .dash { padding-bottom: 80px; }
+  .d-head { padding-block: clamp(28px, 5vw, 64px) 24px; display: grid; gap: 10px; }
+  .d-who { color: var(--graphite); margin: 0; }
+  .d-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .d-btn {
+    font: inherit; font-family: var(--f-heading); font-size: 0.95rem; font-weight: 600; text-decoration: none; cursor: pointer;
+    padding: 10px 16px; border: var(--bw) solid var(--rule); border-radius: var(--radius-btn); background: var(--paper); color: var(--ink);
+  }
+  .d-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .d-primary { background: var(--accent); background-image: var(--g-button); color: var(--on-accent); border-color: var(--accent); }
+  .d-primary:hover { color: var(--on-accent); filter: brightness(1.06); border-color: var(--accent); }
+  .d-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: calc(var(--bw) * 1.5) solid var(--ink); margin-bottom: 28px; }
+  .d-stat { display: grid; gap: 4px; padding: 16px 12px 18px 0; text-decoration: none; border-bottom: var(--bw) solid var(--rule); }
+  .d-stat strong { font-family: var(--f-display); font-size: clamp(2rem, 1.4rem + 2vw, 3.2rem); font-weight: var(--w-display); line-height: 1; }
+  .d-stat:hover strong { color: var(--accent-ink); }
+  .d-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); }
+  .d-card { border: var(--bw) solid var(--rule); border-radius: var(--radius); background: var(--paper); box-shadow: var(--shadow); padding: clamp(16px, 2vw, 24px); }
+  .d-card h2 { font-size: 1.2rem; font-stretch: 100%; margin-bottom: 4px; }
+  .d-note { color: var(--graphite); font-size: 0.92rem; margin: 0 0 10px; }
+  .d-list { list-style: none; margin: 0; padding: 0; }
+  .d-list li { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: var(--bw) solid var(--rule); font-family: var(--f-heading); font-size: 0.98rem; }
+  .d-list li a { text-decoration: none; }
+  .d-list .mono { color: var(--graphite); font-size: 0.75rem; white-space: nowrap; }
+  .d-list .tag { font-family: var(--f-mono); font-size: 0.7rem; color: var(--accent-ink); white-space: nowrap; }
+  .d-empty { color: var(--graphite); font-family: var(--f-text) !important; }
+  .d-backup { margin-top: var(--gap); }
+  .d-backup p { color: var(--graphite); }
+  .d-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .d-signin { max-width: 560px; display: grid; gap: 12px; justify-items: start; }
+  .d-signin p { margin: 0; color: var(--graphite); }
+  .d-loading, .d-error { grid-column: 1 / -1; padding: 16px 0; color: var(--graphite); }
+  .d-error { color: var(--accent-ink); }
+  @media (max-width: 860px) { .d-grid { grid-template-columns: 1fr; } .d-stats { grid-template-columns: repeat(2, 1fr); } }
+</style>

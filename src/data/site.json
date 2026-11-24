@@ -1,0 +1,23 @@
+{
+  "name": "Muhammad Ali",
+  "initials": "M. Ali",
+  "wordmark": "Ali Works",
+  "role": "Mechanical Engineering",
+  "school": "University of Maryland",
+  "year": "Second year",
+  "description": "Muhammad Ali, mechanical engineering track student at the University of Maryland. Team builds, CAD, motorsport, rocketry and data, documented as I build them.",
+  "email": "ali.mcrofton@gmail.com",
+  "links": [
+    {
+      "label": "LinkedIn",
+      "href": "https://www.linkedin.com/in/m-ali-umd"
+    },
+    {
+      "label": "GitHub",
+      "href": "https://github.com/muhammad-ali-alt"
+    }
+  ],
+  "resume": "",
+  "closing": "Looking for someone to design, build, test and write it down?",
+  "cta": "I am looking for a summer 2027 mechanical engineering internship."
+}

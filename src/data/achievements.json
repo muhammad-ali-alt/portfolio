@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "title": "Data Analysis (Excel)",
+      "type": "Certificate",
+      "issuer": "Global Career Accelerator",
+      "date": "Jul 2026",
+      "description": "",
+      "link": ""
+    },
+    {
+      "title": "Data Visualization (Tableau)",
+      "type": "Certificate",
+      "issuer": "Global Career Accelerator",
+      "date": "Aug 2026",
+      "description": "",
+      "link": ""
+    },
+    {
+      "title": "AI Professional Skills",
+      "type": "Certificate",
+      "issuer": "Global Career Accelerator",
+      "date": "Aug 2026",
+      "description": "",
+      "link": ""
+    },
+    {
+      "title": "Intercultural Skills",
+      "type": "Certificate",
+      "issuer": "Global Career Accelerator",
+      "date": "Aug 2026",
+      "description": "",
+      "link": ""
+    },
+    {
+      "title": "Introduction to Cybersecurity; CCNAv7 Introduction to Networks",
+      "type": "Certificate",
+      "issuer": "Cisco Networking Academy",
+      "date": "2024",
+      "description": "",
+      "link": ""
+    },
+    {
+      "title": "FBLA Data Analysis, 2nd place regional, state qualifier",
+      "type": "Competition",
+      "issuer": "Future Business Leaders of America",
+      "date": "High school",
+      "description": "",
+      "link": ""
+    }
+  ]
+}

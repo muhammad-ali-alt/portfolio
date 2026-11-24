@@ -1,17 +1,16 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Plate from '../components/Plate.astro';
 import ProfileCard from '../components/ProfileCard.astro';
-import { site } from '../data/site';
-import { about } from '../data/about';
-import { getProjects, getFeatured, getToolUsage, fmtMonth } from '../lib/content';
+import { site, about, home, homeSection } from '../lib/data';
+import { mdInline } from '../lib/markdown';
+import { getProjects, getFeatured, getToolUsage, getCad, getNotebook, fmtMonth } from '../lib/content';
 
 const projects = await getProjects();
 const featured = (await getFeatured()).slice(0, 4);
 const current = projects.find((p) => p.data.status === 'In progress' && !p.data.sample);
-const cad = await getCollection('cad');
-const notes = await getCollection('notebook');
+const cad = await getCad();
+const notes = await getNotebook();
 const tools = [...(await getToolUsage()).entries()].sort((a, b) => b[1].length - a[1].length);
 
 // Table of contents with live counts
@@ -49,11 +48,7 @@ const [lead, ...rest] = featured;
       </div>
 
       <div class="cover-foot">
-        <p class="lede">
-          {site.year} mechanical engineering track student at the {site.school}, on Terps Racing and Terps Rockets.
-          I print, cut, build, and write down what went wrong. This site is my logbook: every project gets a number, every change gets a
-          revision.
-        </p>
+        <p class="lede" data-edit="/admin/#/collections/pages/entries/home" data-edit-label="Edit introduction">{home.lede}</p>
         {current && (
           <a class="now" href={`/work/${current.id}/`}>
             <span class="label">On the bench now</span>
@@ -67,11 +62,14 @@ const [lead, ...rest] = featured;
     </div>
   </section>
 
-  <!-- CONTENTS ────────────────────────────────────────── -->
+  <!-- Home sections: order, titles and visibility come from src/data/home.json (CMS: Site and About, Home page) -->
+  {home.sections.filter((sec) => sec.visible).map(({ id }) => (
+    <Fragment>
+      {id === 'contents' && (
   <section class="wrap toc" aria-labelledby="toc-h">
     <div class="section-head">
-      <span class="label">Index</span>
-      <h2 id="toc-h">Contents</h2>
+      <span class="label">{homeSection('contents').label}</span>
+      <h2 id="toc-h">{homeSection('contents').title}</h2>
       <span class="label">{projects.length + cad.length + notes.length} entries</span>
     </div>
     <ol class="toc-list">
@@ -87,16 +85,16 @@ const [lead, ...rest] = featured;
       ))}
     </ol>
   </section>
-
-  <!-- FEATURED WORK ──────────────────────────────────── -->
+      )}
+      {id === 'featured' && (
   <section class="wrap featured" aria-labelledby="feat-h">
     <div class="section-head">
-      <span class="label">01</span>
-      <h2 id="feat-h">Selected work</h2>
+      <span class="label">{homeSection('featured').label}</span>
+      <h2 id="feat-h">{homeSection('featured').title}</h2>
       <a class="label" href="/work/">Full index →</a>
     </div>
 
-    <div class="feat-grid">
+    <div class="feat-grid" data-edit="/admin/#/collections/projects" data-edit-label="Manage projects">
       {lead && (
         <a class="lead card" href={`/work/${lead.id}/`} style="--i: 0; --tilt: -0.8">
           <Plate src={lead.data.cover} alt={lead.data.coverAlt} number={lead.data.number} ratio="3 / 2" eager sizes="(max-width: 900px) 100vw, 60vw" />
@@ -126,19 +124,16 @@ const [lead, ...rest] = featured;
       </div>
     </div>
   </section>
-
-  <!-- FIELDS + TOOLS ─────────────────────────────────── -->
+      )}
+      {id === 'fields' && (
   <section class="wrap fields" aria-labelledby="fields-h">
     <div class="section-head">
-      <span class="label">04</span>
-      <h2 id="fields-h">Where I point it</h2>
+      <span class="label">{homeSection('fields').label}</span>
+      <h2 id="fields-h">{homeSection('fields').title}</h2>
       <a class="label" href="/toolbox/">Toolbox →</a>
     </div>
     <div class="fields-grid">
-      <p class="big-statement">
-        Mechanical design first. Then wherever it leads: <em>motorsport</em>, <em>aerospace</em>, <em>space</em>,{' '}
-        <em>autonomous vehicles</em>, and the <em>data</em> that tells you whether any of it worked.
-      </p>
+      <p class="big-statement" set:html={mdInline(home.statement)} />
       <ul class="tool-list">
         {tools.map(([name, ps]) => (
           <li>
@@ -149,15 +144,15 @@ const [lead, ...rest] = featured;
       </ul>
     </div>
   </section>
-
-  <!-- ABOUT TEASER ───────────────────────────────────── -->
+      )}
+      {id === 'about' && (
   <section class="wrap about-t" aria-labelledby="about-h">
     <div class="section-head">
-      <span class="label">05</span>
-      <h2 id="about-h">About</h2>
+      <span class="label">{homeSection('about').label}</span>
+      <h2 id="about-h">{homeSection('about').title}</h2>
       <a class="label" href="/about/">Read more →</a>
     </div>
-    <div class="about-grid">
+    <div class="about-grid" data-edit="/admin/#/collections/pages/entries/about" data-edit-label="Edit about">
       <div class="about-left">
         <p class="about-intro">{about.intro}</p>
         <dl class="specs">
@@ -169,6 +164,9 @@ const [lead, ...rest] = featured;
       <ProfileCard />
     </div>
   </section>
+      )}
+    </Fragment>
+  ))}
 </Base>
 
 <script>

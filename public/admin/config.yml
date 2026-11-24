@@ -1,0 +1,371 @@
+# ─────────────────────────────────────────────────────────────
+# PORTFOLIO CMS (Decap CMS) configuration.
+# Every save is a commit to the GitHub repo. GitHub checks on its
+# servers that the logged in account can write to the repo, so
+# visitors cannot change anything even if they open /admin/.
+# ─────────────────────────────────────────────────────────────
+backend:
+  name: github
+  repo: muhammad-ali-alt/portfolio
+  branch: main
+  base_url: https://api.netlify.com   # Netlify handles the GitHub login handshake
+  auth_endpoint: auth
+  commit_messages:
+    create: 'Create {{collection}} "{{slug}}"'
+    update: 'Update {{collection}} "{{slug}}"'
+    delete: 'Delete {{collection}} "{{slug}}"'
+    uploadMedia: 'Upload "{{path}}"'
+    deleteMedia: 'Delete "{{path}}"'
+
+# Only active when the site runs on localhost (npx decap-server); ignored on the live site.
+local_backend: true
+
+# Drafts: new and changed entries go to Drafts, then In review, then Ready.
+# Nothing reaches the public site until you click Publish.
+publish_mode: editorial_workflow
+
+site_url: https://aliworks-umd.netlify.app
+display_url: https://aliworks-umd.netlify.app
+logo_url: /favicon.svg
+show_preview_links: true
+
+# Shared media library: upload once, reuse anywhere.
+media_folder: public/uploads
+public_folder: /uploads
+# Uploads over 50 MB are refused by the editor. Keep models and videos small.
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  # ── Projects ───────────────────────────────────────────────
+  - name: projects
+    label: Projects
+    label_singular: Project
+    description: Each project gets its own page and appears in the Work index. Turn on Featured to show it on the home page.
+    folder: src/content/projects
+    path: '{{slug}}/index'
+    create: true
+    slug: '{{slug}}'
+    preview_path: work/{{dirname}}/
+    summary: '{{number}}  {{title}}  ·  {{status}}'
+    sortable_fields: [date, title, number, order]
+    view_filters:
+      - { label: Hidden drafts, field: draft, pattern: true }
+      - { label: Featured, field: featured, pattern: true }
+      - { label: Archived, field: archived, pattern: true }
+    view_groups:
+      - { label: Status, field: status }
+      - { label: Context, field: context }
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Drawing number, name: number, widget: string, hint: 'Next in sequence, for example MA-006. Check the Work index for the latest.' }
+      - { label: Short summary, name: summary, widget: text, hint: 'One or two sentences. Shown on cards and in the index.' }
+      - { label: Status, name: status, widget: select, default: 'In progress', options: [ { label: Idea, value: Idea }, { label: Planning, value: Planned }, { label: In progress, value: 'In progress' }, { label: Completed, value: Complete }, { label: On hold, value: Paused } ] }
+      - { label: Start date, name: date, widget: datetime, default: '{{now}}', format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false }
+      - { label: Completion date, name: endDate, widget: datetime, format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false, required: false }
+      - { label: Context, name: context, widget: select, options: [Personal, Academic, Terps Racing, Terps Rockets, Research, Internship, Club, Competition, Other] }
+      - { label: Engineering disciplines, name: disciplines, widget: select, multiple: true, min: 1, options: [Mechanical Design, CAD, Robotics, Aerospace, Space, Autonomy, Electronics, Simulation, Manufacturing, 3D Printing, Software, Data Analytics, Research, Product Development] }
+      - { label: Featured on home page, name: featured, widget: boolean, default: false }
+      - { label: Home page position, name: order, widget: number, value_type: int, required: false, hint: 'Optional. Lower numbers show first among featured projects.' }
+      - { label: Hide from the site (draft), name: draft, widget: boolean, default: false, hint: 'On = the project disappears from the public site but stays saved here.' }
+      - { label: Archived, name: archived, widget: boolean, default: false, hint: 'On = removed from listings, but its page and links keep working.' }
+      - { label: Tools and software, name: tools, widget: list, hint: 'Comma separated. Must match names in Skills to link up, e.g. SolidWorks, FDM 3D printing', required: false }
+      - { label: Materials, name: materials, widget: list, required: false }
+      - { label: Skills demonstrated, name: skills, widget: list, required: false }
+      - { label: Collaborators, name: collaborators, widget: list, required: false }
+      - label: Specifications
+        name: specs
+        widget: list
+        default: []
+        required: false
+        summary: '{{fields.label}}: {{fields.value}}'
+        fields:
+          - { label: Name, name: label, widget: string, hint: 'e.g. Mass, Envelope, Print time' }
+          - { label: Value, name: value, widget: string }
+      - { label: Cover image, name: cover, widget: image, required: false, hint: 'Transparent renders look best. Shown on cards and the project page.' }
+      - { label: Cover image description, name: coverAlt, widget: string, required: false, hint: 'What the image shows, for screen readers.' }
+      - { label: 3D model (.glb), name: model, widget: file, required: false, media_folder: /public/models, public_folder: /models, hint: 'Send STL or STEP exports through tools/stl2glb.py first. Keep under 10 MB.' }
+      - { label: 3D model rotation, name: modelOrientation, widget: string, required: false, hint: 'Only if the model loads on its side, e.g. 0deg -90deg 0deg' }
+      - { label: 3D starting camera, name: modelOrbit, widget: string, required: false, hint: 'angle around, angle down, distance. e.g. 35deg 65deg 90%' }
+      - label: Sections
+        name: sections
+        widget: list
+        default: []
+        required: false
+        allow_reorder: true
+        summary: '{{fields.title}}'
+        hint: 'Build the write up from sections. Drag to reorder. Any text in Write up below appears after them.'
+        fields:
+          - { label: Section type, name: kind, widget: select, default: Custom, options: [Overview, Problem Statement, Objectives, Design Requirements, Research, Concept Development, Design Process, CAD Development, Engineering Analysis, Calculations, Materials and Manufacturing, Testing, Results, Challenges, Lessons Learned, Future Improvements, Custom] }
+          - { label: Heading, name: title, widget: string }
+          - { label: Content, name: body, widget: markdown, required: false, hint: 'Tables, lists, links, code and math: $F = \mu N$ inline or $$ ... $$ on its own line.' }
+          - { label: Image, name: image, widget: image, required: false }
+          - { label: Image caption, name: caption, widget: string, required: false }
+      - label: Gallery
+        name: gallery
+        widget: list
+        default: []
+        required: false
+        allow_reorder: true
+        summary: '{{fields.kind}}: {{fields.caption}}'
+        fields:
+          - { label: File, name: src, widget: file, hint: 'Images (JPG, PNG, WebP) or video (MP4, WebM).' }
+          - { label: Type, name: kind, widget: select, default: Image, options: [Image, Render, Photo, Diagram, Video] }
+          - { label: Caption, name: caption, widget: string, required: false }
+      - label: Downloads and attachments
+        name: downloads
+        widget: list
+        default: []
+        required: false
+        summary: '{{fields.label}}'
+        fields:
+          - { label: Label, name: label, widget: string, hint: 'e.g. STEP model, Drawing (PDF), STL for printing' }
+          - { label: File, name: file, widget: file, media_folder: /public/uploads/files, public_folder: /uploads/files, hint: 'PDF, STEP, STL, 3MF and other files. keep under 25 MB.' }
+      - label: Revision history
+        name: revisions
+        widget: list
+        default: []
+        required: false
+        summary: 'Rev {{fields.rev}}: {{fields.note}}'
+        fields:
+          - { label: Revision, name: rev, widget: string, hint: 'A, B, C...' }
+          - { label: Date, name: date, widget: datetime, format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false }
+          - { label: What changed, name: note, widget: string }
+      - { label: Credit, name: credit, widget: text, required: false, hint: 'Tutorials, teammates, courses.' }
+      - { label: Write up, name: body, widget: markdown, required: false, hint: 'Optional free form write up. Use ## headings to make sections here too.' }
+
+  # ── Engineering notebook ───────────────────────────────────
+  - name: notebook
+    label: Engineering Notebook
+    label_singular: Notebook entry
+    description: Experiments, design logs, calculations, failures and things learned.
+    folder: src/content/notebook
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    preview_path: notebook/{{slug}}/
+    summary: '{{date | date("YYYY-MM-DD")}}  {{title}}  ·  {{type}}'
+    sortable_fields: [date, title, type]
+    view_filters:
+      - { label: Pinned, field: pinned, pattern: true }
+      - { label: Hidden drafts, field: draft, pattern: true }
+    view_groups:
+      - { label: Category, field: type }
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date and time, name: date, widget: datetime, default: '{{now}}', format: 'YYYY-MM-DDTHH:mm', date_format: 'YYYY-MM-DD', time_format: 'HH:mm' }
+      - { label: Category, name: type, widget: select, default: Design Log, options: [Design Log, Experiment, Research, Problem Solving, Idea, Learning, Project Update, Technical Notes, General, Failure, Calculation, Note, Learned] }
+      - { label: Related project, name: project, widget: relation, collection: projects, value_field: '{{slug}}', search_fields: [title, number], display_fields: ['{{number}} {{title}}'], required: false }
+      - { label: Tags, name: tags, widget: list, required: false, hint: 'Comma separated, e.g. 3d-printing, tolerances' }
+      - { label: Summary, name: summary, widget: text, required: false }
+      - { label: Pin to top, name: pinned, widget: boolean, default: false }
+      - { label: Hide from the site (draft), name: draft, widget: boolean, default: false }
+      - label: Attachments
+        name: attachments
+        widget: list
+        default: []
+        required: false
+        summary: '{{fields.label}}'
+        fields:
+          - { label: Label, name: label, widget: string }
+          - { label: File, name: file, widget: file, media_folder: /public/uploads/files, public_folder: /uploads/files }
+      - { label: Entry, name: body, widget: markdown, hint: 'Write freely. Insert images, tables, code and math ($...$) anywhere.' }
+
+  # ── CAD library ────────────────────────────────────────────
+  - name: cad
+    label: CAD Library
+    label_singular: CAD entry
+    folder: src/content/cad
+    create: true
+    slug: '{{slug}}'
+    preview_path: cad/{{slug}}/
+    summary: '{{number}}  {{title}}  ·  {{kind}}'
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Number, name: number, widget: string, hint: 'e.g. C-003' }
+      - { label: Kind, name: kind, widget: select, options: [Part, Assembly, Mechanism, Concept, Surface model, Printable part, Reverse engineering, Experiment] }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Date, name: date, widget: datetime, default: '{{now}}', format: 'YYYY-MM-DD', date_format: 'YYYY-MM-DD', time_format: false }
+      - { label: Software, name: software, widget: string, default: SolidWorks }
+      - { label: Purpose, name: purpose, widget: string, required: false }
+      - { label: Hide from the site (draft), name: draft, widget: boolean, default: false }
+      - { label: 3D model (.glb), name: model, widget: file, required: false, media_folder: /public/models, public_folder: /models }
+      - { label: 3D model rotation, name: modelOrientation, widget: string, required: false }
+      - { label: 3D starting camera, name: modelOrbit, widget: string, required: false }
+      - label: Images
+        name: images
+        widget: list
+        default: []
+        required: false
+        summary: '{{fields.label}}'
+        fields:
+          - { label: Image, name: src, widget: image }
+          - { label: Description, name: alt, widget: string }
+          - { label: Label, name: label, widget: string, required: false, hint: 'e.g. Render, Section view' }
+      - { label: File formats, name: formats, widget: list, required: false }
+      - label: Downloads
+        name: downloads
+        widget: list
+        default: []
+        required: false
+        fields:
+          - { label: Label, name: label, widget: string }
+          - { label: File, name: file, widget: file, media_folder: /public/uploads/files, public_folder: /uploads/files }
+      - { label: Related project, name: project, widget: relation, collection: projects, value_field: '{{slug}}', search_fields: [title, number], display_fields: ['{{number}} {{title}}'], required: false }
+      - { label: Design notes, name: body, widget: markdown, required: false }
+
+  # ── Site, About and home page ──────────────────────────────
+  - name: pages
+    label: Site and About
+    editor: { preview: false }
+    files:
+      - label: About me
+        name: about
+        file: src/data/about.json
+        fields:
+          - { label: Portrait, name: portrait, widget: image, required: false, hint: 'Portrait orientation, at least 1200 px tall.' }
+          - { label: Introduction, name: intro, widget: text, hint: 'Shown on the About page and the home page.' }
+          - label: Callouts on the portrait
+            name: callouts
+            widget: list
+            default: []
+            allow_reorder: true
+            summary: '{{fields.label}}: {{fields.value}}'
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: Value, name: value, widget: string }
+              - { label: Balloon position across (%), name: x, widget: number, value_type: int, min: 0, max: 100, default: 50 }
+              - { label: Balloon position down (%), name: y, widget: number, value_type: int, min: 0, max: 100, default: 50 }
+          - { label: Biography, name: story, widget: markdown, hint: 'Leave a blank line between paragraphs.' }
+          - { label: How I work on problems, name: approach, widget: text }
+          - { label: Currently learning, name: learning, widget: list }
+          - { label: Interests, name: interests, widget: list }
+          - { label: Goals, name: goals, widget: list }
+          - { label: Small facts, name: facts, widget: list }
+      - label: Home page
+        name: home
+        file: src/data/home.json
+        fields:
+          - { label: Cover introduction, name: lede, widget: text }
+          - { label: Statement, name: statement, widget: string, hint: 'Wrap words in *asterisks* to highlight them.' }
+          - label: Sections
+            name: sections
+            widget: list
+            default: []
+            allow_add: false
+            allow_remove: false
+            allow_reorder: true
+            summary: '{{fields.title}}  ({{fields.id}})'
+            hint: 'Drag to reorder. Switch off Visible to hide a section.'
+            fields:
+              - { label: Section, name: id, widget: hidden }
+              - { label: Title, name: title, widget: string }
+              - { label: Small label, name: label, widget: string, required: false }
+              - { label: Visible, name: visible, widget: boolean, default: true }
+      - label: Site settings and contact
+        name: site
+        file: src/data/site.json
+        fields:
+          - { label: Name, name: name, widget: string }
+          - { label: Initials, name: initials, widget: string }
+          - { label: Site title, name: wordmark, widget: string }
+          - { label: Field, name: role, widget: string }
+          - { label: School, name: school, widget: string }
+          - { label: Year, name: year, widget: string }
+          - { label: Search description, name: description, widget: text, hint: 'Shown in Google results and link previews.' }
+          - { label: Email, name: email, widget: string, pattern: ['^\S+@\S+\.\S+$', 'Must be an email address'] }
+          - label: Links
+            name: links
+            widget: list
+            default: []
+            summary: '{{fields.label}}'
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: URL, name: href, widget: string, pattern: ['^(https?://.+)?$', 'Must start with https://'] }
+          - { label: Resume (PDF), name: resume, widget: file, required: false, media_folder: /public/uploads/files, public_folder: /uploads/files }
+          - { label: Closing line, name: closing, widget: string }
+          - { label: Call to action, name: cta, widget: string, required: false }
+
+  # ── Education, experience, skills, achievements ────────────
+  - name: records
+    label: Experience and Skills
+    editor: { preview: false }
+    files:
+      - label: Education
+        name: education
+        file: src/data/education.json
+        fields:
+          - label: Education
+            name: items
+            widget: list
+            default: []
+            allow_reorder: true
+            summary: '{{fields.institution}}'
+            fields:
+              - { label: Institution, name: institution, widget: string }
+              - { label: Degree or program, name: program, widget: string, required: false }
+              - { label: Field of study, name: field, widget: string, required: false }
+              - { label: Dates, name: dates, widget: string, required: false, hint: 'e.g. Fall 2025 to May 2029 (expected)' }
+              - { label: Description, name: description, widget: text, required: false }
+              - { label: Relevant coursework, name: coursework, widget: list, required: false }
+              - { label: Achievements, name: achievements, widget: list, required: false }
+      - label: Experience
+        name: experience
+        file: src/data/experience.json
+        fields:
+          - label: Experience
+            name: items
+            widget: list
+            default: []
+            allow_reorder: true
+            summary: '{{fields.role}}, {{fields.org}}'
+            hint: 'Jobs, internships and research show under Work history; teams, clubs, leadership and volunteering under Teams and involvement.'
+            fields:
+              - { label: Type, name: type, widget: select, options: [Job, Internship, Research, Team, Club, Leadership, Volunteer] }
+              - { label: Position, name: role, widget: string }
+              - { label: Organization, name: org, widget: string }
+              - { label: Dates, name: dates, widget: string, required: false }
+              - { label: Description, name: summary, widget: text, required: false }
+              - { label: Highlights, name: highlights, widget: list, required: false }
+              - { label: Link, name: link, widget: string, required: false }
+      - label: Skills
+        name: skills
+        file: src/data/skills.json
+        fields:
+          - label: Skill groups
+            name: groups
+            widget: list
+            default: []
+            allow_reorder: true
+            summary: '{{fields.group}}'
+            fields:
+              - { label: Group name, name: group, widget: string, hint: 'e.g. CAD and Design, Manufacturing, Programming' }
+              - label: Skills
+                name: items
+                widget: list
+                default: []
+                allow_reorder: true
+                summary: '{{fields.name}}'
+                fields:
+                  - { label: Skill or tool, name: name, widget: string, hint: 'Use the same spelling as in project Tools so the projects link automatically.' }
+                  - { label: Since, name: since, widget: string, required: false }
+                  - { label: Where it comes from, name: note, widget: string, required: false }
+      - label: Achievements
+        name: achievements
+        file: src/data/achievements.json
+        fields:
+          - label: Achievements
+            name: items
+            widget: list
+            default: []
+            allow_reorder: true
+            summary: '{{fields.type}}: {{fields.title}}'
+            fields:
+              - { label: Title, name: title, widget: string }
+              - { label: Type, name: type, widget: select, options: [Award, Competition, Certificate, Recognition, Publication, Other] }
+              - { label: Issuer, name: issuer, widget: string, required: false }
+              - { label: Date, name: date, widget: string, required: false }
+              - { label: Description, name: description, widget: text, required: false }
+              - { label: Link, name: link, widget: string, required: false }

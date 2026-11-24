@@ -1,0 +1,30 @@
+{
+  "lede": "Second year mechanical engineering track student at the University of Maryland, on Terps Racing and Terps Rockets. I print, cut, build, and write down what went wrong. This site is my logbook: every project gets a number, every change gets a revision.",
+  "statement": "Mechanical design first. Then wherever it leads: *motorsport*, *aerospace*, *space*, *autonomous vehicles*, and the *data* that tells you whether any of it worked.",
+  "sections": [
+    {
+      "id": "contents",
+      "title": "Contents",
+      "label": "Index",
+      "visible": true
+    },
+    {
+      "id": "featured",
+      "title": "Selected work",
+      "label": "01",
+      "visible": true
+    },
+    {
+      "id": "fields",
+      "title": "Where I point it",
+      "label": "04",
+      "visible": true
+    },
+    {
+      "id": "about",
+      "title": "About",
+      "label": "05",
+      "visible": true
+    }
+  ]
+}

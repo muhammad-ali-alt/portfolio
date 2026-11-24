@@ -1,0 +1,54 @@
+{
+  "portrait": "",
+  "intro": "I am a second year mechanical engineering track student at the University of Maryland, planning a minor in business analytics. I like taking things apart, figuring out why they work, and building them better.",
+  "callouts": [
+    {
+      "label": "Program",
+      "value": "Mechanical engineering track, UMD, class of 2029",
+      "x": 30,
+      "y": 22
+    },
+    {
+      "label": "Minor",
+      "value": "Business Analytics (planned)",
+      "x": 72,
+      "y": 38
+    },
+    {
+      "label": "Teams",
+      "value": "Terps Racing Baja (powertrain), Terps Rockets (liquids)",
+      "x": 24,
+      "y": 64
+    },
+    {
+      "label": "Shop time",
+      "value": "Four years as an assistant mechanic",
+      "x": 68,
+      "y": 80
+    }
+  ],
+  "story": "I got into engineering by taking toys apart and putting them back together to see if they still worked. My dad was a mechanical engineer, and that is one of the reasons I chose it too.\n\nI grew up in Abu Dhabi and Pakistan and moved to the United States in 2018. Before college I spent four years as an assistant mechanic at an auto repair shop, doing oil changes, brake and rotor jobs and tire rotations on about 20 vehicles a week.",
+  "approach": "When something does not work, I change one thing at a time and test again. On my ENES100 team that meant reprinting a wheel mount five times until it fit, then tracking a drifting vehicle down to a blocked motor and then to uneven motor speeds.",
+  "learning": [
+    "SolidWorks, part by part",
+    "MATLAB and Python (ENME202)",
+    "Electricity and magnetism (PHYS260)",
+    "Business statistics (BMGT230)"
+  ],
+  "interests": [
+    "Formula 1 and motorsport",
+    "Photography and photo editing",
+    "Building and fixing things",
+    "Video games and anime"
+  ],
+  "goals": [
+    "Get into the mechanical engineering major",
+    "A summer 2027 mechanical engineering internship",
+    "Someday: my own race car and a home workshop"
+  ],
+  "facts": [
+    "I speak English and Urdu fluently, and Hindi and Punjabi conversationally.",
+    "I have lived in three countries.",
+    "I made my own Lightroom color preset for my photos."
+  ]
+}

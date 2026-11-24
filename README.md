@@ -93,6 +93,38 @@ Put the file in `public/models/` and point the project's `model:` field at `/mod
 
 Not every project needs 3D. Use the viewer for things people want to turn around (mechanisms, assemblies). Use renders for everything else.
 
+## Edit content (the CMS)
+
+Open **/admin/** on the site and sign in with GitHub. From there you can add and edit projects, notebook entries, CAD entries, your About page, education, experience, skills, achievements, home page sections, and site settings, and upload images, PDFs and CAD files to a shared media library.
+
+- **Dashboard:** /admin/dashboard/ shows counts, drafts waiting to publish, content that needs attention, recent edits, and backup links.
+- **Edit Mode:** once signed in, a small "Edit mode" control appears in the corner of the site. Turn it on and every editable area gets an edit button.
+- **Drafts:** saving puts a change in Drafts. Move it to Ready and click Publish. Nothing reaches the site before that. Netlify rebuilds in about a minute.
+- **Hide or archive:** "Hide from the site" removes an item completely; "Archived" keeps its page but removes it from listings.
+- **History:** every save is a commit. Restore an old version from the repository's history on GitHub.
+- **Tables and equations:** use the Table and Equation blocks in the editor's "+" menu, or switch the editor to Markdown.
+
+### One time setup (needs your accounts)
+
+1. **Make the repository private:** GitHub, the portfolio repo, Settings, Danger Zone, Change visibility, Private.
+2. **Create a GitHub OAuth app:** github.com/settings/developers, OAuth Apps, New OAuth App.
+   - Homepage URL: `https://aliworks-umd.netlify.app`
+   - Authorization callback URL: `https://api.netlify.com/auth/done`
+   - Register, copy the Client ID, then Generate a new client secret and copy it.
+3. **Connect it to Netlify:** your project, Project configuration, Access and security (search "OAuth" if it moved), OAuth, Install provider, GitHub. Paste the Client ID and secret.
+4. Open `/admin/`, click **Login with GitHub**, and approve.
+
+Security: only GitHub accounts with write access to the repository can save anything. GitHub checks this on its servers; nothing in the site's code grants access.
+
+### Files
+
+| Path | Holds |
+|---|---|
+| `public/admin/config.yml` | Every editor field. Add a field here and to `src/content.config.ts`. |
+| `public/admin/vendor/` | Decap CMS 3.17.3 (MIT license), self hosted. |
+| `src/data/*.json` | About, education, experience, skills, achievements, home page, site settings. Validated in `src/lib/data.ts`. |
+| `public/uploads/` | Media uploaded in the CMS. |
+
 ## Customize the look (the Studio)
 
 Open **/studio/** on the site (the "Customize" link in the navigation).

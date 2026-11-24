@@ -1,14 +1,14 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCad } from '../../lib/content';
 import Base from '../../layouts/Base.astro';
 import Plate from '../../components/Plate.astro';
 
-const entries = (await getCollection('cad')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const entries = await getCad();
 const kinds = [...new Set(entries.map((e) => e.data.kind))];
 ---
 <Base title="CAD library" sheet="03 · CAD library" description="CAD parts, assemblies and mechanisms by Muhammad Ali, viewable in 3D.">
   <section class="wrap">
-    <header class="page-head">
+    <header class="page-head" data-edit="/admin/#/collections/cad/new" data-edit-label="Add CAD entry">
       <span class="label">02 / CAD</span>
       <h1>CAD library</h1>
       <p>Parts, assemblies and mechanisms, including ones that never became a full project. Entries marked 3D can be rotated in the browser.</p>

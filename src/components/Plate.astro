@@ -6,7 +6,7 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 interface Props {
-  src?: ImageMetadata;
+  src?: ImageMetadata | string; // an optimized asset, or an upload path like /uploads/x.jpg
   alt?: string;
   number: string;
   ratio?: string; // CSS aspect ratio, e.g. "4 / 3"
@@ -16,10 +16,12 @@ interface Props {
 }
 const { src, alt = '', number, ratio: r = '4 / 3', sizes = '(max-width: 800px) 100vw, 50vw', eager = false } = Astro.props;
 // "auto" keeps the image's own proportions so nothing gets cropped off
-const ratio = r === 'auto' ? (src ? `${src.width} / ${src.height}` : '16 / 9') : r;
+const ratio = r === 'auto' ? (src && typeof src !== 'string' ? `${src.width} / ${src.height}` : '16 / 9') : r;
 ---
 <div class="plate" style={`aspect-ratio: ${ratio}`}>
-  {src ? (
+  {typeof src === 'string' ? (
+    <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} />
+  ) : src ? (
     <Image src={src} alt={alt} sizes={sizes} widths={[480, 800, 1200, 1800]} loading={eager ? 'eager' : 'lazy'} />
   ) : (
     <div class="empty" role="img" aria-label={`No image yet for ${number}`}>

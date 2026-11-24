@@ -1,0 +1,33 @@
+{
+  "items": [
+    {
+      "institution": "University of Maryland, College Park",
+      "program": "Mechanical engineering track (applying to the Clark School)",
+      "field": "Mechanical Engineering; Business Analytics minor planned",
+      "dates": "Fall 2025 to May 2029 (expected)",
+      "description": "",
+      "coursework": [
+        "ENES100 Introduction to Engineering Design",
+        "PHYS161 Mechanics",
+        "PHYS260 and PHYS261 Electricity and Magnetism",
+        "ENME202 Computing Fundamentals for Engineers",
+        "BMGT230 Business Statistics",
+        "UNIV305 Global Career Accelerator"
+      ],
+      "achievements": []
+    },
+    {
+      "institution": "Crofton High School, Crofton MD",
+      "program": "High school diploma",
+      "field": "",
+      "dates": "Graduated May 2025",
+      "description": "Also completed Honors IT Networking Level 2 at the Center of Applied Technology South.",
+      "coursework": [
+        "AP Calculus BC",
+        "AP Computer Science Principles",
+        "Honors Engineering Design"
+      ],
+      "achievements": []
+    }
+  ]
+}

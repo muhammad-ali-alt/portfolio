@@ -1,0 +1,67 @@
+---
+// One page per published notebook entry.
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getNotebook, fmtDay, linkedProject } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const entries = await getNotebook();
+  return entries.map((e, i) => ({ params: { slug: e.id }, props: { entry: e, newer: entries[i - 1], older: entries[i + 1] } }));
+}
+const { entry, newer, older } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const project = await linkedProject(d.project);
+const time = d.date.getUTCHours() || d.date.getUTCMinutes() ? d.date.toISOString().slice(11, 16) + ' UTC' : '';
+---
+<Base title={d.title} description={d.summary ?? `${d.type} entry from the engineering notebook.`} sheet={`Notebook · ${fmtDay(d.date)}`}>
+  <article class="wrap entry">
+    <header class="head" data-edit={`/admin/#/collections/notebook/entries/${entry.id}`} data-edit-label="Edit entry">
+      <a class="label back" href="/notebook/">← Notebook</a>
+      <p class="mono meta">
+        <span>{fmtDay(d.date)}{time && ` · ${time}`}</span>
+        <span class="type" data-type={d.type}>{d.type}</span>
+        {d.pinned && <span class="pin">Pinned</span>}
+      </p>
+      <h1>{d.title}</h1>
+      {d.summary && <p class="sum">{d.summary}</p>}
+      {(project || d.tags.length > 0) && (
+        <p class="links mono">
+          {project && <a href={`/work/${project.id}/`}>Project {project.data.number}: {project.data.title} →</a>}
+          {d.tags.map((t) => <a href={`/notebook/?tag=${encodeURIComponent(t)}`}>#{t}</a>)}
+        </p>
+      )}
+    </header>
+
+    <div class="prose"><Content /></div>
+
+    {d.attachments.length > 0 && (
+      <section class="att">
+        <h2 class="label">Attachments</h2>
+        <ul>{d.attachments.map((f) => <li><a href={f.file} download>{f.label} ↓</a></li>)}</ul>
+      </section>
+    )}
+
+    <nav class="pager" aria-label="More entries">
+      {newer ? <a href={`/notebook/${newer.id}/`}><span class="label">Newer</span>{newer.data.title}</a> : <span></span>}
+      {older ? <a class="older" href={`/notebook/${older.id}/`}><span class="label">Older</span>{older.data.title}</a> : <span></span>}
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .head { padding-block: clamp(28px, 5vw, 64px) clamp(24px, 3vw, 40px); display: grid; gap: 14px; max-width: 900px; }
+  .back { text-decoration: none; width: fit-content; }
+  .meta { display: flex; gap: 16px; flex-wrap: wrap; color: var(--graphite); margin: 0; }
+  .type { color: var(--accent-ink); }
+  .pin { color: var(--accent-ink); }
+  .head h1 { font-size: calc(var(--t-h1) * 0.75); }
+  .sum { font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem); color: var(--graphite); max-width: 52ch; margin: 0; }
+  .links { display: flex; gap: 14px; flex-wrap: wrap; margin: 0; }
+  .att { margin-top: 3rem; max-width: var(--measure); }
+  .att h2 { font-family: var(--f-mono); font-size: var(--t-mono); font-weight: 450; margin-bottom: 8px; }
+  .att ul { list-style: none; padding: 0; margin: 0; font-family: var(--f-mono); font-size: 0.85rem; display: grid; gap: 6px; }
+  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); margin-top: clamp(48px, 7vw, 90px); border-top: var(--bw) solid var(--ink); }
+  .pager a { display: grid; gap: 4px; padding-top: 14px; text-decoration: none; font-family: var(--f-heading); font-size: 1.1rem; }
+  .older { text-align: right; justify-items: end; }
+</style>
