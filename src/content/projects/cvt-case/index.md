@@ -1,6 +1,6 @@
 ---
 title: CVT Case Redesign
-number: MA-003
+number: MA-002
 summary: Redesigning the case around the continuously variable transmission on the Terps Racing Baja car, for tighter mounting and faster maintenance access. Currently in the research stage.
 date: 2026-10-20
 status: In progress

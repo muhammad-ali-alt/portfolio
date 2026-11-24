@@ -2,7 +2,7 @@
 title: Robotic Arm Gripper Jaw
 number: C-001
 kind: Part
-summary: One jaw of the gripper for the six axis desktop robotic arm, the first finished part of MA-005.
+summary: One jaw of the gripper for the six axis desktop robotic arm, the first finished part of MA-004.
 date: 2026-11-01  # PLACEHOLDER date
 software: SolidWorks
 purpose: Gripping jaw for the robotic arm's end effector.

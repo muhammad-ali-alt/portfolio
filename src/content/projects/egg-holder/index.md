@@ -1,13 +1,25 @@
 ---
 title: Egg Payload Holder
-number: MA-004
-summary: A payload that has to bring eggs back from a rocket flight unbroken, for the Terps Rockets entry in FAR-OUT 2026-27. First prototype printed in PLA.
+number: MA-003
+summary: A four egg holder for the Terps Rockets FAR-OUT 2026-27 payload, in two iterations that trade material for mass. Same envelope, 55% less material in the lightweight version.
 date: 2026-10-24
 status: In progress
 context: Terps Rockets
 disciplines: [Aerospace, Mechanical Design, 3D Printing]
 tools: [SolidWorks, FDM 3D printing]
 featured: true
+cover: ./cover.png
+coverAlt: The two egg holder iterations side by side, the lightweight open frame on the left and the full solid wall version on the right
+specs:
+  - { label: Envelope, value: 120.6 × 63.5 × 120.7 mm (both versions) }
+  - { label: Capacity, value: 4 eggs }
+revisions:
+  - rev: A
+    date: 2026-11-24  # PLACEHOLDER: the real date you made this version
+    note: Lightweight version. Solid outer wall replaced with two rings joined by vertical struts.
+  - rev: B
+    date: 2026-11-24  # PLACEHOLDER: the real date you made this version
+    note: Full version. Solid wall all the way around, to compare sturdiness.
 credit: Terps Rockets, liquids subteam, University of Maryland.
 ---
 
@@ -27,6 +39,28 @@ FAR-OUT 2026-27 awards payload points for eggs that are launched and returned un
 ## Work so far
 
 Modified the existing egg holder CAD and 3D printed a PLA prototype. Print settings were tuned for strength and fit: **3 perimeters, 20% cubic infill**.
+
+## Two iterations
+
+Both versions hold four eggs in the same plate with four circular cutouts, and both fit the same 120.6 × 63.5 × 120.7 mm envelope. The difference is the outer wall.
+
+![Lightweight version: two rings joined by vertical struts](./lightweight.png)
+
+![Full version: a solid cylindrical wall](./full.png)
+
+| | Lightweight (Rev A) | Full (Rev B) |
+|---|---|---|
+| Outer wall | Two rings joined by vertical struts | Solid cylinder |
+| Material volume | 38.5 cm³ | 85.0 cm³ |
+| Mass if printed solid in PLA | 47.8 g | 105.4 g |
+
+Volumes are measured from the STL exports. Solid PLA mass uses a density of 1.24 g/cm³ and is an upper bound, since the parts print with partial infill.
+
+The lightweight version uses **55% less material**. The question the two versions answer: is the extra stiffness of a solid wall worth more than doubling the mass?
+
+Rotate either one in 3D in the CAD library: [lightweight](/cad/egg-holder-light/), [full](/cad/egg-holder-full/).
+
+PLACEHOLDER: Which version you picked and why, once you have print weights or drop test results.
 
 ## Design thinking
 
