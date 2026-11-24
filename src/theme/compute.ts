@@ -157,9 +157,10 @@ export function computeTheme(s: Settings): { css: string; attrs: Record<string, 
     '--parallax': String(m.parallax),
   };
 
-  let css = block(':root', { ...shared, ...paletteVars(s.scheme === 'dark' ? s.darkColors : s.colors), 'color-scheme': luminance((s.scheme === 'dark' ? s.darkColors : s.colors).bg) > 0.4 ? 'light' : 'dark' });
+  // ':root:root' outranks the plain ':root' fallbacks in global.css, whatever order the stylesheets load in.
+  let css = block(':root:root', { ...shared, ...paletteVars(s.scheme === 'dark' ? s.darkColors : s.colors), 'color-scheme': luminance((s.scheme === 'dark' ? s.darkColors : s.colors).bg) > 0.4 ? 'light' : 'dark' });
   if (s.scheme === 'auto') {
-    css += `@media (prefers-color-scheme: dark){${block(':root', { ...paletteVars(s.darkColors), 'color-scheme': luminance(s.darkColors.bg) > 0.4 ? 'light' : 'dark' })}}`;
+    css += `@media (prefers-color-scheme: dark){${block(':root:root', { ...paletteVars(s.darkColors), 'color-scheme': luminance(s.darkColors.bg) > 0.4 ? 'light' : 'dark' })}}`;
   }
 
   const motionOn = m.enabled;

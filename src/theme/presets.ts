@@ -88,7 +88,7 @@ export const THEMES: Record<string, { label: string; note: string; patch: DeepPa
       ...same({ bg: '#0b1220', bg2: '#111a2e', surface: '#14203a', text: '#e6ecf5', text2: '#93a1b8', border: '#24324d', primary: '#4c9fff', secondary: '#9fc3ff', tertiary: '#6b7a93', accent: '#7fb8ff', highlight: '#4c9fff' }),
       scheme: 'auto', typePreset: 'technical', motionPreset: 'smooth',
       layout: { radius: 4, border: 1, shadow: 'medium', details: 'full', ...DENSITY.balanced, density: 'balanced' },
-      background: { style: 'blueprint', gridSize: 32, gridOpacity: 0.28 }, three: { backdrop: 'dark', exposure: 0.75 },
+      background: { style: 'blueprint', gridSize: 32, gridOpacity: 0.18 }, three: { backdrop: 'dark', exposure: 0.75 },
     },
   },
   graphite: {

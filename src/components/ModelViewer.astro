@@ -80,7 +80,9 @@ const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65
     const mv = fig.querySelector('model-viewer') as any;
     const base = parseOrbit(mv.dataset.orbit);
     let view = 'default';
-    let originals: { base: number[]; metal: number; rough: number }[] | null = null;
+    // The compressed models store colors in a small "palette" texture, so material
+    // modes have to swap textures as well as factors. Originals are kept to restore.
+    let originals: { base: number[]; metal: number; rough: number; color: any; mr: any }[] | null = null;
 
     const radius = () => `${(base.radius * 100) / read3d().zoom}%`;
     const VIEWS: Record<string, () => string> = {
@@ -104,9 +106,14 @@ const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65
         base: [...m.pbrMetallicRoughness.baseColorFactor],
         metal: m.pbrMetallicRoughness.metallicFactor,
         rough: m.pbrMetallicRoughness.roughnessFactor,
+        color: m.pbrMetallicRoughness.baseColorTexture?.texture ?? null,
+        mr: m.pbrMetallicRoughness.metallicRoughnessTexture?.texture ?? null,
       }));
       mats.forEach((m: any, i: number) => {
         const o = originals![i], pbr = m.pbrMetallicRoughness;
+        const setTex = (slot: any, tex: any) => { try { slot?.setTexture(tex); } catch { /* slot unsupported */ } };
+        setTex(pbr.baseColorTexture, mode === 'clay' ? null : o.color);
+        setTex(pbr.metallicRoughnessTexture, mode === 'original' ? o.mr : null);
         if (mode === 'clay') { pbr.setBaseColorFactor([0.72, 0.72, 0.7, 1]); pbr.setMetallicFactor(0); pbr.setRoughnessFactor(0.85); }
         else { pbr.setBaseColorFactor(o.base); }
         if (mode === 'original') { pbr.setMetallicFactor(o.metal); pbr.setRoughnessFactor(o.rough); }

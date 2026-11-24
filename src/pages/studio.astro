@@ -1,0 +1,96 @@
+---
+// THE STUDIO: a visual editor for the site's design.
+// Its own interface uses fixed colors (not the theme) so a bad color
+// choice can never make the editor itself unreadable.
+// Logic lives in src/scripts/studio.ts.
+import '../styles/studio.css';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Studio · Ali Works</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="st">
+    <header class="st-top">
+      <a class="st-back" href="/">← Site</a>
+      <div class="st-brand">
+        <span class="st-mark">MA</span>
+        <span><strong>Studio</strong><span class="st-sub">Customize how the site looks</span></span>
+      </div>
+      <div class="st-status" aria-live="polite"><span class="st-dot"></span><span id="st-status">Loading</span></div>
+      <div class="st-actions">
+        <button type="button" class="st-btn" id="st-undo" title="Undo (Ctrl + Z)" disabled>↶ Undo</button>
+        <button type="button" class="st-btn" id="st-redo" title="Redo (Ctrl + Shift + Z)" disabled>↷ Redo</button>
+        <button type="button" class="st-btn st-btn-primary" id="st-publish">Publish for everyone</button>
+      </div>
+    </header>
+
+    <div class="st-scope" role="note">
+      Changes here apply instantly and save in <strong>this browser</strong>. Visitors see the published design until you use{' '}
+      <em>Publish for everyone</em>.
+    </div>
+
+    <div class="st-main">
+      <nav class="st-cats" aria-label="Settings categories" id="st-cats"></nav>
+      <section class="st-panel" id="st-panel" aria-live="off"></section>
+      <aside class="st-preview" aria-label="Live preview">
+        <div class="st-pv-bar">
+          <label class="st-pv-field">
+            <span>Previewing</span>
+            <select id="st-page">
+              <option value="/">Home</option>
+              <option value="/work/">Work index</option>
+              <option value="/work/enes100-otv/">Project: OTV (3D)</option>
+              <option value="/cad/">CAD library</option>
+              <option value="/cad/gripper/">CAD: gripper jaw (3D)</option>
+              <option value="/notebook/">Notebook</option>
+              <option value="/toolbox/">Toolbox</option>
+              <option value="/about/">About</option>
+            </select>
+          </label>
+          <div class="st-seg st-seg-sm" role="group" aria-label="Preview size" id="st-device">
+            <button type="button" data-w="1280" aria-pressed="true">Desktop</button>
+            <button type="button" data-w="820" aria-pressed="false">Tablet</button>
+            <button type="button" data-w="390" aria-pressed="false">Phone</button>
+          </div>
+          <div class="st-seg st-seg-sm" role="group" aria-label="Preview day or night palette" id="st-daynight">
+            <button type="button" data-m="device" aria-pressed="true" title="Use this device's setting">Device</button>
+            <button type="button" data-m="day" aria-pressed="false">Day</button>
+            <button type="button" data-m="night" aria-pressed="false">Night</button>
+          </div>
+          <button type="button" class="st-btn st-btn-sm" id="st-replay" title="Reload the preview to replay entrance animations">Replay</button>
+        </div>
+        <div class="st-frame" id="st-frame">
+          <iframe id="st-iframe" title="Live preview of the real site" src="/"></iframe>
+        </div>
+        <p class="st-pv-note">This is the real site, not a mockup. Links inside it work.</p>
+      </aside>
+    </div>
+
+    <dialog class="st-dialog" id="st-publish-dialog" aria-labelledby="pub-h">
+      <form method="dialog" class="st-dialog-body">
+        <h2 id="pub-h">Publish this design for everyone</h2>
+        <p>The site is static, so the published design lives in one file in your GitHub repository. Replace it, and Netlify rebuilds the site in about a minute.</p>
+        <ol>
+          <li><button type="button" class="st-btn st-btn-primary" id="pub-download">Download site-theme.json</button></li>
+          <li>Open <a href="https://github.com/muhammad-ali-alt/portfolio/upload/main/src/data" target="_blank" rel="noopener">the upload page for src/data on GitHub</a>.</li>
+          <li>Drag in the downloaded file. Its name must stay exactly <code>site-theme.json</code> so it replaces the old one.</li>
+          <li>Click <strong>Commit changes</strong>. Netlify publishes the new look automatically.</li>
+        </ol>
+        <p class="st-muted">Your Studio settings in this browser stay as they are.</p>
+        <div class="st-dialog-actions"><button class="st-btn">Close</button></div>
+      </form>
+    </dialog>
+
+    <input type="file" id="st-import-file" accept="application/json,.json" hidden />
+    <div class="st-toast" id="st-toast" role="status" aria-live="polite"></div>
+
+    <script>
+      import '../scripts/studio';
+    </script>
+  </body>
+</html>

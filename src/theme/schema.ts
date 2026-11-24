@@ -151,7 +151,7 @@ export const DEFAULTS: Settings = {
   gradient: {
     type: 'linear', angle: 160,
     stops: [{ color: '#ff4f00', pos: 0 }, { color: '#efece5', pos: 100 }],
-    intensity: 12,
+    intensity: 10,
     targets: { page: false, hero: false, cards: false, accents: false, buttons: false },
   },
   motion: {

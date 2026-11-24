@@ -93,6 +93,24 @@ Put the file in `public/models/` and point the project's `model:` field at `/mod
 
 Not every project needs 3D. Use the viewer for things people want to turn around (mechanisms, assemblies). Use renders for everything else.
 
+## Customize the look (the Studio)
+
+Open **/studio/** on the site (the "Customize" link in the navigation).
+
+- Pick a **theme** (Drafting Paper is the original), then fine tune colors, fonts, spacing, backgrounds, gradients, motion and 3D settings.
+- Changes apply instantly and **save in that browser only**. Undo, redo, per setting reset, category reset, saved themes, and export or import of theme files are all built in.
+- To make a design what **every visitor** sees: click **Publish for everyone**, download `site-theme.json`, and upload it to `src/data/` on GitHub (the dialog links to the upload page). Netlify rebuilds in about a minute.
+
+How it works, if you want to change it in code:
+
+| File | What it does |
+|---|---|
+| `src/theme/schema.ts` | Every setting, its limits, and the original defaults. `sanitize()` checks anything saved or imported. |
+| `src/theme/presets.ts` | Themes, plus typography, motion, density and gradient presets. Add a theme here and it appears in the Studio. |
+| `src/theme/compute.ts` | Turns settings into CSS variables. Same code at build time and in the Studio. |
+| `src/data/site-theme.json` | The published design. |
+| `src/styles/global.css` | The design tokens every page uses. |
+
 ## Hidden things
 
 - Press **G** on any page to show the construction grid.
