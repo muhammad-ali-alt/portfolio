@@ -9,9 +9,9 @@ disciplines: [Robotics, Mechanical Design, CAD]
 tools: [SolidWorks]
 skills: [Part modeling, Linear patterns, Mirror features]
 featured: true
-cover: ./grip-iso.png
+cover: ./cover.png
 model: /models/grip.glb
-coverAlt: Gripper jaw in SolidWorks, isometric view, showing the pivot hole, hex nut pocket, three slots and serrated tip
+coverAlt: Gripper jaw, isometric render, showing the pivot hole, hex nut pocket, three slots and serrated tip
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
   - rev: A
@@ -29,7 +29,11 @@ PLACEHOLDER: I am building this by following a tutorial series, then changing it
 
 ## Gripper jaw
 
-The first finished part is one jaw of the gripper. Its features, in the order they were built:
+The first finished part is one jaw of the gripper.
+
+![The gripper jaw in SolidWorks, isometric view](./grip-iso.png)
+
+Its features, in the order they were built:
 
 | Feature | What it is |
 |---|---|

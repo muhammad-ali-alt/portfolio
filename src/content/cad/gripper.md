@@ -7,9 +7,12 @@ date: 2026-11-01  # PLACEHOLDER date
 software: SolidWorks
 purpose: Gripping jaw for the robotic arm's end effector.
 images:
+  - src: ../../assets/cad/grip.png
+    alt: Gripper jaw, isometric render
+    label: Render
   - src: ../../assets/cad/grip-iso.png
-    alt: Gripper jaw, isometric view
-    label: Isometric
+    alt: Gripper jaw in SolidWorks, isometric view
+    label: SolidWorks view
 model: /models/grip.glb
 formats: [SLDPRT, STL, GLB]
 stats:
