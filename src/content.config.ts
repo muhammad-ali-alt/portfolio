@@ -99,6 +99,7 @@ const cad = defineCollection({
     z.object({
       title: z.string(),
       number: z.string(),
+      series: z.string().optional(), // groups related parts in the CAD library, e.g. "Desktop Robotic Arm"
       kind: z.enum(['Part', 'Assembly', 'Mechanism', 'Concept', 'Surface model', 'Printable part', 'Reverse engineering', 'Experiment']),
       summary: z.string(),
       date: z.coerce.date(),
