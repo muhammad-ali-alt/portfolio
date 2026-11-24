@@ -149,6 +149,9 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
       <div class="wrap cg">{Array.from({ length: 12 }).map(() => <span />)}</div>
     </div>
 
+    <!-- Page transition "Sweep": a band of the primary color wipes across between pages -->
+    <div class="pt-sweep" aria-hidden="true"><span></span></div>
+
     <dialog class="lightbox" aria-label="Enlarged image">
       <form method="dialog"><button class="lb-close mono" aria-label="Close">Close ✕</button></form>
       <img alt="" />
@@ -218,11 +221,12 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
 
   .back-cover {
     margin-top: calc(var(--section-gap) * 1.25);
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--secondary);
+    color: var(--on-secondary);
+    border-radius: var(--radius) var(--radius) 0 0;
     padding-block: clamp(56px, 8vw, 110px) 32px;
-    --rule: color-mix(in srgb, var(--paper) 22%, transparent);
-    --graphite: color-mix(in srgb, var(--paper) 60%, transparent);
+    --rule: color-mix(in srgb, var(--on-secondary) 22%, transparent);
+    --graphite: color-mix(in srgb, var(--on-secondary) 60%, transparent);
   }
   .back-cover a:hover { color: var(--accent-inv); }
   .back-cover .accent { color: var(--accent-inv); }

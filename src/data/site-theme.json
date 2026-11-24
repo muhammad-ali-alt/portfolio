@@ -1,47 +1,48 @@
 {
   "version": 1,
-  "preset": "helk",
-  "scheme": "dark",
+  "preset": "workshop",
+  "scheme": "light",
   "colors": {
-    "bg": "#dceeed",
-    "bg2": "#c0e0de",
-    "surface": "#c0e0de",
-    "text": "#122c34",
-    "text2": "#506d75",
-    "border": "#a1c0bf",
-    "primary": "#143642",
-    "secondary": "#5a3a31",
-    "tertiary": "#506d75",
-    "accent": "#5a3a31",
-    "highlight": "#ffc857"
+    "bg": "#ede8e6",
+    "bg2": "#e5dedb",
+    "surface": "#f6f2f0",
+    "text": "#47220e",
+    "text2": "#7a5a4a",
+    "border": "#d3c8c2",
+    "primary": "#ffa125",
+    "secondary": "#1c2b4a",
+    "tertiary": "#8a6f62",
+    "accent": "#1c2b4a",
+    "highlight": "#ffa125"
   },
   "darkColors": {
-    "bg": "#122c34",
-    "bg2": "#143642",
-    "surface": "#1e404b",
-    "text": "#c0e0de",
-    "text2": "#8caaab",
-    "border": "#385459",
-    "primary": "#ffc857",
-    "secondary": "#c0e0de",
-    "tertiary": "#8caaab",
-    "accent": "#ffc857",
-    "highlight": "#ffc857"
+    "bg": "#141d33",
+    "bg2": "#1a2540",
+    "surface": "#202d4b",
+    "text": "#ede8e6",
+    "text2": "#a9adbb",
+    "border": "#2f3b58",
+    "primary": "#ffa125",
+    "secondary": "#ede8e6",
+    "tertiary": "#8b93a8",
+    "accent": "#ffa125",
+    "highlight": "#ffa125"
   },
   "type": {
-    "display": "archivo",
-    "heading": "archivo",
-    "body": "sourceSerif",
+    "display": "poppins",
+    "heading": "poppins",
+    "body": "newsreader",
     "ui": "jetbrainsMono",
     "baseScale": 1,
-    "headingScale": 1,
-    "displayWeight": 750,
-    "headingWeight": 650,
+    "headingScale": 0.85,
+    "displayWeight": 800,
+    "headingWeight": 700,
     "bodyWeight": 400,
-    "lineHeight": 1.55,
-    "headingTracking": -0.02,
-    "displayWidth": 118,
-    "measure": 68
+    "lineHeight": 1.6,
+    "headingTracking": -0.035,
+    "displayWidth": 100,
+    "measure": 68,
+    "displayCase": "upper"
   },
   "layout": {
     "density": "balanced",
@@ -50,10 +51,11 @@
     "sectionGap": 140,
     "elementGap": 48,
     "navGap": 22,
-    "radius": 0,
+    "radius": 28,
     "border": 1,
-    "shadow": "none",
-    "details": "full"
+    "shadow": "subtle",
+    "details": "reduced",
+    "stackCards": true
   },
   "background": {
     "style": "solid",
@@ -66,11 +68,11 @@
     "angle": 160,
     "stops": [
       {
-        "color": "#143642",
+        "color": "#ffa125",
         "pos": 0
       },
       {
-        "color": "#dceeed",
+        "color": "#ede8e6",
         "pos": 100
       }
     ],
@@ -85,28 +87,29 @@
   },
   "motion": {
     "enabled": true,
-    "style": "none",
+    "style": "combo",
     "direction": "up",
-    "distance": 16,
-    "duration": 500,
+    "distance": 24,
+    "duration": 650,
     "easing": "smooth",
-    "stagger": 60,
-    "scrollReveal": false,
-    "hover": "subtle",
-    "pageTransition": "fade",
+    "stagger": 70,
+    "scrollReveal": true,
+    "hover": "lively",
+    "pageTransition": "sweep",
     "parallax": 0,
-    "smoothScroll": true
+    "smoothScroll": true,
+    "textRise": true
   },
   "three": {
     "autoRotate": false,
     "rotateSpeed": 20,
-    "exposure": 0.7,
+    "exposure": 0.65,
     "shadow": 1,
     "shadowSoftness": 0.8,
     "environment": "neutral",
     "material": "original",
     "zoom": 100,
     "sensitivity": 1,
-    "backdrop": "grid"
+    "backdrop": "plain"
   }
 }

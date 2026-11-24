@@ -11,37 +11,42 @@ type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]>
 export const TYPE_PRESETS: Record<string, { label: string; note: string; type: Partial<Settings['type']> }> = {
   editorial: {
     label: 'Editorial Drafting', note: 'Wide grotesk headings, serif reading text. The original.',
-    type: { display: 'archivo', heading: 'archivo', body: 'sourceSerif', ui: 'jetbrainsMono', displayWeight: 750, headingWeight: 650, bodyWeight: 400, headingTracking: -0.02, displayWidth: 118, lineHeight: 1.55, headingScale: 1 },
+    type: { display: 'archivo', heading: 'archivo', body: 'sourceSerif', ui: 'jetbrainsMono', displayWeight: 750, headingWeight: 650, bodyWeight: 400, headingTracking: -0.02, displayWidth: 118, lineHeight: 1.55, headingScale: 1, displayCase: 'normal' },
   },
   technical: {
     label: 'Modern Technical', note: 'Geometric headings, neutral sans body.',
-    type: { display: 'spaceGrotesk', heading: 'spaceGrotesk', body: 'inter', ui: 'jetbrainsMono', displayWeight: 700, headingWeight: 600, bodyWeight: 400, headingTracking: -0.025, displayWidth: 100, lineHeight: 1.6, headingScale: 0.95 },
+    type: { display: 'spaceGrotesk', heading: 'spaceGrotesk', body: 'inter', ui: 'jetbrainsMono', displayWeight: 700, headingWeight: 600, bodyWeight: 400, headingTracking: -0.025, displayWidth: 100, lineHeight: 1.6, headingScale: 0.95, displayCase: 'normal' },
   },
   minimal: {
     label: 'Minimal', note: 'One family, quiet hierarchy.',
-    type: { display: 'inter', heading: 'inter', body: 'inter', ui: 'plexMono', displayWeight: 620, headingWeight: 600, bodyWeight: 400, headingTracking: -0.025, displayWidth: 100, lineHeight: 1.6, headingScale: 0.88 },
+    type: { display: 'inter', heading: 'inter', body: 'inter', ui: 'plexMono', displayWeight: 620, headingWeight: 600, bodyWeight: 400, headingTracking: -0.025, displayWidth: 100, lineHeight: 1.6, headingScale: 0.88, displayCase: 'normal' },
   },
   industrial: {
     label: 'Bold Industrial', note: 'Extended heavy headings, plain technical body.',
-    type: { display: 'archivo', heading: 'archivo', body: 'plexSans', ui: 'plexMono', displayWeight: 860, headingWeight: 740, bodyWeight: 400, headingTracking: -0.03, displayWidth: 125, lineHeight: 1.55, headingScale: 1.08 },
+    type: { display: 'archivo', heading: 'archivo', body: 'plexSans', ui: 'plexMono', displayWeight: 860, headingWeight: 740, bodyWeight: 400, headingTracking: -0.03, displayWidth: 125, lineHeight: 1.55, headingScale: 1.08, displayCase: 'normal' },
   },
   balanced: {
     label: 'Balanced', note: 'Friendly sans headings, warm serif body.',
-    type: { display: 'manrope', heading: 'manrope', body: 'newsreader', ui: 'plexMono', displayWeight: 760, headingWeight: 680, bodyWeight: 400, headingTracking: -0.03, displayWidth: 100, lineHeight: 1.6, headingScale: 0.95 },
+    type: { display: 'manrope', heading: 'manrope', body: 'newsreader', ui: 'plexMono', displayWeight: 760, headingWeight: 680, bodyWeight: 400, headingTracking: -0.03, displayWidth: 100, lineHeight: 1.6, headingScale: 0.95, displayCase: 'normal' },
+  },
+  workshop: {
+    label: 'Workshop', note: 'Heavy uppercase Poppins headlines, warm serif reading text.',
+    type: { display: 'poppins', heading: 'poppins', body: 'newsreader', ui: 'jetbrainsMono', displayWeight: 800, headingWeight: 700, bodyWeight: 400, headingTracking: -0.035, displayWidth: 100, lineHeight: 1.6, headingScale: 0.85, displayCase: 'upper' },
   },
   precision: {
     label: 'Precision', note: 'IBM Plex throughout, like a datasheet.',
-    type: { display: 'plexSans', heading: 'plexSans', body: 'plexSans', ui: 'plexMono', displayWeight: 640, headingWeight: 580, bodyWeight: 400, headingTracking: -0.02, displayWidth: 100, lineHeight: 1.6, headingScale: 0.95 },
+    type: { display: 'plexSans', heading: 'plexSans', body: 'plexSans', ui: 'plexMono', displayWeight: 640, headingWeight: 580, bodyWeight: 400, headingTracking: -0.02, displayWidth: 100, lineHeight: 1.6, headingScale: 0.95, displayCase: 'normal' },
   },
 };
 
 // ── motion ───────────────────────────────────────────────────
 export const MOTION_PRESETS: Record<string, { label: string; note: string; motion: Partial<Settings['motion']> }> = {
   original: { label: 'Original', note: 'Hover feedback and a page fade. Nothing on scroll.', motion: clone(DEFAULTS.motion) },
-  static: { label: 'Static', note: 'No motion beyond color changes.', motion: { enabled: true, style: 'none', scrollReveal: false, hover: 'none', pageTransition: 'none', parallax: 0 } },
-  subtle: { label: 'Subtle', note: 'Short fades as sections appear.', motion: { enabled: true, style: 'fade', direction: 'up', distance: 8, duration: 450, easing: 'standard', stagger: 40, scrollReveal: true, hover: 'subtle', pageTransition: 'fade', parallax: 0 } },
-  smooth: { label: 'Smooth', note: 'Sections rise into place, gentle parallax on the cover.', motion: { enabled: true, style: 'combo', direction: 'up', distance: 18, duration: 650, easing: 'smooth', stagger: 70, scrollReveal: true, hover: 'subtle', pageTransition: 'fade', parallax: 0.15 } },
-  dynamic: { label: 'Dynamic', note: 'Larger movement, livelier hovers, sliding page changes.', motion: { enabled: true, style: 'combo', direction: 'up', distance: 36, duration: 800, easing: 'smooth', stagger: 90, scrollReveal: true, hover: 'lively', pageTransition: 'slide', parallax: 0.35 } },
+  static: { label: 'Static', note: 'No motion beyond color changes.', motion: { enabled: true, style: 'none', scrollReveal: false, hover: 'none', pageTransition: 'none', parallax: 0, textRise: false } },
+  subtle: { label: 'Subtle', note: 'Short fades as sections appear.', motion: { enabled: true, style: 'fade', direction: 'up', distance: 8, duration: 450, easing: 'standard', stagger: 40, scrollReveal: true, hover: 'subtle', pageTransition: 'fade', parallax: 0, textRise: false } },
+  smooth: { label: 'Smooth', note: 'Sections rise into place, gentle parallax on the cover.', motion: { enabled: true, style: 'combo', direction: 'up', distance: 18, duration: 650, easing: 'smooth', stagger: 70, scrollReveal: true, hover: 'subtle', pageTransition: 'fade', parallax: 0.15, textRise: false } },
+  workshop: { label: 'Workshop', note: 'Headline words rise out of a mask, a color sweep between pages, lively hovers.', motion: { enabled: true, style: 'combo', direction: 'up', distance: 24, duration: 650, easing: 'smooth', stagger: 70, scrollReveal: true, hover: 'lively', pageTransition: 'sweep', parallax: 0, textRise: true } },
+  dynamic: { label: 'Dynamic', note: 'Larger movement, livelier hovers, sliding page changes.', motion: { enabled: true, style: 'combo', direction: 'up', distance: 36, duration: 800, easing: 'smooth', stagger: 90, scrollReveal: true, hover: 'lively', pageTransition: 'slide', parallax: 0.35, textRise: false } },
 };
 
 // ── density ──────────────────────────────────────────────────
@@ -70,6 +75,17 @@ export const THEMES: Record<string, { label: string; note: string; patch: DeepPa
     label: 'Drafting Paper',
     note: 'The original: warm paper, black ink, one international orange. Follows your device into a graphite night mode.',
     patch: { ...clone({ colors: DEFAULTS.colors, darkColors: DEFAULTS.darkColors }), scheme: 'auto', typePreset: 'editorial', motionPreset: 'original', layout: { radius: 0, border: 1, shadow: 'none', details: 'full', ...DENSITY.balanced, density: 'balanced' }, background: { style: 'solid' }, three: { backdrop: 'grid', exposure: 0.55, environment: 'neutral' } },
+  },
+  workshop: {
+    label: 'Warm Workshop',
+    note: 'Pastel paper, brown ink, orange and navy. Uppercase Poppins, stacked project cards, a color sweep between pages. Inspired by Ordix.',
+    patch: {
+      colors: { bg: '#ede8e6', bg2: '#e5dedb', surface: '#f6f2f0', text: '#47220e', text2: '#7a5a4a', border: '#d3c8c2', primary: '#ffa125', secondary: '#1c2b4a', tertiary: '#8a6f62', accent: '#1c2b4a', highlight: '#ffa125' },
+      darkColors: { bg: '#141d33', bg2: '#1a2540', surface: '#202d4b', text: '#ede8e6', text2: '#a9adbb', border: '#2f3b58', primary: '#ffa125', secondary: '#ede8e6', tertiary: '#8b93a8', accent: '#ffa125', highlight: '#ffa125' },
+      scheme: 'light', typePreset: 'workshop', motionPreset: 'workshop',
+      layout: { radius: 28, border: 1, shadow: 'subtle', details: 'reduced', stackCards: true, ...DENSITY.balanced, density: 'balanced' },
+      background: { style: 'solid' }, three: { backdrop: 'plain', exposure: 0.65, environment: 'neutral' },
+    },
   },
   helk: {
     label: 'Helk',

@@ -28,6 +28,8 @@ export const FONTS = {
   spaceGrotesk: { label: 'Space Grotesk', stack: "'Space Grotesk Variable', system-ui, sans-serif", kind: 'sans' },
   plexSans: { label: 'IBM Plex Sans', stack: "'IBM Plex Sans Variable', system-ui, sans-serif", kind: 'sans' },
   sora: { label: 'Sora', stack: "'Sora Variable', system-ui, sans-serif", kind: 'sans' },
+  poppins: { label: 'Poppins', stack: "'Poppins', system-ui, sans-serif", kind: 'sans' },
+  instrumentSerif: { label: 'Instrument Serif', stack: "'Instrument Serif', Georgia, serif", kind: 'serif' },
   sourceSerif: { label: 'Source Serif', stack: "'Source Serif 4 Variable', Georgia, serif", kind: 'serif' },
   newsreader: { label: 'Newsreader', stack: "'Newsreader Variable', Georgia, serif", kind: 'serif' },
   fraunces: { label: 'Fraunces', stack: "'Fraunces Variable', Georgia, serif", kind: 'serif' },
@@ -46,7 +48,8 @@ export const OPTIONS = {
   direction: ['up', 'down', 'left', 'right'],
   easing: ['standard', 'smooth', 'snappy', 'linear'],
   hover: ['none', 'subtle', 'lively'],
-  pageTransition: ['none', 'fade', 'slide'],
+  pageTransition: ['none', 'fade', 'slide', 'sweep'],
+  displayCase: ['normal', 'upper'],
   environment: ['neutral', 'legacy'],
   material: ['original', 'clay', 'satin', 'metal'],
   backdrop: ['grid', 'plain', 'dark', 'transparent'],
@@ -64,12 +67,14 @@ export type Settings = {
     baseScale: number; headingScale: number;
     displayWeight: number; headingWeight: number; bodyWeight: number;
     lineHeight: number; headingTracking: number; displayWidth: number; measure: number;
+    displayCase: (typeof OPTIONS.displayCase)[number];
   };
   layout: {
     density: (typeof OPTIONS.density)[number];
     maxWidth: number; gutter: number; sectionGap: number; elementGap: number; navGap: number;
     radius: number; border: number; shadow: (typeof OPTIONS.shadow)[number];
     details: (typeof OPTIONS.details)[number];
+    stackCards: boolean;
   };
   background: { style: (typeof OPTIONS.bgStyle)[number]; gridSize: number; gridOpacity: number; textureOpacity: number };
   gradient: {
@@ -81,7 +86,7 @@ export type Settings = {
     enabled: boolean; style: (typeof OPTIONS.motionStyle)[number]; direction: (typeof OPTIONS.direction)[number];
     distance: number; duration: number; easing: (typeof OPTIONS.easing)[number]; stagger: number;
     scrollReveal: boolean; hover: (typeof OPTIONS.hover)[number]; pageTransition: (typeof OPTIONS.pageTransition)[number];
-    parallax: number; smoothScroll: boolean;
+    parallax: number; smoothScroll: boolean; textRise: boolean;
   };
   three: {
     autoRotate: boolean; rotateSpeed: number; exposure: number; shadow: number; shadowSoftness: number;
@@ -141,11 +146,11 @@ export const DEFAULTS: Settings = {
   type: {
     display: 'archivo', heading: 'archivo', body: 'sourceSerif', ui: 'jetbrainsMono',
     baseScale: 1, headingScale: 1, displayWeight: 750, headingWeight: 650, bodyWeight: 400,
-    lineHeight: 1.55, headingTracking: -0.02, displayWidth: 118, measure: 68,
+    lineHeight: 1.55, headingTracking: -0.02, displayWidth: 118, measure: 68, displayCase: 'normal',
   },
   layout: {
     density: 'balanced', maxWidth: 1440, gutter: 40, sectionGap: 140, elementGap: 48, navGap: 22,
-    radius: 0, border: 1, shadow: 'none', details: 'full',
+    radius: 0, border: 1, shadow: 'none', details: 'full', stackCards: false,
   },
   background: { style: 'solid', gridSize: 40, gridOpacity: 0.35, textureOpacity: 0.3 },
   gradient: {
@@ -156,7 +161,7 @@ export const DEFAULTS: Settings = {
   },
   motion: {
     enabled: true, style: 'none', direction: 'up', distance: 16, duration: 500, easing: 'smooth', stagger: 60,
-    scrollReveal: false, hover: 'subtle', pageTransition: 'fade', parallax: 0, smoothScroll: true,
+    scrollReveal: false, hover: 'subtle', pageTransition: 'fade', parallax: 0, smoothScroll: true, textRise: false,
   },
   three: {
     autoRotate: false, rotateSpeed: 20, exposure: 0.55, shadow: 1, shadowSoftness: 0.8,
@@ -204,6 +209,7 @@ function cleanSection<T extends Record<string, any>>(input: unknown, fallback: T
 function allowedFor(path: string): readonly string[] | null {
   const map: Record<string, readonly string[]> = {
     'type.display': Object.keys(FONTS), 'type.heading': Object.keys(FONTS), 'type.body': Object.keys(FONTS), 'type.ui': Object.keys(FONTS),
+    'type.displayCase': OPTIONS.displayCase,
     'layout.density': OPTIONS.density, 'layout.shadow': OPTIONS.shadow, 'layout.details': OPTIONS.details,
     'background.style': OPTIONS.bgStyle, 'gradient.type': OPTIONS.gradType,
     'motion.style': OPTIONS.motionStyle, 'motion.direction': OPTIONS.direction, 'motion.easing': OPTIONS.easing,

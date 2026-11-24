@@ -371,6 +371,7 @@ const CATS: Cat[] = [
           slider('type.headingTracking', 'Heading letter spacing', { fmt: (v) => `${v.toFixed(3)} em` }),
           slider('type.displayWidth', 'Display width', { unit: '%', help: 'Stretches or condenses display type. Only Archivo supports this; other fonts ignore it.' }),
           !width.width ? h('p', { class: 'st-warn' }, `${FONTS[t.display].label} has no width axis, so Display width has no effect with it.`) : null,
+          seg('type.displayCase', 'Display letter case', [['normal', 'As written'], ['upper', 'UPPERCASE']], { help: 'Uppercase applies to your name on the cover, page titles and big statements.' }),
           slider('type.measure', 'Reading width', { unit: ' characters', help: 'Maximum line length in project write ups. About 60 to 75 reads best.' }),
         ], { open: false }),
         section('Preview', [
@@ -409,6 +410,9 @@ const CATS: Cat[] = [
           slider('layout.radius', 'Corner radius', { unit: 'px' }),
           slider('layout.border', 'Border thickness', { unit: 'px' }),
           seg('layout.shadow', 'Shadow', [['none', 'None'], ['subtle', 'Subtle'], ['medium', 'Medium'], ['dramatic', 'Dramatic']], { help: 'Applies to image plates, the 3D viewer, cards and panels.' }),
+        ]),
+        section('Home page', [
+          toggle('layout.stackCards', 'Stack the featured projects', { help: 'Selected work becomes large tilted cards that stick and stack as you scroll. Phones get a normal list.' }),
         ]),
         section('Drafting details', [
           seg('layout.details', 'Technical drawing details', [['full', 'Full'], ['reduced', 'Reduced'], ['off', 'Off']],
@@ -494,6 +498,7 @@ const CATS: Cat[] = [
         ]),
         section('Section entrances', [
           toggle('motion.scrollReveal', 'Animate sections as they scroll into view'),
+          toggle('motion.textRise', 'Headline words rise into view', { help: 'Each word of big headings slides up from behind a mask as it scrolls in.' }),
           seg('motion.style', 'Style', [['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide'], ['scale', 'Scale'], ['reveal', 'Reveal'], ['combo', 'Combination']],
             { help: 'Reveal wipes content in like a curtain. Combination fades and slides together.' }),
           seg('motion.direction', 'Direction', [['up', 'Up'], ['down', 'Down'], ['left', 'Left'], ['right', 'Right']], { help: 'For Slide, Reveal and Combination.' }),
@@ -505,7 +510,7 @@ const CATS: Cat[] = [
         ]),
         section('Interaction', [
           seg('motion.hover', 'Hover effects', [['none', 'None'], ['subtle', 'Subtle'], ['lively', 'Lively']], { help: 'How far cards, rows and titles shift or zoom when hovered.' }),
-          seg('motion.pageTransition', 'Page transitions', [['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide']], { help: 'Between pages, in browsers that support view transitions (Chrome, Edge, Safari 18).' }),
+          seg('motion.pageTransition', 'Page transitions', [['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide'], ['sweep', 'Sweep']], { help: 'Fade and Slide use view transitions (Chrome, Edge, Safari 18). Sweep wipes a band of your primary color across the screen and works in every browser.' }),
           slider('motion.parallax', 'Cover parallax', { fmt: (v) => (v ? `${Math.round(v * 100)}%` : 'Off'), help: 'Your name on the home cover drifts slower than the page while scrolling.' }),
           toggle('motion.smoothScroll', 'Smooth scrolling for in page links'),
         ]),

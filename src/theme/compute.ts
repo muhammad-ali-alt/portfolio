@@ -53,7 +53,9 @@ function paletteVars(p: Palette): Record<string, string> {
     '--accent': p.primary,
     '--accent-ink': ensureContrast(p.primary, p.bg, 4.5),
     '--on-accent': onColor(p.primary),
-    '--accent-inv': ensureContrast(p.primary, p.text, 4.5), // primary on inverted areas (text colored background)
+    // Dark (or inverted) sections such as the closing back cover use the secondary color.
+    '--on-secondary': contrast(p.bg, p.secondary) >= 4.5 ? p.bg : onColor(p.secondary),
+    '--accent-inv': ensureContrast(p.primary, p.secondary, 4.5), // primary on secondary colored sections
     '--secondary': p.secondary,
     '--tertiary': p.tertiary,
     '--emph': ensureContrast(p.accent, p.bg, 4.5),
@@ -172,6 +174,9 @@ export function computeTheme(s: Settings): { css: string; attrs: Record<string, 
     'data-pt': motionOn ? m.pageTransition : 'none',
     'data-smooth': m.smoothScroll ? 'on' : 'off',
     'data-parallax': motionOn && m.parallax > 0 ? 'on' : 'off',
+    'data-textrise': motionOn && m.textRise ? 'on' : 'off',
+    'data-stack': l.stackCards ? 'on' : 'off',
+    'data-case': t.displayCase,
     'data-bg': b.style,
     'data-details': l.details,
     'data-mv-bg': s.three.backdrop,
