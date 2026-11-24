@@ -7,6 +7,7 @@ date: 2025-11-01  # approximate
 software: Onshape
 purpose: Team CAD for the ENES100 Over Terrain Vehicle.
 model: /models/otv.glb
+modelPoster: ../../assets/cad/otv.png
 modelOrientation: 0deg -90deg 0deg
 modelOrbit: 135deg 68deg 95%
 images:

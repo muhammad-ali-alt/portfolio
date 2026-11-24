@@ -3,6 +3,9 @@
 // closing "back cover" at the bottom of every page.
 import '../styles/global.css';
 import { site } from '../data/site';
+import publishedTheme from '../data/site-theme.json';
+import { sanitize } from '../theme/schema';
+import { computeTheme } from '../theme/compute';
 
 interface Props {
   title?: string;
@@ -22,9 +25,13 @@ const nav = [
 ];
 const built = new Date().toISOString().slice(0, 10);
 const links = site.links.filter((l) => l.href);
+
+// The published theme (src/data/site-theme.json) is baked into every page.
+// A theme saved in the Studio overrides it in that browser only (see the boot script).
+const theme = computeTheme(sanitize(publishedTheme));
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" {...theme.attrs} data-site-attrs={JSON.stringify(theme.attrs)}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,6 +42,29 @@ const links = site.links.filter((l) => l.href);
     <meta name="theme-color" content="#efece5" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="canonical" href={new URL(path, Astro.site)} />
+    <style is:inline id="site-theme" set:html={theme.css}></style>
+    <script is:inline>
+      // Theme boot: runs before the page paints, so a Studio theme never flashes.
+      (function () {
+        var d = document.documentElement, KEY = 'aw.theme.v1';
+        d.classList.add('js');
+        function apply(t) {
+          var el = document.getElementById('user-theme');
+          var attrs = t && t.attrs ? t.attrs : JSON.parse(d.getAttribute('data-site-attrs') || '{}');
+          if (t && typeof t.css === 'string') {
+            if (!el) { el = document.createElement('style'); el.id = 'user-theme'; document.head.appendChild(el); }
+            el.textContent = t.css;
+          } else if (el) el.remove();
+          for (var k in attrs) if (/^data-[a-z0-9-]+$/.test(k)) d.setAttribute(k, String(attrs[k]));
+        }
+        try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) apply(saved); } catch (e) {}
+        // The Studio's live preview calls this; other open tabs follow along through 'storage'.
+        window.__awApply = function (t) { apply(t); window.dispatchEvent(new CustomEvent('aw-theme')); };
+        addEventListener('storage', function (e) {
+          if (e.key === KEY) { try { window.__awApply(JSON.parse(e.newValue || 'null')); } catch (_) {} }
+        });
+      })();
+    </script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -56,6 +86,11 @@ const links = site.links.filter((l) => l.href);
               </a>
             </li>
           ))}
+          <li class="nav-studio">
+            <a href="/studio/" aria-current={path.startsWith('/studio') ? 'page' : undefined}>
+              <span class="studio-dot" aria-hidden="true"></span>Customize
+            </a>
+          </li>
         </ul>
       </nav>
     </header>
@@ -67,7 +102,7 @@ const links = site.links.filter((l) => l.href);
     <!-- BACK COVER: closes every page like the title block on a drawing -->
     <footer class="back-cover">
       <div class="wrap">
-        <p class="closing">
+        <p class="closing display">
           Looking for someone to design, build, test and write it down?
           <span class="accent">I am looking for a summer 2027 mechanical engineering internship.</span>
         </p>
@@ -125,8 +160,6 @@ const links = site.links.filter((l) => l.href);
 </html>
 
 <style>
-  @view-transition { navigation: auto; }
-
   .masthead {
     display: flex;
     justify-content: space-between;
@@ -137,7 +170,7 @@ const links = site.links.filter((l) => l.href);
   }
   .wordmark { display: flex; align-items: center; gap: 12px; text-decoration: none; }
   .wm-mark {
-    font-family: var(--f-display);
+    font-family: var(--f-heading);
     font-weight: 800;
     font-stretch: 125%;
     font-size: 0.95rem;
@@ -145,16 +178,25 @@ const links = site.links.filter((l) => l.href);
     width: 40px; height: 40px;
     display: grid; place-items: center;
     background: var(--ink); color: var(--paper);
-    transition: background 0.2s;
+    border-radius: var(--radius-btn);
+    transition: background calc(0.2s * var(--speed));
   }
-  .wordmark:hover .wm-mark { background: var(--accent); color: #fff; }
+  .wordmark:hover .wm-mark { background: var(--accent); color: var(--on-accent); }
   .wm-text { display: grid; line-height: 1.15; }
-  .wm-text strong { font-family: var(--f-display); font-size: 1rem; font-weight: 650; }
+  .wm-text strong { font-family: var(--f-heading); font-size: 1rem; font-weight: 650; }
   .wordmark:hover { color: inherit; }
 
-  nav ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; }
+  nav ul { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--nav-gap); margin: 0; padding: 0; }
+  .nav-studio { padding-left: var(--nav-gap); border-left: var(--bw) solid var(--rule); }
+  .nav-studio a { font-family: var(--f-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--graphite); align-items: center; }
+  .nav-studio a:hover { color: var(--accent-ink); }
+  .studio-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: conic-gradient(var(--accent) 0 25%, var(--ink) 0 50%, var(--rule) 0 75%, var(--surface) 0);
+    border: var(--bw) solid var(--ink);
+  }
   nav a {
-    font-family: var(--f-display);
+    font-family: var(--f-heading);
     font-size: 0.95rem;
     font-weight: 550;
     text-decoration: none;
@@ -167,12 +209,13 @@ const links = site.links.filter((l) => l.href);
   @media (max-width: 560px) {
     .wm-text .label { display: none; }
     nav ul { gap: 2px 14px; }
+    .nav-studio { padding-left: 0; border-left: 0; }
     nav a { font-size: 0.88rem; }
     .nav-n { display: none; }
   }
 
   .back-cover {
-    margin-top: clamp(80px, 12vw, 180px);
+    margin-top: calc(var(--section-gap) * 1.25);
     background: var(--ink);
     color: var(--paper);
     padding-block: clamp(56px, 8vw, 110px) 32px;
@@ -182,12 +225,11 @@ const links = site.links.filter((l) => l.href);
   .back-cover a:hover { color: var(--accent); }
   .back-cover .accent { color: var(--accent); }
   .closing {
-    font-family: var(--f-display);
-    font-size: clamp(1.6rem, 1rem + 2.8vw, 3.4rem);
-    font-weight: 600;
-    font-stretch: 105%;
+    font-size: calc(clamp(1.6rem, 1rem + 2.8vw, 3.4rem) * var(--h-scale));
+    font-weight: calc(var(--w-display) - 150);
+    font-stretch: calc(var(--stretch) - 13%);
     line-height: 1.08;
-    letter-spacing: -0.025em;
+    letter-spacing: calc(var(--track) - 0.005em);
     max-width: 22ch;
     margin-bottom: clamp(40px, 6vw, 80px);
   }
@@ -195,15 +237,15 @@ const links = site.links.filter((l) => l.href);
   .tb {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    border: 1px solid var(--rule);
-    border-width: 1px 0 0 1px;
+    border: var(--bw) solid var(--rule);
+    border-width: var(--bw) 0 0 var(--bw);
   }
   .tb-cell {
-    border: 1px solid var(--rule);
-    border-width: 0 1px 1px 0;
+    border: var(--bw) solid var(--rule);
+    border-width: 0 var(--bw) var(--bw) 0;
     padding: 12px 14px 14px;
     display: grid; gap: 4px; align-content: start;
-    font-family: var(--f-display); font-size: 0.95rem;
+    font-family: var(--f-heading); font-size: 0.95rem;
     min-width: 0; overflow-wrap: anywhere;
   }
   .tb-wide { grid-column: span 2; }
@@ -213,7 +255,7 @@ const links = site.links.filter((l) => l.href);
     .tb-name { grid-column: span 2; }
   }
   .hint { margin-top: 28px; margin-bottom: 0; }
-  kbd { font-family: var(--f-mono); border: 1px solid var(--rule); padding: 0 5px; }
+  kbd { font-family: var(--f-mono); border: var(--bw) solid var(--rule); padding: 0 5px; }
   @media (pointer: coarse) { .hint { display: none; } }
 
   .cg { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--gutter); height: 100%; }
@@ -227,6 +269,6 @@ const links = site.links.filter((l) => l.href);
   .lightbox[open] { display: grid; grid-template-rows: auto 1fr auto; }
   .lightbox::backdrop { background: transparent; }
   .lightbox img { max-width: calc(100% - 32px); max-height: 100%; margin: auto; object-fit: contain; min-height: 0; }
-  .lb-close { justify-self: end; margin: 16px; background: none; border: 1px solid var(--ink); color: var(--ink); padding: 6px 10px; cursor: pointer; }
+  .lb-close { justify-self: end; margin: 16px; background: none; border: var(--bw) solid var(--ink); color: var(--ink); padding: 6px 10px; cursor: pointer; }
   .lb-cap { text-align: center; padding: 12px 16px 20px; margin: 0; }
 </style>

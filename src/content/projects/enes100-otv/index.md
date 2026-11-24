@@ -12,6 +12,7 @@ featured: true
 cover: ./cover.png
 coverAlt: The Over Terrain Vehicle assembly, with mecanum wheels, electronics deck, crane mast and arms
 model: /models/otv.glb
+modelPoster: ./cover.png
 modelOrientation: 0deg -90deg 0deg
 modelOrbit: 135deg 68deg 95%
 credit: ENES100 Introduction to Engineering Design, University of Maryland, Fall 2025. Team Builders, eight members. The CAD models were made by a teammate.

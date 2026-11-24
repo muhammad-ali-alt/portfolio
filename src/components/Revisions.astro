@@ -28,20 +28,21 @@ const { revisions } = Astro.props;
     display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr));
     position: relative;
   }
-  ol::before { content: ''; position: absolute; left: 0; right: 0; top: 17px; border-top: 1px solid var(--ink); }
+  ol::before { content: ''; position: absolute; left: 0; right: 0; top: 17px; border-top: var(--bw) solid var(--secondary); }
   li { position: relative; padding-right: 1.2rem; display: grid; gap: 6px; align-content: start; }
   .rev {
     width: 34px; height: 34px; display: grid; place-items: center;
-    font-family: var(--f-display); font-weight: 700; font-size: 0.95rem;
-    background: var(--paper); border: 1px solid var(--ink); position: relative;
-    transition: background 0.2s, color 0.2s;
+    font-family: var(--f-heading); font-weight: 700; font-size: 0.95rem;
+    background: var(--paper); border: var(--bw) solid var(--ink); position: relative;
+    border-radius: var(--radius-btn);
+    transition: background calc(0.2s * var(--speed)), color calc(0.2s * var(--speed));
   }
-  li.current .rev, li:hover .rev { background: var(--accent); border-color: var(--accent); color: #fff; }
+  li.current .rev, li:hover .rev { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .date { color: var(--graphite); }
   .note { font-size: 0.95rem; line-height: 1.4; }
   @media (max-width: 640px) {
     ol { grid-template-columns: 1fr; gap: 1.2rem; padding-left: 0; }
-    ol::before { left: 17px; right: auto; top: 0; bottom: 0; border-top: 0; border-left: 1px solid var(--ink); }
+    ol::before { left: 17px; right: auto; top: 0; bottom: 0; border-top: 0; border-left: var(--bw) solid var(--secondary); }
     li { grid-template-columns: 34px 1fr; column-gap: 14px; }
     .date, .note { grid-column: 2; }
     .rev { grid-row: span 2; }

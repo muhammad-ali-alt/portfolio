@@ -78,6 +78,7 @@ const cad = defineCollection({
       model: z.string().optional(),
       modelOrientation: z.string().optional(),
       modelOrbit: z.string().optional(),
+      modelPoster: image().optional(),
       images: z.array(z.object({ src: image(), alt: z.string(), label: z.string().optional() })).default([]),
       formats: z.array(z.string()).default([]),
       downloads: z.array(z.object({ label: z.string(), file: z.string() })).default([]),

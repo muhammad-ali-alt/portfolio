@@ -117,47 +117,48 @@ const isPh = (s: string) => s.startsWith('PLACEHOLDER');
 
 <style>
   .page-head { padding-block: clamp(32px, 6vw, 88px) clamp(24px, 4vw, 48px); display: grid; gap: 14px; }
-  .serif { font-family: var(--f-text); font-style: italic; font-weight: 400; font-stretch: 100%; letter-spacing: -0.02em; color: var(--accent-ink); }
+  .serif { font-family: var(--f-text); font-style: italic; font-weight: 400; font-stretch: 100%; letter-spacing: -0.02em; color: var(--emph); }
 
   .spread { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(28px, 5vw, 80px); align-items: end; }
   @media (max-width: 860px) { .spread { grid-template-columns: 1fr; } }
   .portrait { margin: 0; }
-  .photo { position: relative; aspect-ratio: 4 / 5; background: var(--paper-2); }
+  .photo { position: relative; aspect-ratio: 4 / 5; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .photo :global(img) { border-radius: var(--radius); }
   .photo :global(img) { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); transition: filter 0.6s; }
   .photo:hover :global(img) { filter: none; }
-  .ph-photo { position: absolute; inset: 12px; border: 1px dashed var(--rule); display: grid; place-content: center; text-align: center; gap: 6px; color: var(--graphite); font-size: 0.75rem; }
+  .ph-photo { position: absolute; inset: 12px; border: var(--bw) dashed var(--rule); display: grid; place-content: center; text-align: center; gap: 6px; color: var(--graphite); font-size: 0.75rem; }
   .balloon {
     position: absolute; translate: -50% -50%;
     width: 34px; height: 34px; border-radius: 50%;
     display: grid; place-items: center;
-    background: var(--paper); border: 1.5px solid var(--ink);
-    font-family: var(--f-display); font-weight: 700; font-size: 0.95rem;
-    transition: background 0.2s, color 0.2s, scale 0.2s;
+    background: var(--paper); border: calc(var(--bw) * 1.5) solid var(--ink);
+    font-family: var(--f-heading); font-weight: 700; font-size: 0.95rem;
+    transition: background calc(0.2s * var(--speed)), color calc(0.2s * var(--speed)), scale calc(0.2s * var(--speed));
     cursor: default;
   }
   .balloon::after { content: ''; position: absolute; width: 5px; height: 5px; background: var(--ink); border-radius: 50%; left: 50%; top: calc(100% + 18px); translate: -50% 0; }
-  .balloon::before { content: ''; position: absolute; left: 50%; top: 100%; height: 18px; border-left: 1px solid var(--ink); }
-  .balloon.hi { background: var(--accent); color: #fff; border-color: var(--accent); scale: 1.12; }
+  .balloon::before { content: ''; position: absolute; left: 50%; top: 100%; height: 18px; border-left: var(--bw) solid var(--ink); }
+  .balloon.hi { background: var(--accent); color: var(--on-accent); border-color: var(--accent); scale: calc(1 + 0.06 * var(--hover-k)); }
   figcaption { margin-top: 10px; }
 
-  .intro { font-family: var(--f-display); font-size: clamp(1.4rem, 1rem + 1.4vw, 2.1rem); font-weight: 550; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 1.5em; }
+  .intro { font-family: var(--f-display); font-size: calc(clamp(1.4rem, 1rem + 1.4vw, 2.1rem) * var(--h-scale)); font-weight: calc(var(--w-heading) - 100); line-height: 1.2; letter-spacing: var(--track); margin-bottom: 1.5em; }
   table { width: 100%; border-collapse: collapse; }
   caption { text-align: left; padding-bottom: 8px; }
-  th { text-align: left; font-weight: 450; padding: 8px 10px 8px 0; border-top: 1.5px solid var(--ink); border-bottom: 1px solid var(--ink); }
-  td { padding: 12px 10px 12px 0; border-bottom: 1px solid var(--rule); font-family: var(--f-display); font-size: 1rem; vertical-align: top; transition: background 0.2s; }
+  th { text-align: left; font-weight: 450; padding: 8px 10px 8px 0; border-top: calc(var(--bw) * 1.5) solid var(--ink); border-bottom: var(--bw) solid var(--ink); }
+  td { padding: 12px 10px 12px 0; border-bottom: var(--bw) solid var(--rule); font-family: var(--f-heading); font-size: 1rem; vertical-align: top; transition: background 0.2s; }
   td:first-child { width: 3rem; }
-  tr.hi td { background: var(--paper-2); }
+  tr.hi td { background: color-mix(in srgb, var(--highlight) 6%, var(--paper-2)); }
   tr.hi td:first-child { color: var(--accent-ink); }
 
-  .story { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(28px, 5vw, 80px); margin-top: clamp(64px, 9vw, 130px); padding-top: 24px; border-top: 1px solid var(--ink); }
+  .story { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(28px, 5vw, 80px); margin-top: clamp(64px, 9vw, 130px); padding-top: 24px; border-top: var(--bw) solid var(--ink); }
   @media (max-width: 860px) { .story { grid-template-columns: 1fr; } }
   .story h2 { font-family: var(--f-mono); font-size: var(--t-mono); font-weight: 450; margin: 0 0 12px; }
   .col-a p { font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem); line-height: 1.55; max-width: 58ch; }
   .col-a h2:not(:first-child) { margin-top: 2.5em; }
-  .dropcap-p:first-of-type::first-letter { font-family: var(--f-display); font-weight: 750; font-size: 3.3em; float: left; line-height: 0.85; margin: 0.06em 0.1em 0 0; color: var(--accent-ink); }
+  .dropcap-p:first-of-type::first-letter { font-family: var(--f-display); font-weight: var(--w-display); font-size: 3.3em; float: left; line-height: 0.85; margin: 0.06em 0.1em 0 0; color: var(--emph); }
   .col-b { display: grid; gap: 28px; align-content: start; }
   .box ul, .box ol { margin: 0; padding: 0; list-style: none; }
-  .box li { padding: 8px 0; border-bottom: 1px solid var(--rule); font-family: var(--f-display); font-size: 1rem; }
+  .box li { padding: 8px 0; border-bottom: var(--bw) solid var(--rule); font-family: var(--f-heading); font-size: 1rem; }
   .box ol { counter-reset: g; }
   .box ol li { counter-increment: g; display: grid; grid-template-columns: 2rem 1fr; }
   .box ol li::before { content: counter(g, decimal-leading-zero); font-family: var(--f-mono); font-size: 0.75rem; color: var(--graphite); padding-top: 3px; }
@@ -166,15 +167,15 @@ const isPh = (s: string) => s.startsWith('PLACEHOLDER');
 
   .history { margin-top: clamp(64px, 9vw, 120px); }
   .jobs, .inv { list-style: none; margin: 0; padding: 0; }
-  .jobs li { display: grid; grid-template-columns: 11rem minmax(0, 1.2fr) minmax(0, 1.5fr); gap: 1rem; padding: 16px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .jobs li { display: grid; grid-template-columns: 11rem minmax(0, 1.2fr) minmax(0, 1.5fr); gap: 1rem; padding: 16px 0; border-bottom: var(--bw) solid var(--rule); align-items: baseline; }
   .when { color: var(--graphite); }
   .role { display: grid; gap: 2px; }
-  .role strong { font-family: var(--f-display); font-weight: 600; font-size: 1.15rem; }
+  .role strong { font-family: var(--f-heading); font-weight: 600; font-size: 1.15rem; }
   .role span { color: var(--graphite); font-size: 0.95rem; }
   .jnote { font-size: 0.98rem; line-height: 1.45; }
   @media (max-width: 760px) { .jobs li { grid-template-columns: 1fr; gap: 4px; } }
   .inv-head { margin-top: clamp(40px, 6vw, 64px); }
-  .inv li { padding: 12px 0; border-bottom: 1px solid var(--rule); font-family: var(--f-display); font-size: 1.05rem; }
+  .inv li { padding: 12px 0; border-bottom: var(--bw) solid var(--rule); font-family: var(--f-heading); font-size: 1.05rem; }
   .notes { margin-top: clamp(56px, 8vw, 100px); max-width: 60ch; }
   .notes h2 { font-family: var(--f-mono); font-size: var(--t-mono); font-weight: 450; margin-bottom: 10px; }
   .notes ol { margin: 0; padding-left: 1.4em; font-family: var(--f-mono); font-size: 0.82rem; line-height: 1.7; }

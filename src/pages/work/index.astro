@@ -20,13 +20,13 @@ const usedC = CONTEXTS.filter((c) => projects.some((p) => p.data.context === c))
     <div class="filters" role="group" aria-label="Filter projects">
       <div class="fgroup" data-group="d">
         <span class="label">Discipline</span>
-        <button type="button" data-value="" aria-pressed="true">All</button>
-        {usedD.map((d) => <button type="button" data-value={d} aria-pressed="false">{d}</button>)}
+        <button type="button" class="btn" data-value="" aria-pressed="true">All</button>
+        {usedD.map((d) => <button type="button" class="btn" data-value={d} aria-pressed="false">{d}</button>)}
       </div>
       <div class="fgroup" data-group="c">
         <span class="label">Context</span>
-        <button type="button" data-value="" aria-pressed="true">All</button>
-        {usedC.map((c) => <button type="button" data-value={c} aria-pressed="false">{c}</button>)}
+        <button type="button" class="btn" data-value="" aria-pressed="true">All</button>
+        {usedC.map((c) => <button type="button" class="btn" data-value={c} aria-pressed="false">{c}</button>)}
       </div>
     </div>
 
@@ -132,16 +132,10 @@ const usedC = CONTEXTS.filter((c) => projects.some((p) => p.data.context === c))
   .page-head { padding-block: clamp(32px, 6vw, 88px) clamp(24px, 4vw, 48px); display: grid; gap: 14px; max-width: 900px; }
   .page-head p { color: var(--graphite); max-width: 52ch; margin: 0; }
 
-  .filters { display: grid; gap: 10px; border-top: 1px solid var(--ink); padding-top: 16px; }
+  .filters { display: grid; gap: 10px; border-top: var(--bw) solid var(--ink); padding-top: 16px; }
   .fgroup { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .fgroup .label { width: 7.5rem; flex-shrink: 0; }
-  .fgroup button {
-    font-family: var(--f-mono); font-size: 0.72rem; color: var(--ink);
-    background: none; border: 1px solid var(--rule); padding: 5px 10px; cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .fgroup button:hover { border-color: var(--ink); }
-  .fgroup button[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .fgroup button { font-family: var(--f-mono); font-size: 0.72rem; padding: 5px 10px; }
   @media (max-width: 640px) { .fgroup .label { width: 100%; } }
   .count { margin: 28px 0 8px; }
 
@@ -150,15 +144,15 @@ const usedC = CONTEXTS.filter((c) => projects.some((p) => p.data.context === c))
     display: grid;
     grid-template-columns: 5.5rem minmax(0, 1fr) 11rem 8rem 7.5rem 3.5rem;
     gap: 1rem; align-items: baseline;
-    padding: 16px 0; border-bottom: 1px solid var(--rule);
+    padding: 16px 0; border-bottom: var(--bw) solid var(--rule);
     text-decoration: none;
   }
   .row.head { padding: 8px 0; border-bottom-color: var(--ink); }
-  .row a { transition: background 0.2s, padding 0.3s var(--ease); }
-  .row a:hover { color: inherit; background: var(--paper-2); padding-left: 10px; }
+  .row a { transition: background calc(0.2s * var(--speed)), padding calc(0.3s * var(--speed)) var(--ease); }
+  .row a:hover { color: inherit; background: color-mix(in srgb, var(--highlight) 6%, var(--paper-2)); padding-left: calc(5px * var(--hover-k)); }
   .row a:hover .no { color: var(--accent-ink); }
   .title { display: grid; gap: 4px; justify-items: start; }
-  .title strong { font-family: var(--f-display); font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+  .title strong { font-family: var(--f-heading); font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
   .summary { color: var(--graphite); font-size: 0.95rem; line-height: 1.4; max-width: 60ch; }
   .disc, .ctx, .yr { color: var(--graphite); }
   .yr { text-align: right; padding-right: 8px; }
@@ -176,10 +170,10 @@ const usedC = CONTEXTS.filter((c) => projects.some((p) => p.data.context === c))
 
   .peek {
     position: fixed; left: 0; top: 0; width: 240px; z-index: 50; pointer-events: none;
-    opacity: 0; scale: 0.94; transition: opacity 0.2s, scale 0.25s var(--ease);
+    opacity: 0; scale: calc(1 - 0.03 * var(--hover-k)); transition: opacity calc(0.2s * var(--speed)), scale calc(0.25s * var(--speed)) var(--ease);
   }
   .peek.on { opacity: 1; scale: 1; }
-  .peek-inner { aspect-ratio: 4 / 3; background: var(--paper-2); border: 1px solid var(--ink); overflow: hidden; }
+  .peek-inner { aspect-ratio: 4 / 3; background: var(--surface); border: var(--bw) solid var(--ink); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
   .peek-inner :global(img) { width: 100%; height: 100%; object-fit: cover; }
   .peek-inner.blank {
     background:

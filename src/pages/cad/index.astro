@@ -49,16 +49,16 @@ const kinds = [...new Set(entries.map((e) => e.data.kind))];
   .drawer {
     list-style: none; margin: 0; padding: 0;
     display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
-    border-top: 1px solid var(--ink); border-left: 1px solid var(--rule);
+    border-top: var(--bw) solid var(--ink); border-left: var(--bw) solid var(--rule);
   }
-  .drawer > li { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .drawer > li { border-right: var(--bw) solid var(--rule); border-bottom: var(--bw) solid var(--rule); }
   .drawer a { display: grid; gap: 10px; padding: 14px 14px 20px; text-decoration: none; height: 100%; align-content: start; }
-  .drawer a:hover { color: inherit; background: var(--paper-2); }
-  .drawer a:hover :global(.plate img) { transform: scale(1.04) rotate(-0.5deg); }
+  .drawer a:hover { color: inherit; background: color-mix(in srgb, var(--highlight) 5%, var(--paper-2)); }
+  .drawer a:hover :global(.plate img) { transform: scale(calc(1 + 0.04 * var(--hover-k))) rotate(calc(-0.5deg * var(--hover-k))); }
   .meta { display: flex; gap: 10px; align-items: center; color: var(--graphite); font-size: 0.72rem; }
-  .badge { margin-left: auto; color: var(--accent-ink); border: 1px solid currentColor; padding: 1px 6px; }
+  .badge { margin-left: auto; color: var(--accent-ink); border: var(--bw) solid currentColor; border-radius: var(--radius-btn); padding: 1px 6px; }
   h2 { font-size: 1.25rem; font-stretch: 100%; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .drawer p { color: var(--graphite); font-size: 0.95rem; line-height: 1.45; margin: 0; }
   .slot { padding: 14px; }
-  .slot-box { aspect-ratio: 1; border: 1px dashed var(--rule); display: grid; place-content: center; text-align: center; gap: 6px; color: var(--graphite); }
+  .slot-box { aspect-ratio: 1; border: var(--bw) dashed var(--rule); display: grid; place-content: center; text-align: center; gap: 6px; color: var(--graphite); }
 </style>

@@ -1,5 +1,6 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
+import { getImage } from 'astro:assets';
 import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Plate from '../../components/Plate.astro';
@@ -12,6 +13,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
+const poster = d.modelPoster ? (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src : undefined;
 const project = d.project ? await getEntry(d.project) : undefined;
 const specs = [
   ['Type', d.kind],
@@ -35,7 +37,7 @@ const specs = [
     <div class="layout">
       <div class="view">
         {d.model ? (
-          <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} />
+          <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} poster={poster} />
         ) : (
           <Plate src={d.images[0]?.src} alt={d.images[0]?.alt} number={d.number} ratio="4 / 3" eager />
         )}
@@ -79,14 +81,14 @@ const specs = [
   .layout { display: grid; grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
   @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
   .angles { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-  .angles img { aspect-ratio: 1; object-fit: cover; border: 1px solid var(--rule); cursor: zoom-in; }
+  .angles img { aspect-ratio: 1; object-fit: cover; border: var(--bw) solid var(--rule); cursor: zoom-in; }
   .angles span { display: block; font-size: 0.68rem; color: var(--graphite); margin-top: 4px; }
   .spec { display: grid; gap: 24px; }
   .summary { font-size: 1.15rem; line-height: 1.45; margin: 0; }
-  dl { margin: 0; border-top: 1.5px solid var(--ink); }
-  dl div { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1rem; padding: 9px 0; border-bottom: 1px solid var(--rule); }
-  dd { margin: 0; font-family: var(--f-display); font-size: 0.98rem; }
-  .proj { display: grid; gap: 4px; padding: 14px; background: var(--paper-2); border-left: 3px solid var(--accent); text-decoration: none; font-family: var(--f-display); font-weight: 550; }
+  dl { margin: 0; border-top: calc(var(--bw) * 1.5) solid var(--ink); }
+  dl div { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1rem; padding: 9px 0; border-bottom: var(--bw) solid var(--rule); }
+  dd { margin: 0; font-family: var(--f-heading); font-size: 0.98rem; }
+  .proj { display: grid; gap: 4px; padding: 14px; background-color: var(--paper-2); background-image: var(--g-accent); border-radius: 0 var(--radius) var(--radius) 0; border-left: 3px solid var(--accent); text-decoration: none; font-family: var(--f-heading); font-weight: 550; }
   .dl { list-style: none; padding: 0; margin: 0; font-family: var(--f-mono); font-size: 0.8rem; }
   .notes { font-size: 1rem; }
 </style>

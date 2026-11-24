@@ -52,12 +52,12 @@ const groups = [
   ul { list-style: none; margin: 0; padding: 0; }
   li {
     display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) 7rem minmax(0, 3fr);
-    gap: 1rem; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--rule);
+    gap: 1rem; align-items: baseline; padding: 14px 0; border-bottom: var(--bw) solid var(--rule);
   }
-  .name { font-family: var(--f-display); font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
+  .name { font-family: var(--f-heading); font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
   .note, .since { color: var(--graphite); font-size: 0.95rem; }
   .used { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-  .used a { text-decoration: none; border: 1px solid var(--rule); padding: 2px 7px; }
+  .used a { text-decoration: none; border: var(--bw) solid var(--rule); border-radius: var(--radius-btn); padding: 2px 7px; }
   .used a:hover { border-color: var(--accent); }
   .none { color: var(--graphite); font-size: 0.7rem; }
   @media (max-width: 760px) {

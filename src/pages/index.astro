@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Plate from '../components/Plate.astro';
+import ProfileCard from '../components/ProfileCard.astro';
 import { site } from '../data/site';
 import { about } from '../data/about';
 import { getProjects, getFeatured, getToolUsage, fmtMonth } from '../lib/content';
@@ -27,21 +28,21 @@ const [lead, ...rest] = featured;
   <!-- COVER ─────────────────────────────────────────── -->
   <section class="cover wrap" aria-labelledby="name">
     <div class="frame">
-      <div class="zones zones-top mono" aria-hidden="true">{[1, 2, 3, 4, 5, 6].map((n) => <span>{n}</span>)}</div>
-      <div class="zones zones-side mono" aria-hidden="true">{['A', 'B', 'C', 'D'].map((n) => <span>{n}</span>)}</div>
+      <div class="zones zones-top mono detail-minor" aria-hidden="true">{[1, 2, 3, 4, 5, 6].map((n) => <span>{n}</span>)}</div>
+      <div class="zones zones-side mono detail-minor" aria-hidden="true">{['A', 'B', 'C', 'D'].map((n) => <span>{n}</span>)}</div>
 
       <div class="cover-meta label">
         <span>{site.school}</span>
-        <span>38.99° N, 76.94° W</span>
-        <span class="cursor-zone" aria-hidden="true">Zone —</span>
+        <span class="detail">38.99° N, 76.94° W</span>
+        <span class="cursor-zone detail-minor" aria-hidden="true">Zone —</span>
       </div>
 
-      <h1 id="name" class="name">
+      <h1 id="name" class="name display">
         <span>Muhammad</span>
         <span>Ali<span class="accent">.</span></span>
       </h1>
 
-      <div class="dim" aria-hidden="true">
+      <div class="dim detail" aria-hidden="true">
         <span class="dim-line"></span>
         <span class="dim-val mono">— mm</span>
         <span class="dim-line"></span>
@@ -156,12 +157,15 @@ const [lead, ...rest] = featured;
       <a class="label" href="/about/">Read more →</a>
     </div>
     <div class="about-grid">
-      <p class="about-intro">{about.intro}</p>
-      <dl class="specs">
+      <div class="about-left">
+        <p class="about-intro">{about.intro}</p>
+        <dl class="specs">
         {about.callouts.map((c) => (
           <div><dt class="label">{c.label}</dt><dd>{c.value}</dd></div>
         ))}
       </dl>
+      </div>
+      <ProfileCard />
     </div>
   </section>
 </Base>
@@ -202,9 +206,10 @@ const [lead, ...rest] = featured;
   .cover { padding-top: clamp(8px, 2vw, 24px); }
   .frame {
     position: relative;
-    border: 1px solid var(--ink);
+    border: var(--bw) solid var(--ink);
     padding: clamp(20px, 4vw, 56px) clamp(20px, 4vw, 56px) clamp(24px, 4vw, 48px) clamp(34px, 5vw, 72px);
     min-height: min(82vh, 860px);
+    background-image: var(--g-hero);
     display: grid;
     grid-template-rows: auto 1fr auto auto;
     grid-template-columns: minmax(0, 1fr);
@@ -213,18 +218,16 @@ const [lead, ...rest] = featured;
   .zones { position: absolute; display: flex; color: var(--graphite); font-size: 0.62rem; }
   .zones-top { top: -1.5em; left: 0; right: 0; justify-content: space-around; }
   .zones-side { top: 0; bottom: 0; left: 8px; flex-direction: column; justify-content: space-around; }
-  .zones-side::after { content: ''; position: absolute; top: 0; bottom: 0; left: calc(100% + 8px); border-left: 1px solid var(--rule); }
+  .zones-side::after { content: ''; position: absolute; top: 0; bottom: 0; left: calc(100% + 8px); border-left: var(--bw) solid var(--rule); }
   .cover-meta { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
   .cursor-zone { min-width: 7ch; text-align: right; color: var(--accent-ink); }
   @media (max-width: 640px) { .cursor-zone, .zones-top { display: none; } }
 
   .name {
     align-self: end;
-    font-size: clamp(2.4rem, 12.6vw, 13rem);
-    font-stretch: 118%;
-    font-weight: 750;
+    font-size: min(calc(clamp(2.4rem, 12.6vw, 13rem) * var(--h-scale)), 13.5vw);
     line-height: 0.86;
-    letter-spacing: -0.055em;
+    will-change: transform;
     display: grid;
   }
   .name > span { width: fit-content; }
@@ -246,37 +249,38 @@ const [lead, ...rest] = featured;
   .cover-foot {
     display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
     gap: clamp(20px, 4vw, 64px); align-items: end;
-    padding-top: clamp(12px, 2vw, 24px); border-top: 1px solid var(--rule);
+    padding-top: clamp(12px, 2vw, 24px); border-top: var(--bw) solid var(--rule);
   }
   .lede { font-size: clamp(1.1rem, 0.95rem + 0.6vw, 1.45rem); line-height: 1.4; max-width: 40ch; margin: 0; }
   .now {
     display: grid; gap: 6px; text-decoration: none; padding: 14px 16px;
-    border-left: 3px solid var(--accent); background: var(--paper-2);
-    transition: transform 0.3s var(--ease);
+    border-left: 3px solid var(--accent); background-color: var(--paper-2); background-image: var(--g-accent);
+    border-radius: 0 var(--radius) var(--radius) 0; box-shadow: var(--shadow);
+    transition: transform calc(0.3s * var(--speed)) var(--ease);
   }
-  .now:hover { color: inherit; transform: translateX(4px); }
-  .now-title { font-family: var(--f-display); font-weight: 600; font-size: 1.1rem; }
+  .now:hover { color: inherit; transform: translateX(calc(4px * var(--hover-k))); }
+  .now-title { font-family: var(--f-heading); font-weight: 600; font-size: 1.1rem; }
   @media (max-width: 760px) { .cover-foot { grid-template-columns: 1fr; } }
 
   /* sections */
-  section + section { margin-top: clamp(72px, 10vw, 140px); }
-  .cover + section { margin-top: clamp(56px, 8vw, 110px); }
+  section + section { margin-top: var(--section-gap); }
+  .cover + section { margin-top: calc(var(--section-gap) * 0.8); }
 
   /* contents */
   .toc-list { list-style: none; margin: 0; padding: 0; }
   .toc-list a {
     display: grid; grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1.2fr) 3rem;
-    align-items: baseline; gap: 1rem; padding: 18px 0; border-bottom: 1px solid var(--rule);
+    align-items: baseline; gap: 1rem; padding: 18px 0; border-bottom: var(--bw) solid var(--rule);
     text-decoration: none; position: relative;
   }
   .toc-list a::after {
     content: ''; position: absolute; left: 0; bottom: -1px; height: 1px; width: 0;
-    background: var(--accent); transition: width 0.5s var(--ease);
+    background: var(--accent); transition: width calc(0.5s * var(--speed)) var(--ease);
   }
   .toc-list a:hover::after { width: 100%; }
   .toc-list a:hover { color: inherit; }
-  .toc-title { font-family: var(--f-display); font-size: clamp(1.6rem, 1rem + 2.2vw, 2.8rem); font-weight: 650; font-stretch: 110%; letter-spacing: -0.03em; transition: transform 0.4s var(--ease); }
-  .toc-list a:hover .toc-title { transform: translateX(10px); }
+  .toc-title { font-family: var(--f-display); font-size: calc(clamp(1.6rem, 1rem + 2.2vw, 2.8rem) * var(--h-scale)); font-weight: var(--w-heading); font-stretch: calc(var(--stretch) - 8%); letter-spacing: calc(var(--track) - 0.01em); transition: transform calc(0.4s * var(--speed)) var(--ease); }
+  .toc-list a:hover .toc-title { transform: translateX(calc(10px * var(--hover-k))); }
   .toc-n, .toc-count { color: var(--graphite); }
   .toc-count { text-align: right; }
   .toc-desc { color: var(--graphite); font-size: 1rem; }
@@ -286,16 +290,16 @@ const [lead, ...rest] = featured;
   }
 
   /* featured */
-  .feat-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 3vw, 48px); margin-top: 20px; }
+  .feat-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--gap); margin-top: 20px; }
   .card { text-decoration: none; display: grid; gap: 12px; align-content: start; }
   .card:hover { color: inherit; }
-  .card:hover :global(.plate img) { transform: scale(1.03); }
+  .card:hover :global(.plate img) { transform: scale(calc(1 + 0.03 * var(--hover-k))); }
   .card:hover h3 { color: var(--accent-ink); }
   .card-meta { display: flex; gap: 1rem; align-items: center; color: var(--graphite); font-size: 0.72rem; flex-wrap: wrap; }
   .card-meta .status { margin-left: auto; color: var(--ink); }
-  .lead h3 { font-size: var(--t-h2); font-stretch: 108%; }
+  .lead h3 { font-size: var(--t-h2); font-stretch: calc(var(--stretch) - 10%); }
   .lead p { color: var(--graphite); max-width: 52ch; margin: 0; }
-  .rest { display: grid; gap: clamp(24px, 3vw, 40px); align-content: start; }
+  .rest { display: grid; gap: var(--gap); align-content: start; }
   .small { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
   .small .card-meta { margin-bottom: 8px; }
   .small .ctx { display: none; }
@@ -303,21 +307,22 @@ const [lead, ...rest] = featured;
   @media (max-width: 480px) { .small { grid-template-columns: 1fr; } }
 
   /* fields */
-  .fields-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(24px, 5vw, 80px); margin-top: 24px; }
-  .big-statement { font-family: var(--f-display); font-size: clamp(1.5rem, 1rem + 2vw, 2.6rem); font-weight: 550; line-height: 1.15; letter-spacing: -0.02em; margin: 0; }
-  .big-statement em { font-family: var(--f-text); font-style: italic; font-weight: 400; color: var(--accent-ink); }
+  .fields-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: calc(var(--gap) * 1.6); margin-top: 24px; }
+  .big-statement { font-family: var(--f-display); font-size: calc(clamp(1.5rem, 1rem + 2vw, 2.6rem) * var(--h-scale)); font-weight: calc(var(--w-heading) - 100); line-height: 1.15; letter-spacing: var(--track); margin: 0; }
+  .big-statement em { font-family: var(--f-text); font-style: italic; font-weight: 400; color: var(--emph); }
   .tool-list { list-style: none; margin: 0; padding: 0; align-self: end; }
-  .tool-list li { display: flex; justify-content: space-between; gap: 1rem; padding: 10px 0; border-bottom: 1px solid var(--rule); }
-  .tool-list li:first-child { border-top: 1px solid var(--rule); }
-  .tool-name { font-family: var(--f-display); font-weight: 550; }
+  .tool-list li { display: flex; justify-content: space-between; gap: 1rem; padding: 10px 0; border-bottom: var(--bw) solid var(--rule); }
+  .tool-list li:first-child { border-top: var(--bw) solid var(--rule); }
+  .tool-name { font-family: var(--f-heading); font-weight: 550; }
   .tool-list .mono { color: var(--graphite); }
   @media (max-width: 760px) { .fields-grid { grid-template-columns: 1fr; } }
 
   /* about teaser */
-  .about-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(24px, 5vw, 80px); margin-top: 24px; }
+  .about-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: calc(var(--gap) * 1.6); margin-top: 24px; align-items: start; }
+  .about-left { display: grid; gap: 28px; align-content: start; }
   .about-intro { font-size: clamp(1.2rem, 1rem + 0.8vw, 1.6rem); line-height: 1.4; margin: 0; }
   .specs { margin: 0; display: grid; gap: 0; }
-  .specs div { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding: 10px 0; border-bottom: 1px solid var(--rule); }
-  .specs dd { margin: 0; font-family: var(--f-display); font-size: 0.98rem; }
+  .specs div { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding: 10px 0; border-bottom: var(--bw) solid var(--rule); }
+  .specs dd { margin: 0; font-family: var(--f-heading); font-size: 0.98rem; }
   @media (max-width: 760px) { .about-grid { grid-template-columns: 1fr; } }
 </style>

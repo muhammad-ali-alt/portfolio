@@ -67,12 +67,12 @@ const types = [...new Set(entries.map((e) => e.data.type))];
   .page-head p { color: var(--graphite); max-width: 52ch; margin: 0; }
   .legend { display: flex; gap: 1.4rem; flex-wrap: wrap; padding-bottom: 12px; }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
-  i[data-type], .type::before { width: 8px; height: 8px; display: inline-block; background: var(--graphite); }
+  i[data-type], .type::before { width: 8px; height: 8px; display: inline-block; background: var(--tertiary); border-radius: min(var(--radius-btn), 4px); }
   [data-type='Failure']::before, i[data-type='Failure'] { background: var(--accent) !important; }
-  [data-type='Experiment']::before, i[data-type='Experiment'] { background: var(--ink) !important; }
-  [data-type='Idea']::before, i[data-type='Idea'] { background: transparent !important; border: 1px solid var(--ink); }
-  .log { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
-  .log > li { border-bottom: 1px solid var(--rule); scroll-margin-top: 20px; }
+  [data-type='Experiment']::before, i[data-type='Experiment'] { background: var(--secondary) !important; }
+  [data-type='Idea']::before, i[data-type='Idea'] { background: transparent !important; border: var(--bw) solid var(--tertiary); }
+  .log { list-style: none; margin: 0; padding: 0; border-top: var(--bw) solid var(--ink); }
+  .log > li { border-bottom: var(--bw) solid var(--rule); scroll-margin-top: 20px; }
   summary {
     list-style: none; cursor: pointer;
     display: grid; grid-template-columns: 7rem 8rem minmax(0, 1fr) 24px; gap: 1rem; align-items: baseline;
@@ -84,10 +84,10 @@ const types = [...new Set(entries.map((e) => e.data.type))];
   .type { display: inline-flex; align-items: center; gap: 8px; }
   .type::before { content: ''; }
   .t { display: grid; gap: 4px; justify-items: start; }
-  .t strong { font-family: var(--f-display); font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+  .t strong { font-family: var(--f-heading); font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
   .s { color: var(--graphite); font-size: 0.95rem; }
   .plus { position: relative; width: 14px; height: 14px; align-self: center; }
-  .plus::before, .plus::after { content: ''; position: absolute; background: var(--ink); left: 0; right: 0; top: 6.5px; height: 1px; transition: rotate 0.3s var(--ease); }
+  .plus::before, .plus::after { content: ''; position: absolute; background: var(--ink); left: 0; right: 0; top: 6.5px; height: 1px; transition: rotate calc(0.3s * var(--speed)) var(--ease); }
   .plus::after { rotate: 90deg; }
   details[open] .plus::after { rotate: 0deg; }
   .entry { padding: 0 0 32px calc(15rem + 2rem); }

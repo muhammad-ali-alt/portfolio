@@ -1,23 +1,23 @@
 ---
 // Interactive 3D viewer for a .glb file, using Google's <model-viewer>.
 // The 3D library only downloads on pages that actually use this.
+// Lighting, shadows, materials, zoom, spin and backdrop come from the
+// theme (Studio: 3D Visuals) through html[data-v3d], and update live.
 interface Props {
-  src: string;      // e.g. "/models/gripper.glb"
-  alt: string;      // describe the model for screen readers
+  src: string;          // e.g. "/models/gripper.glb"
+  alt: string;          // describe the model for screen readers
   number?: string;
-  placeholder?: boolean;
-  orientation?: string; // rotate a model that exported on its side, e.g. "-90deg 0deg 0deg"
+  orientation?: string; // rotate a model that exported on its side, e.g. "0deg -90deg 0deg"
   orbit?: string;       // starting camera: angle around, angle down, distance (% of auto)
+  poster?: string;      // still image shown until the model has loaded
 }
-const {
-  src, alt, number = '', placeholder = src.includes('placeholder'),
-  orientation = '0deg 0deg 0deg', orbit = '35deg 65deg 62%',
-} = Astro.props;
+const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65deg 62%', poster } = Astro.props;
 ---
 <figure class="mv">
   <model-viewer
     src={src}
     alt={alt}
+    poster={poster}
     camera-controls
     touch-action="pan-y"
     interaction-prompt="none"
@@ -33,20 +33,26 @@ const {
     loading="lazy"
     reveal="auto"
   >
-    <div slot="progress-bar"></div>
+    <div slot="progress-bar" class="progress"><span></span></div>
   </model-viewer>
   <div class="hud mono" aria-hidden="true">
     <span>{number} · 3D</span>
     <span class="orbit">θ {orbit.split(' ')[0].replace('deg', '°')} φ {orbit.split(' ')[1].replace('deg', '°')}</span>
   </div>
   <figcaption class="mono">
-    <span>Drag to rotate · Scroll or pinch to zoom · Right drag to pan</span>
-    <span class="tools">
-      <button type="button" data-act="spin" aria-pressed="false">Spin</button>
-      <button type="button" data-act="reset">Reset view</button>
+    <span class="views" role="group" aria-label="Camera views">
+      <button type="button" class="btn" data-view="default" aria-pressed="true">Default</button>
+      <button type="button" class="btn" data-view="side" aria-pressed="false">Side</button>
+      <button type="button" class="btn" data-view="top" aria-pressed="false">Top</button>
+      <button type="button" class="btn" data-view="rear" aria-pressed="false">Rear</button>
     </span>
+    <span class="tools">
+      <button type="button" class="btn" data-act="spin" aria-pressed="false">Spin</button>
+      <button type="button" class="btn" data-act="reset">Reset</button>
+      <button type="button" class="btn" data-act="full" aria-label="Full screen">⤢</button>
+    </span>
+    <span class="hint">Drag to rotate · Scroll or pinch to zoom · Right drag to pan</span>
   </figcaption>
-  {placeholder && <p class="ph label">Placeholder block model. Swap in your real .glb export.</p>}
 </figure>
 
 <script>
@@ -54,55 +60,145 @@ const {
   // It is hosted on this site so the viewer never depends on another server.
   (self as any).ModelViewerElement = { meshoptDecoderLocation: '/decoders/meshopt_decoder.js' };
   import('@google/model-viewer');
+
+  type V3D = {
+    autoRotate: boolean; rotateSpeed: number; exposure: number; shadow: number; shadowSoftness: number;
+    environment: string; material: 'original' | 'clay' | 'satin' | 'metal'; zoom: number; sensitivity: number;
+  };
+  const DEFAULT_3D: V3D = { autoRotate: false, rotateSpeed: 20, exposure: 0.55, shadow: 1, shadowSoftness: 0.8, environment: 'neutral', material: 'original', zoom: 100, sensitivity: 1 };
+  const read3d = (): V3D => {
+    try { return { ...DEFAULT_3D, ...JSON.parse(document.documentElement.dataset.v3d || '{}') }; } catch { return DEFAULT_3D; }
+  };
+
+  // Parse "35deg 65deg 62%" into parts so views and zoom can be derived from it.
+  const parseOrbit = (o: string) => {
+    const [t, p, r] = o.split(/\s+/);
+    return { theta: parseFloat(t), phi: parseFloat(p), radius: r?.endsWith('%') ? parseFloat(r) : 100 };
+  };
+
   for (const fig of document.querySelectorAll<HTMLElement>('figure.mv')) {
     const mv = fig.querySelector('model-viewer') as any;
-    const orbit = fig.querySelector('.orbit')!;
-    mv.addEventListener('camera-change', () => {
-      const o = mv.getCameraOrbit?.();
-      if (o) orbit.textContent = `θ ${Math.round((o.theta * 180) / Math.PI)}° φ ${Math.round((o.phi * 180) / Math.PI)}°`;
-    });
-    fig.querySelector('[data-act="reset"]')!.addEventListener('click', () => {
-      mv.cameraOrbit = mv.dataset.orbit;
-      mv.fieldOfView = '30deg';
+    const base = parseOrbit(mv.dataset.orbit);
+    let view = 'default';
+    let originals: { base: number[]; metal: number; rough: number }[] | null = null;
+
+    const radius = () => `${(base.radius * 100) / read3d().zoom}%`;
+    const VIEWS: Record<string, () => string> = {
+      default: () => `${base.theta}deg ${base.phi}deg ${radius()}`,
+      side: () => `${base.theta + 90}deg 85deg ${radius()}`,
+      top: () => `${base.theta}deg 3deg ${radius()}`,
+      rear: () => `${base.theta + 180}deg ${base.phi}deg ${radius()}`,
+    };
+    const setView = (name: string) => {
+      view = name;
+      mv.cameraOrbit = VIEWS[name]();
       mv.cameraTarget = 'auto auto auto';
-    });
-    const spin = fig.querySelector('[data-act="spin"]')!;
-    spin.addEventListener('click', () => {
-      const on = !mv.hasAttribute('auto-rotate');
+      fig.querySelectorAll<HTMLElement>('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === name)));
+    };
+
+    // Materials: remember what the CAD export had, so "original" can restore it.
+    const applyMaterial = (mode: V3D['material']) => {
+      const mats = mv.model?.materials;
+      if (!mats) return;
+      originals ??= mats.map((m: any) => ({
+        base: [...m.pbrMetallicRoughness.baseColorFactor],
+        metal: m.pbrMetallicRoughness.metallicFactor,
+        rough: m.pbrMetallicRoughness.roughnessFactor,
+      }));
+      mats.forEach((m: any, i: number) => {
+        const o = originals![i], pbr = m.pbrMetallicRoughness;
+        if (mode === 'clay') { pbr.setBaseColorFactor([0.72, 0.72, 0.7, 1]); pbr.setMetallicFactor(0); pbr.setRoughnessFactor(0.85); }
+        else { pbr.setBaseColorFactor(o.base); }
+        if (mode === 'original') { pbr.setMetallicFactor(o.metal); pbr.setRoughnessFactor(o.rough); }
+        if (mode === 'satin') { pbr.setMetallicFactor(0.25); pbr.setRoughnessFactor(0.45); }
+        if (mode === 'metal') { pbr.setMetallicFactor(0.9); pbr.setRoughnessFactor(0.32); }
+      });
+    };
+
+    const spin = fig.querySelector<HTMLElement>('[data-act="spin"]')!;
+    const setSpin = (on: boolean) => {
       mv.toggleAttribute('auto-rotate', on);
       spin.setAttribute('aria-pressed', String(on));
+    };
+
+    const applySettings = () => {
+      const s = read3d();
+      mv.exposure = s.exposure;
+      mv.shadowIntensity = s.shadow;
+      mv.shadowSoftness = s.shadowSoftness;
+      mv.environmentImage = s.environment;
+      mv.setAttribute('rotation-per-second', `${s.rotateSpeed}deg`);
+      mv.setAttribute('orbit-sensitivity', String(s.sensitivity));
+      setSpin(s.autoRotate);
+      setView(view);
+      applyMaterial(s.material);
+    };
+    applySettings();
+    mv.addEventListener('load', () => { originals = null; applyMaterial(read3d().material); });
+    addEventListener('aw-theme', applySettings);
+
+    const orbitLabel = fig.querySelector('.orbit')!;
+    mv.addEventListener('camera-change', () => {
+      const o = mv.getCameraOrbit?.();
+      if (o) orbitLabel.textContent = `θ ${Math.round((o.theta * 180) / Math.PI)}° φ ${Math.round((o.phi * 180) / Math.PI)}°`;
     });
+
+    fig.querySelectorAll<HTMLElement>('[data-view]').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view!)));
+    spin.addEventListener('click', () => setSpin(!mv.hasAttribute('auto-rotate')));
+    fig.querySelector('[data-act="reset"]')!.addEventListener('click', () => {
+      mv.fieldOfView = '30deg';
+      setView('default');
+    });
+    const full = fig.querySelector<HTMLElement>('[data-act="full"]')!;
+    if (!fig.requestFullscreen) full.hidden = true;
+    full.addEventListener('click', () => (document.fullscreenElement ? document.exitFullscreen() : fig.requestFullscreen()));
   }
 </script>
 
 <style>
-  .mv { position: relative; margin: 0; background: var(--paper-2); }
+  .mv {
+    position: relative; margin: 0;
+    background-color: var(--surface); background-image: var(--g-card);
+    border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+  }
+  .mv:fullscreen { display: grid; grid-template-rows: 1fr auto; }
+  .mv:fullscreen model-viewer { height: 100%; }
   model-viewer {
     display: block;
     width: 100%;
     /* the viewer sets its own height, so set ours explicitly */
     height: clamp(320px, 52vw, 640px);
-    background:
-      linear-gradient(var(--rule) 1px, transparent 1px) 0 0 / 40px 40px,
-      linear-gradient(90deg, var(--rule) 1px, transparent 1px) 0 0 / 40px 40px;
-    background-color: var(--paper-2);
+    background-color: var(--surface);
     --poster-color: transparent;
   }
+  /* Backdrop (Studio: 3D Visuals) */
+  :global(html[data-mv-bg='grid']) model-viewer {
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  :global(html[data-mv-bg='dark']) model-viewer { background-color: #15171a; }
+  :global(html[data-mv-bg='transparent']) model-viewer,
+  :global(html[data-mv-bg='transparent']) .mv { background: transparent; }
   model-viewer:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; }
+  .progress span { display: block; height: 100%; width: 30%; background: var(--accent); animation: load 1.2s var(--ease) infinite; }
+  @keyframes load { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+  model-viewer[loaded] .progress { display: none; }
+
   .hud {
     position: absolute; top: 10px; left: 12px; right: 12px;
     display: flex; justify-content: space-between; pointer-events: none;
     color: var(--graphite); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em;
   }
+  :global(html[data-mv-bg='dark']) .hud { color: #9a9a9a; }
   figcaption {
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-    padding: 10px 12px; border-top: 1px solid var(--rule); color: var(--graphite); font-size: 0.7rem;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px 16px;
+    padding: 10px 12px; border-top: var(--bw) solid var(--rule); color: var(--graphite); font-size: 0.7rem;
   }
-  .tools { display: flex; gap: 6px; }
-  button {
-    font: inherit; color: var(--ink); background: none; cursor: pointer;
-    border: 1px solid var(--rule); padding: 4px 10px;
-  }
-  button:hover, button[aria-pressed='true'] { border-color: var(--accent); color: var(--accent-ink); }
-  .ph { position: absolute; bottom: 52px; left: 12px; margin: 0; color: var(--accent-ink); font-size: 0.65rem; }
+  .views, .tools { display: flex; gap: 6px; flex-wrap: wrap; }
+  .hint { flex-basis: 100%; order: 3; }
+  @media (min-width: 900px) { .hint { flex-basis: auto; order: 0; } }
 </style>
