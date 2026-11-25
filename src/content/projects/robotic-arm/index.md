@@ -1,7 +1,7 @@
 ---
 title: Desktop Robotic Arm
 number: MA-004
-summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw, gripper actuator and wrist module are done; the rest of the arm is next.
+summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw, gripper actuator, wrist module and rotary yoke joint are done; the rest of the arm is next.
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
 context: Personal
@@ -14,6 +14,7 @@ models:
   - { src: /models/grip.glb, label: Gripper jaw, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
   - { src: /models/gripper-actuator.glb, label: Gripper actuator, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
   - { src: /models/wrist-module.glb, label: Wrist module, note: 55.0 × 31.0 × 31.0 mm, orbit: 35deg 65deg 100% }
+  - { src: /models/rotary-yoke-joint.glb, label: Rotary yoke joint, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: Gripper jaw, isometric render, showing the pivot hole, hex nut pocket, three slots and serrated tip
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
@@ -26,6 +27,9 @@ revisions:
   - rev: C
     date: 2026-11-25   # PLACEHOLDER date
     note: Wrist module modeled.
+  - rev: D
+    date: 2026-11-25   # PLACEHOLDER date
+    note: Rotary yoke joint modeled.
 ---
 
 ## Objective
@@ -77,6 +81,14 @@ The third part is the wrist. It fits in a 55.0 × 31.0 × 31.0 mm envelope and u
 
 PLACEHOLDER: What motion the wrist gives the arm, and how it connects to the gripper actuator.
 
+## Rotary yoke joint
+
+The fourth part is a rotary yoke joint. It fits in a 68.0 × 40.0 × 44.0 mm envelope and uses 15.7 cm³ of material, measured from the STL export.
+
+![The rotary yoke joint, isometric render](./yoke.png)
+
+PLACEHOLDER: Which axis this joint rotates about, and which parts it connects.
+
 ## Next
 
 - [x] Gripper jaw
@@ -84,4 +96,5 @@ PLACEHOLDER: What motion the wrist gives the arm, and how it connects to the gri
 - [ ] Base and turntable
 - [ ] Shoulder and elbow joints
 - [x] Wrist
+- [x] Rotary yoke joint
 - [ ] Full assembly and motion study

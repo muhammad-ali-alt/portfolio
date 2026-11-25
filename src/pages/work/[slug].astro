@@ -67,7 +67,7 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
       {d.models.length > 0 && (
         <section class="parts" aria-label="Parts">
           {d.model && <div class="section-head"><span class="label">Parts</span><h2>Individual parts</h2><span class="label">{d.models.length}</span></div>}
-          <div class="models" style={`--n: ${Math.min(d.models.length, 3)}`}>
+          <div class="models" style={`--n: ${d.models.length === 4 ? 2 : Math.min(d.models.length, 3)}`}>
             {d.models.map((m) => (
               <div class="model">
                 <p class="model-label"><strong>{m.label}</strong>{m.note && <span class="mono">{m.note}</span>}</p>
