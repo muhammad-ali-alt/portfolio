@@ -308,7 +308,8 @@ const [lead, ...rest] = featured;
   :global(html[data-stack='on']) .feat-grid { grid-template-columns: 1fr; gap: 0; }
   :global(html[data-stack='on']) .rest { display: contents; }
   :global(html[data-stack='on']) .card {
-    position: sticky; top: calc(84px + var(--i) * 20px);
+    /* 36px steps leave a visible strip of every card behind, so none gets fully covered */
+    position: sticky; top: calc(84px + var(--i) * 36px);
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; column-gap: var(--gap);
     padding: clamp(14px, 2vw, 28px); margin-bottom: 16vh;
     background-color: var(--paper); border: var(--bw) solid var(--rule); border-radius: calc(var(--radius) * 1.2);
@@ -319,15 +320,16 @@ const [lead, ...rest] = featured;
     will-change: scale;
   }
   :global(html[data-stack='on']) .card:last-child { margin-bottom: 0; }
-  /* room after the last card so the stack can finish shrinking before the next section */
-  :global(html[data-stack='on']) .feat-grid { padding-bottom: 30vh; }
+  /* Room after the last card so it can rise to its spot and the stack holds before scrolling
+     away. Must be a real element: sticky items ignore their container's padding. */
+  :global(html[data-stack='on']) .feat-grid::after { content: ''; display: block; height: 65vh; }
   :global(html[data-stack='on']) .card > :global(.plate) { grid-row: span 4; }
   :global(html[data-stack='on']) .small h3 { font-size: var(--t-h2); }
   :global(html[data-stack='on']) .small .ctx { display: inline; }
   :global(html[data-stack='on']) .sum { display: block; }
   @media (max-width: 760px) {
     :global(html[data-stack='on']) .card { position: static; grid-template-columns: 1fr; scale: 1; margin-bottom: var(--gap); }
-    :global(html[data-stack='on']) .feat-grid { padding-bottom: 0; }
+    :global(html[data-stack='on']) .feat-grid::after { display: none; }
     :global(html[data-stack='on']) .card > :global(.plate) { grid-row: auto; }
   }
   @media (max-width: 900px) { .feat-grid { grid-template-columns: 1fr; } }
