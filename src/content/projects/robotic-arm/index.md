@@ -40,61 +40,51 @@ PLACEHOLDER: One or two sentences. What should the arm do when it is finished? H
 
 PLACEHOLDER: I am building this by following a tutorial series, then changing it. Write down here which parts follow the tutorial and which parts are your own decisions. Recruiters respect an honest "I learned this from X, then I changed Y because Z" much more than a copied model with no explanation.
 
-## Gripper jaw
+## Parts
 
-The first finished part is one jaw of the gripper.
+Every finished part so far, in the order it was modeled. Sizes and material volumes are measured from the STL exports. Rotate any of them in 3D in the carousel above.
 
-![The gripper jaw in SolidWorks, isometric view](./grip-iso.png)
+| # | Part | Envelope (mm) | Material | Status |
+|---|---|---|---|---|
+| 1 | Gripper jaw | 49.0 × 14.0 × 8.5 | 2.9 cm³ | Modeled |
+| 2 | Gripper actuator | 31.0 × 30.9 × 35.0 | 16.5 cm³ | Modeled |
+| 3 | Wrist module | 55.0 × 31.0 × 31.0 | 32.5 cm³ | Modeled |
+| 4 | Rotary yoke joint | 68.0 × 40.0 × 44.0 | 15.7 cm³ | Modeled |
 
-Its features, in the order they were built:
+### 1. Gripper jaw
 
-| Feature | What it is |
-|---|---|
-| Boss-Extrude1, Fillet1 | Main curved body of the jaw, with rounded edges |
-| Cut-Extrude1, Mirror1 | Shaping cuts, mirrored so both sides match |
-| Cut-Extrude2 | Pivot hole at the base |
-| Cut-Extrude4, LPattern3 | Three slots across the middle, made once and patterned |
-| Cut-Extrude5, LPattern4 | Serrated teeth on the gripping face, made once and patterned |
-| Hex pocket | Six sided pocket on the top face |
+**Role.** One of the gripper's jaws, the part that touches the object.
 
-### Why the features are there
+**How it works.** The body is one extrusion with shaping cuts mirrored for symmetry, a pivot hole at the base, and two linear patterns: the slots and the teeth.
 
-**Hex pocket.** A hex nut sits inside the pocket and can't rotate, so the bolt can be tightened or loosened from the other side with one tool. This is called a captive nut.
+- **Hex pocket.** A hex nut sits inside and can't rotate, so the bolt can be tightened from the other side with one tool. This is called a captive nut.
+- **Three slots.** They cut material and weight, which also means a shorter print and less filament. PLACEHOLDER: confirm against the tutorial whether they have another purpose.
+- **Serrated teeth.** They put the same grip force onto a much smaller area, so the pressure goes up and the teeth dig in slightly. That locks the object in place instead of relying only on friction, which (F = μN) doesn't depend on contact area.
 
-**Three slots.** They cut material and weight, which also means a shorter print and less filament. PLACEHOLDER: confirm against the tutorial whether they have another purpose.
+### 2. Gripper actuator
 
-**Serrated teeth.** The teeth put the same grip force onto a much smaller area, so the pressure on the object goes up and the teeth dig in slightly. That locks the object in place instead of relying only on friction, which (F = μN) doesn't depend on contact area.
+**Role.** Drives the gripper jaws.
 
-## Gripper actuator
+**How it works.** PLACEHOLDER: How the actuator moves the jaws, and how it connects to the jaw's pivot hole.
 
-The second finished part drives the gripper. It fits in a 31.0 × 30.9 × 35.0 mm envelope and uses 16.5 cm³ of material, measured from the STL export.
+### 3. Wrist module
 
-![The gripper actuator, isometric render](./actuator.png)
+**Role.** The wrist joint between the arm and the gripper.
 
-PLACEHOLDER: How the actuator moves the jaws, and how it connects to the jaw's pivot hole.
+**How it works.** PLACEHOLDER: What motion the wrist gives the arm, and how it connects to the gripper actuator.
 
-## Wrist module
+### 4. Rotary yoke joint
 
-The third part is the wrist. It fits in a 55.0 × 31.0 × 31.0 mm envelope and uses 32.5 cm³ of material, measured from the STL export.
+**Role.** A rotary joint in the arm.
 
-![The wrist module, isometric render](./wrist.png)
-
-PLACEHOLDER: What motion the wrist gives the arm, and how it connects to the gripper actuator.
-
-## Rotary yoke joint
-
-The fourth part is a rotary yoke joint. It fits in a 68.0 × 40.0 × 44.0 mm envelope and uses 15.7 cm³ of material, measured from the STL export.
-
-![The rotary yoke joint, isometric render](./yoke.png)
-
-PLACEHOLDER: Which axis this joint rotates about, and which parts it connects.
+**How it works.** PLACEHOLDER: Which axis this joint rotates about, and which parts it connects.
 
 ## Next
 
 - [x] Gripper jaw
 - [x] Gripper actuator
-- [ ] Base and turntable
-- [ ] Shoulder and elbow joints
-- [x] Wrist
+- [x] Wrist module
 - [x] Rotary yoke joint
+- [ ] Shoulder and elbow joints
+- [ ] Base and turntable
 - [ ] Full assembly and motion study
