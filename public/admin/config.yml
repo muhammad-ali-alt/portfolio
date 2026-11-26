@@ -8,8 +8,8 @@ backend:
   name: github
   repo: muhammad-ali-alt/portfolio
   branch: main
-  base_url: https://api.netlify.com   # Netlify handles the GitHub login handshake
-  auth_endpoint: auth
+  base_url: https://aliworks-umd.pages.dev   # login runs on this site: functions/api/auth.js and callback.js
+  auth_endpoint: api/auth
   commit_messages:
     create: 'Create {{collection}} "{{slug}}"'
     update: 'Update {{collection}} "{{slug}}"'
@@ -24,8 +24,8 @@ local_backend: true
 # Nothing reaches the public site until you click Publish.
 publish_mode: editorial_workflow
 
-site_url: https://aliworks-umd.netlify.app
-display_url: https://aliworks-umd.netlify.app
+site_url: https://aliworks-umd.pages.dev
+display_url: https://aliworks-umd.pages.dev
 logo_url: /favicon.svg
 show_preview_links: true
 

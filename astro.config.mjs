@@ -4,7 +4,7 @@ import rehypeKatex from 'rehype-katex';
 
 // The site's public address. Change it if you buy a custom domain.
 export default defineConfig({
-  site: 'https://aliworks-umd.netlify.app',
+  site: 'https://aliworks-umd.pages.dev',
   // $inline$ and $$block$$ math in any write up
   markdown: { remarkPlugins: [remarkMath], rehypePlugins: [rehypeKatex] },
 });
