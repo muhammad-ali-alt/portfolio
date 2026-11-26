@@ -1,7 +1,7 @@
 ---
 title: Desktop Robotic Arm
 number: MA-004
-summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw, gripper actuator, wrist module and rotary yoke joint are done; the rest of the arm is next.
+summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw, gripper actuator, wrist module, rotary yoke joint and shoulder drive unit are done; the rest of the arm is next.
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
 context: Personal
@@ -15,6 +15,7 @@ models:
   - { src: /models/gripper-actuator.glb, label: Gripper actuator, image: ./actuator.png, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
   - { src: /models/wrist-module.glb, label: Wrist module, image: ./wrist.png, note: 55.0 × 31.0 × 31.0 mm, orbit: 35deg 65deg 100% }
   - { src: /models/rotary-yoke-joint.glb, label: Rotary yoke joint, image: ./yoke.png, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/shoulder-drive-unit.glb, label: Shoulder drive unit, image: ./shoulder.png, note: 32.5 × 30.0 × 75.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: Gripper jaw, isometric render, showing the pivot hole, hex nut pocket, three slots and serrated tip
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
@@ -30,6 +31,9 @@ revisions:
   - rev: D
     date: 2026-11-25   # PLACEHOLDER date
     note: Rotary yoke joint modeled.
+  - rev: E
+    date: 2026-11-26   # PLACEHOLDER date
+    note: Shoulder drive unit modeled.
 ---
 
 ## Objective
@@ -50,6 +54,7 @@ Every finished part so far, in the order it was modeled. Sizes and material volu
 | 2 | Gripper actuator | 31.0 × 30.9 × 35.0 | 16.5 cm³ | Modeled |
 | 3 | Wrist module | 55.0 × 31.0 × 31.0 | 32.5 cm³ | Modeled |
 | 4 | Rotary yoke joint | 68.0 × 40.0 × 44.0 | 15.7 cm³ | Modeled |
+| 5 | Shoulder drive unit | 32.5 × 30.0 × 75.0 | 38.6 cm³ | Modeled |
 
 ### 1. Gripper jaw
 
@@ -79,12 +84,19 @@ Every finished part so far, in the order it was modeled. Sizes and material volu
 
 **How it works.** PLACEHOLDER: Which axis this joint rotates about, and which parts it connects.
 
+### 5. Shoulder drive unit
+
+**Role.** Drives the shoulder joint.
+
+**How it works.** PLACEHOLDER: What drives the shoulder, and which parts it connects.
+
 ## Next
 
 - [x] Gripper jaw
 - [x] Gripper actuator
 - [x] Wrist module
 - [x] Rotary yoke joint
-- [ ] Shoulder and elbow joints
+- [x] Shoulder drive unit
+- [ ] Elbow joint
 - [ ] Base and turntable
 - [ ] Full assembly and motion study
