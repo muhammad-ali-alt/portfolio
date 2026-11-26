@@ -141,10 +141,40 @@ if (sweep) {
   addEventListener('pageshow', (e) => { if (e.persisted) sweep.classList.remove('is-in', 'is-covered'); });
 }
 
+// ── Stacked cards ────────────────────────────────────────────
+// Home page "Selected work" when the theme turns on stacked cards.
+// Each card sticks; as you keep scrolling, earlier cards shrink toward
+// the back (newest on top), so the stack gains depth.
+// Inspired by Skiper UI's StickyCard_001 (Skiper 16) by Gurvinder Singh,
+// https://gxuri.me, rebuilt here without React or animation libraries.
+const stackGrid = document.querySelector<HTMLElement>('.feat-grid');
+const stackCards = stackGrid ? [...stackGrid.querySelectorAll<HTMLElement>('.card')] : [];
+let stackTicking = false;
+function stack() {
+  stackTicking = false;
+  if (!stackGrid || !stackCards.length) return;
+  const on = root.dataset.stack === 'on' && root.dataset.motion !== 'off' && !reduced.matches && innerWidth > 760;
+  if (!on) { stackCards.forEach((c) => c.style.removeProperty('--stack-scale')); return; }
+  const r = stackGrid.getBoundingClientRect();
+  // 0 when the stack reaches the top of the screen, 1 when it has scrolled through
+  const progress = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
+  const n = stackCards.length;
+  stackCards.forEach((card, i) => {
+    const target = Math.max(0.5, 1 - (n - i - 1) * 0.1); // back cards end smaller
+    const start = i / n; // each card starts shrinking once it is covered
+    const t = Math.min(1, Math.max(0, (progress - start) / (1 - start)));
+    card.style.setProperty('--stack-scale', String(1 + (target - 1) * t));
+  });
+}
+const queueStack = () => { if (!stackTicking) { stackTicking = true; requestAnimationFrame(stack); } };
+addEventListener('scroll', queueStack, { passive: true });
+addEventListener('resize', queueStack);
+
 function refresh() {
   setupReveal();
   setupRise();
   parallax();
+  stack();
 }
 refresh();
 addEventListener('aw-theme', refresh); // Studio changed a setting

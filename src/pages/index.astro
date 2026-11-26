@@ -96,7 +96,7 @@ const [lead, ...rest] = featured;
 
     <div class="feat-grid" data-edit="/admin/#/collections/projects" data-edit-label="Manage projects">
       {lead && (
-        <a class="lead card" href={`/work/${lead.id}/`} style="--i: 0; --tilt: -0.8">
+        <a class="lead card" href={`/work/${lead.id}/`} style="--i: 0">
           <Plate src={lead.data.cover} alt={lead.data.coverAlt} number={lead.data.number} ratio="3 / 2" eager sizes="(max-width: 900px) 100vw, 60vw" />
           <div class="card-meta">
             <span class="mono">{lead.data.number}</span>
@@ -108,7 +108,7 @@ const [lead, ...rest] = featured;
       )}
       <div class="rest">
         {rest.map((p, i) => (
-          <a class="card small" href={`/work/${p.id}/`} style={`--i: ${i + 1}; --tilt: ${[0.9, -0.5, 0.7, -0.6][i % 4]}`}>
+          <a class="card small" href={`/work/${p.id}/`} style={`--i: ${i + 1}`}>
             <Plate src={p.data.cover} alt={p.data.coverAlt} number={p.data.number} ratio="16 / 10" sizes="(max-width: 900px) 100vw, 35vw" />
             <div>
               <div class="card-meta">
@@ -308,22 +308,26 @@ const [lead, ...rest] = featured;
   :global(html[data-stack='on']) .feat-grid { grid-template-columns: 1fr; gap: 0; }
   :global(html[data-stack='on']) .rest { display: contents; }
   :global(html[data-stack='on']) .card {
-    position: sticky; top: calc(84px + var(--i) * 18px);
+    position: sticky; top: calc(84px + var(--i) * 20px);
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; column-gap: var(--gap);
     padding: clamp(14px, 2vw, 28px); margin-bottom: 16vh;
     background-color: var(--paper); border: var(--bw) solid var(--rule); border-radius: calc(var(--radius) * 1.2);
     box-shadow: var(--shadow), 0 -12px 40px rgb(0 0 0 / 0.07);
-    rotate: calc(var(--tilt, 0) * 1deg);
-    transition: rotate calc(0.4s * var(--speed)) var(--ease);
+    /* scrolling shrinks earlier cards behind later ones (scripts/motion.ts sets --stack-scale) */
+    transform-origin: top center;
+    scale: var(--stack-scale, 1);
+    will-change: scale;
   }
-  :global(html[data-stack='on']) .card:hover { rotate: 0deg; }
   :global(html[data-stack='on']) .card:last-child { margin-bottom: 0; }
+  /* room after the last card so the stack can finish shrinking before the next section */
+  :global(html[data-stack='on']) .feat-grid { padding-bottom: 30vh; }
   :global(html[data-stack='on']) .card > :global(.plate) { grid-row: span 4; }
   :global(html[data-stack='on']) .small h3 { font-size: var(--t-h2); }
   :global(html[data-stack='on']) .small .ctx { display: inline; }
   :global(html[data-stack='on']) .sum { display: block; }
   @media (max-width: 760px) {
-    :global(html[data-stack='on']) .card { position: static; grid-template-columns: 1fr; rotate: 0deg; margin-bottom: var(--gap); }
+    :global(html[data-stack='on']) .card { position: static; grid-template-columns: 1fr; scale: 1; margin-bottom: var(--gap); }
+    :global(html[data-stack='on']) .feat-grid { padding-bottom: 0; }
     :global(html[data-stack='on']) .card > :global(.plate) { grid-row: auto; }
   }
   @media (max-width: 900px) { .feat-grid { grid-template-columns: 1fr; } }
