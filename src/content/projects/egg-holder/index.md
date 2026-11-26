@@ -10,8 +10,8 @@ tools: [SolidWorks, FDM 3D printing]
 featured: true
 cover: ./cover.png
 models:
-  - { src: /models/egg-holder-light.glb, label: 'Rev A, lightweight', note: '38.5 cm³ of material', orbit: 35deg 62deg 100% }
-  - { src: /models/egg-holder-full.glb, label: 'Rev B, full', note: '85.0 cm³ of material', orbit: 35deg 62deg 100% }
+  - { src: /models/egg-holder-light.glb, label: 'Rev A, lightweight', image: ./lightweight.png, note: '38.5 cm³ of material', orbit: 35deg 62deg 100% }
+  - { src: /models/egg-holder-full.glb, label: 'Rev B, full', image: ./full.png, note: '85.0 cm³ of material', orbit: 35deg 62deg 100% }
 coverAlt: The two egg holder iterations side by side, the lightweight open frame on the left and the full solid wall version on the right
 specs:
   - { label: Envelope, value: 120.6 × 63.5 × 120.7 mm (both versions) }

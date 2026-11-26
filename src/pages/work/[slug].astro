@@ -6,6 +6,7 @@ import { getImage } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Plate from '../../components/Plate.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
+import PartsCarousel from '../../components/PartsCarousel.astro';
 import Revisions from '../../components/Revisions.astro';
 import { getAllProjects, getProjects, getCad, getNotebook, fmtMonth, latestRev, isUpload } from '../../lib/content';
 import { md } from '../../lib/markdown';
@@ -67,14 +68,7 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
       {d.models.length > 0 && (
         <section class="parts" aria-label="Parts">
           {d.model && <div class="section-head"><span class="label">Parts</span><h2>Individual parts</h2><span class="label">{d.models.length}</span></div>}
-          <div class="models" style={`--n: ${d.models.length === 4 ? 2 : Math.min(d.models.length, 3)}`}>
-            {d.models.map((m) => (
-              <div class="model">
-                <p class="model-label"><strong>{m.label}</strong>{m.note && <span class="mono">{m.note}</span>}</p>
-                <ModelViewer src={m.src} alt={`3D model: ${d.title}, ${m.label}`} number={d.number} orientation={m.orientation} orbit={m.orbit} />
-              </div>
-            ))}
-          </div>
+          <PartsCarousel parts={d.models} number={d.number} title={d.title} />
         </section>
       )}
     </div>

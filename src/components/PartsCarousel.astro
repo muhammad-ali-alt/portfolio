@@ -1,0 +1,164 @@
+---
+// Coverflow carousel of a project's parts. The centered part is large,
+// neighbors sit smaller and further back. Swipe, drag, click a side
+// slide, use the arrows or the arrow keys. One 3D viewer below shows the
+// centered part, and only that model downloads.
+// Inspired by Skiper UI's Carousel_001 (Skiper 47) by Gurvinder Singh,
+// https://gxuri.me, rebuilt without React or Swiper.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import ModelViewer from './ModelViewer.astro';
+
+interface Part { src: string; label: string; note?: string; orbit?: string; orientation?: string; image?: ImageMetadata | string }
+interface Props { parts: Part[]; number: string; title: string }
+const { parts, number, title } = Astro.props;
+---
+<div class="pc3" data-notes={JSON.stringify(parts.map((p) => p.note ?? ''))}>
+  <div class="pc3-stage" role="group" aria-roledescription="carousel" aria-label={`Parts of ${title}`} tabindex="0">
+    {parts.map((p, i) => (
+      <button type="button" class="pc3-slide" data-i={i} aria-label={`Show ${p.label}`} aria-current={i === 0 ? 'true' : undefined}>
+        <span class="pc3-img">
+          {typeof p.image === 'string' ? <img src={p.image} alt="" draggable="false" />
+            : p.image ? <Image src={p.image} alt="" widths={[400, 800]} sizes="(max-width: 700px) 70vw, 420px" draggable="false" />
+            : <span class="pc3-none mono">{p.label}</span>}
+        </span>
+      </button>
+    ))}
+  </div>
+
+  <div class="pc3-bar">
+    <button type="button" class="pc3-nav" data-dir="-1" aria-label="Previous part">←</button>
+    <div class="pc3-caption" aria-live="polite">
+      <strong class="pc3-label">{parts[0].label}</strong>
+      <span class="mono pc3-note">{parts[0].note}</span>
+      <span class="mono pc3-count">1 / {parts.length}</span>
+    </div>
+    <button type="button" class="pc3-nav" data-dir="1" aria-label="Next part">→</button>
+  </div>
+  <div class="pc3-dots" role="tablist" aria-label="Choose a part">
+    {parts.map((p, i) => <button type="button" role="tab" class="pc3-dot" data-i={i} aria-label={p.label} aria-selected={String(i === 0)}></button>)}
+  </div>
+
+  <div class="pc3-viewers">
+    {parts.map((p, i) => (
+      <div class="pc3-viewer" data-i={i} hidden={i !== 0}>
+        <ModelViewer src={p.src} alt={`3D model: ${title}, ${p.label}`} number={number} orientation={p.orientation} orbit={p.orbit} />
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('.pc3')) {
+    const slides = [...root.querySelectorAll<HTMLElement>('.pc3-slide')];
+    const dots = [...root.querySelectorAll<HTMLElement>('.pc3-dot')];
+    const viewers = [...root.querySelectorAll<HTMLElement>('.pc3-viewer')];
+    const stage = root.querySelector<HTMLElement>('.pc3-stage')!;
+    const n = slides.length;
+    const labels = slides.map((s) => s.getAttribute('aria-label')!.replace(/^Show /, ''));
+    const notes: string[] = JSON.parse(root.dataset.notes || '[]');
+    let active = 0;
+
+    // Shortest signed distance on a loop, so the carousel wraps around.
+    const offset = (i: number) => {
+      let d = i - active;
+      if (d > n / 2) d -= n;
+      if (d < -n / 2) d += n;
+      return d;
+    };
+    function layout(drag = 0) {
+      for (const [i, s] of slides.entries()) {
+        const d = offset(i) + drag;
+        const a = Math.abs(d);
+        s.style.setProperty('--d', String(d));
+        s.style.setProperty('--a', String(a));
+        s.style.zIndex = String(100 - Math.round(a * 10));
+        s.style.opacity = a > 2.4 ? '0' : String(1 - Math.max(0, a - 1.4) * 0.8);
+        s.style.pointerEvents = a > 2.4 ? 'none' : '';
+        s.tabIndex = Math.round(d) === 0 ? 0 : -1;
+      }
+    }
+    function go(i: number) {
+      active = ((i % n) + n) % n;
+      layout();
+      slides.forEach((s, k) => s.toggleAttribute('aria-current', k === active));
+      dots.forEach((dt, k) => dt.setAttribute('aria-selected', String(k === active)));
+      viewers.forEach((v, k) => (v.hidden = k !== active));
+      root.querySelector('.pc3-label')!.textContent = labels[active];
+      root.querySelector('.pc3-note')!.textContent = notes[active] ?? '';
+      root.querySelector('.pc3-count')!.textContent = `${active + 1} / ${n}`;
+    }
+
+    slides.forEach((s, i) => s.addEventListener('click', () => { if (!moved) go(i); }));
+    dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+    root.querySelectorAll<HTMLElement>('.pc3-nav').forEach((b) => b.addEventListener('click', () => go(active + Number(b.dataset.dir))));
+    stage.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(active + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(active - 1); }
+    });
+
+    // Drag or swipe: slides follow the pointer, then snap to the nearest part.
+    let startX = 0, dragging = false, moved = false;
+    const step = () => Math.max(120, stage.clientWidth * 0.32);
+    stage.addEventListener('pointerdown', (e) => { startX = e.clientX; dragging = true; moved = false; stage.classList.add('is-dragging'); });
+    addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 6) moved = true;
+      layout(dx / step());
+    });
+    addEventListener('pointerup', (e) => {
+      if (!dragging) return;
+      dragging = false;
+      stage.classList.remove('is-dragging');
+      const shift = Math.round(-(e.clientX - startX) / step());
+      if (shift) go(active + shift); else layout();
+      setTimeout(() => (moved = false), 0);
+    });
+    go(0);
+  }
+</script>
+
+<style>
+  .pc3 { display: grid; gap: 14px; }
+  .pc3-stage {
+    position: relative; height: clamp(220px, 26vw, 340px); perspective: 1200px;
+    touch-action: pan-y; user-select: none; outline: none; overflow: hidden;
+  }
+  .pc3-stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--radius); }
+  .pc3-slide {
+    all: unset; box-sizing: border-box; cursor: pointer;
+    position: absolute; top: 0; left: 50%; height: 100%; width: min(44%, 460px);
+    /* coverflow: each step out moves sideways, back in depth, and a little smaller */
+    transform: translateX(calc(-50% + var(--d) * 72%)) translateZ(calc(var(--a) * -160px)) scale(calc(1 - var(--a) * 0.08));
+    transition: transform calc(0.55s * var(--speed)) var(--ease), opacity calc(0.4s * var(--speed));
+  }
+  .pc3-stage.is-dragging .pc3-slide { transition: none; cursor: grabbing; }
+  .pc3-img {
+    display: block; height: 100%; overflow: hidden; border-radius: var(--radius);
+    background: var(--surface); border: var(--bw) solid var(--rule); box-shadow: var(--shadow);
+  }
+  .pc3-img :global(img) { width: 100%; height: 100%; object-fit: contain; padding: 6%; pointer-events: none; }
+  .pc3-slide[aria-current] .pc3-img { border-color: var(--ink); }
+  .pc3-slide:focus-visible .pc3-img { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .pc3-none { display: grid; place-items: center; height: 100%; color: var(--graphite); }
+
+  .pc3-bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
+  .pc3-nav {
+    font: inherit; cursor: pointer; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--paper); color: var(--ink); border: var(--bw) solid var(--rule);
+  }
+  .pc3-nav:hover { border-color: var(--ink); }
+  .pc3-caption { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 4px 14px; text-align: center; }
+  .pc3-label { font-family: var(--f-heading); font-size: 1.25rem; }
+  .pc3-note, .pc3-count { color: var(--graphite); font-size: 0.75rem; }
+  .pc3-dots { display: flex; justify-content: center; gap: 8px; }
+  .pc3-dot { width: 8px; height: 8px; padding: 0; border-radius: 50%; border: 0; cursor: pointer; background: var(--rule); transition: background 0.2s, width 0.3s var(--ease); }
+  .pc3-dot[aria-selected='true'] { background: var(--accent); width: 22px; border-radius: 4px; }
+  .pc3-viewers { margin-top: 8px; }
+  .pc3-viewer[hidden] { display: none; }
+  @media (max-width: 640px) {
+    .pc3-slide { width: 64%; transform: translateX(calc(-50% + var(--d) * 82%)) translateZ(calc(var(--a) * -160px)) scale(calc(1 - var(--a) * 0.1)); }
+  }
+  @media (prefers-reduced-motion: reduce) { .pc3-slide { transition: none; } }
+</style>

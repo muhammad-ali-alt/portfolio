@@ -11,10 +11,10 @@ skills: [Part modeling, Linear patterns, Mirror features]
 featured: true
 cover: ./cover.png
 models:
-  - { src: /models/grip.glb, label: Gripper jaw, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
-  - { src: /models/gripper-actuator.glb, label: Gripper actuator, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
-  - { src: /models/wrist-module.glb, label: Wrist module, note: 55.0 × 31.0 × 31.0 mm, orbit: 35deg 65deg 100% }
-  - { src: /models/rotary-yoke-joint.glb, label: Rotary yoke joint, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/grip.glb, label: Gripper jaw, image: ./cover.png, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
+  - { src: /models/gripper-actuator.glb, label: Gripper actuator, image: ./actuator.png, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
+  - { src: /models/wrist-module.glb, label: Wrist module, image: ./wrist.png, note: 55.0 × 31.0 × 31.0 mm, orbit: 35deg 65deg 100% }
+  - { src: /models/rotary-yoke-joint.glb, label: Rotary yoke joint, image: ./yoke.png, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: Gripper jaw, isometric render, showing the pivot hole, hex nut pocket, three slots and serrated tip
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:

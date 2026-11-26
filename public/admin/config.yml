@@ -100,6 +100,7 @@ collections:
           - { label: Model (.glb), name: src, widget: file, media_folder: /public/models, public_folder: /models }
           - { label: Label, name: label, widget: string, hint: 'e.g. Rev A, lightweight' }
           - { label: Note, name: note, widget: string, required: false, hint: 'e.g. 38.5 cm³ of material' }
+          - { label: Render (for the carousel), name: image, widget: image, required: false, hint: 'Transparent render of this part.' }
           - { label: Starting camera, name: orbit, widget: string, required: false }
           - { label: Rotation, name: orientation, widget: string, required: false }
       - { label: 3D model rotation, name: modelOrientation, widget: string, required: false, hint: 'Only if the model loads on its side, e.g. 0deg -90deg 0deg' }
