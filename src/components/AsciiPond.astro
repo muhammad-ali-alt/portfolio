@@ -8,12 +8,19 @@
 //        false: sits on the right of the parent with soft edges.
 // notes  drafting callouts pinned to points on the image (u, v from 0 to 1),
 //        drawn with leader lines in the same canvas so they always line up.
+// flares exhaust plumes pinned to the image (fill mode): u, v at the nozzle, len as a
+//        share of the image width, angle in degrees (180 = pointing left). Each one
+//        flickers and shows a row of shock diamonds, like a real afterburner.
 // Swap the image in the CMS: Site and About, Home page, Cover image.
 interface Note { u: number; v: number; dx: number; dy: number; label: string; sub?: string }
-interface Props { src: string; srcMobile?: string; alt?: string; fill?: boolean; notes?: Note[] }
-const { src, srcMobile = '', alt = '', fill = false, notes = [] } = Astro.props;
+interface Flare { u: number; v: number; len: number; angle: number; width?: number }
+// focus  (fill mode) put image point u, v as close as possible to screen point x, y
+//        (shares of the width and height), zoomed in by `zoom`. The image still covers.
+interface Focus { u: number; v: number; x: number; y: number; zoom?: number }
+interface Props { src: string; srcMobile?: string; alt?: string; fill?: boolean; notes?: Note[]; flares?: Flare[]; focus?: Focus }
+const { src, srcMobile = '', alt = '', fill = false, notes = [], flares = [], focus } = Astro.props;
 ---
-<div class:list={['pond', { 'is-fill': fill }]} data-src={src} data-src-mobile={srcMobile || undefined} data-fill={fill ? '1' : undefined} data-notes={JSON.stringify(notes)}
+<div class:list={['pond', { 'is-fill': fill }]} data-src={src} data-src-mobile={srcMobile || undefined} data-fill={fill ? '1' : undefined} data-notes={JSON.stringify(notes)} data-flares={flares.length ? JSON.stringify(flares) : undefined} data-focus={focus ? JSON.stringify(focus) : undefined}
   role={alt ? 'img' : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : 'true'}>
   <canvas></canvas>
 </div>
@@ -29,6 +36,8 @@ const { src, srcMobile = '', alt = '', fill = false, notes = [] } = Astro.props;
     const host = pond.parentElement!;
     const fill = pond.dataset.fill === '1';
     const notes: Note[] = JSON.parse(pond.dataset.notes || '[]');
+    const focus: { u: number; v: number; x: number; y: number; zoom?: number } | null = JSON.parse(pond.dataset.focus || 'null');
+    const flares: { u: number; v: number; len: number; angle: number; width?: number }[] = JSON.parse(pond.dataset.flares || '[]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const still = () => reduced.matches || document.documentElement.dataset.motion === 'off';
 
@@ -36,7 +45,8 @@ const { src, srcMobile = '', alt = '', fill = false, notes = [] } = Astro.props;
     const img = new Image();
     img.decoding = 'async';
     // a separate image for phones, if set (chosen once, at load)
-    img.src = pond.dataset.srcMobile && innerWidth < 760 ? pond.dataset.srcMobile : pond.dataset.src!;
+    const srcIsMobile = !!pond.dataset.srcMobile && innerWidth < 760;
+    img.src = srcIsMobile ? pond.dataset.srcMobile! : pond.dataset.src!;
     let sw = 0, sh = 0, rgb = new Uint8ClampedArray(0), alpha = new Float32Array(0);
     img.onload = () => {
       sh = 300; sw = Math.round((img.naturalWidth / img.naturalHeight) * sh);
@@ -64,9 +74,13 @@ const { src, srcMobile = '', alt = '', fill = false, notes = [] } = Astro.props;
       const aspect = sw / sh;
       if (fill) {
         // cover the whole area, like CSS background-size: cover
-        const s = Math.max(W / sw, H / sh);
+        const f = srcIsMobile ? null : focus;
+        const s = Math.max(W / sw, H / sh) * (f?.zoom ?? 1);
         const w = sw * s, h = sh * s;
-        rect = { x: (W - w) / 2, y: (H - h) / 2, w, h };
+        const clampTo = (v: number, lo: number) => Math.min(0, Math.max(lo, v));
+        rect = f
+          ? { x: clampTo(f.x * W - f.u * w, W - w), y: clampTo(f.y * H - f.v * h, H - h), w, h }
+          : { x: (W - w) / 2, y: (H - h) / 2, w, h };
         buildBase();
       } else {
         let h = H * 0.82, w = h * aspect;
@@ -176,7 +190,48 @@ const { src, srcMobile = '', alt = '', fill = false, notes = [] } = Astro.props;
         }
       }
       ctx.globalAlpha = 1;
+      drawFlares(t);
       drawNotes(t);
+    }
+
+    // ── afterburner plumes: a hot core, a soft sheath and shock diamonds that shimmer ──
+    function drawFlares(t: number) {
+      if (!flares.length || !sw || srcIsMobile) return;
+      const move = !still();
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (const [k, f] of flares.entries()) {
+        const px = rect.x + f.u * rect.w, py = rect.y + f.v * rect.h;
+        const L = f.len * rect.w, w = (f.width ?? 0.018) * rect.w;
+        const flick = move ? 0.85 + 0.1 * Math.sin(t * 31 + k * 2) + 0.05 * Math.sin(t * 57 + k) : 0.92;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.translate(px, py); ctx.rotate((f.angle * Math.PI) / 180);
+        // sheath: a long soft cone
+        const sheath = ctx.createLinearGradient(0, 0, L, 0);
+        sheath.addColorStop(0, `rgba(170,140,255,${0.32 * flick})`);
+        sheath.addColorStop(0.35, `rgba(90,110,255,${0.12 * flick})`);
+        sheath.addColorStop(1, 'rgba(60,80,200,0)');
+        ctx.fillStyle = sheath;
+        ctx.beginPath(); ctx.moveTo(0, -w * 0.55); ctx.quadraticCurveTo(L * 0.5, -w * 0.9, L * flick, 0); ctx.quadraticCurveTo(L * 0.5, w * 0.9, 0, w * 0.55); ctx.fill();
+        // shock diamonds: bright knots spaced along the core, drifting very slightly
+        const n = 5;
+        for (let i = 0; i < n; i++) {
+          const x = (i + 0.6) * (L * 0.11) + (move ? Math.sin(t * 9 + i) * 1.5 : 0);
+          const s = (1 - i / n) * flick, r = w * (0.5 - i * 0.05);
+          const g = ctx.createRadialGradient(x, 0, 0, x, 0, r * 1.6);
+          g.addColorStop(0, `rgba(255,240,255,${0.6 * s})`);
+          g.addColorStop(0.4, `rgba(190,150,255,${0.25 * s})`);
+          g.addColorStop(1, 'rgba(140,120,255,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.ellipse(x, 0, r * 1.6, r * 0.75, 0, 0, Math.PI * 2); ctx.fill();
+        }
+        // nozzle glow
+        const ng = ctx.createRadialGradient(0, 0, 0, 0, 0, w * 1.4);
+        ng.addColorStop(0, `rgba(255,245,255,${0.7 * flick})`); ng.addColorStop(1, 'rgba(200,170,255,0)');
+        ctx.fillStyle = ng; ctx.beginPath(); ctx.arc(0, 0, w * 1.4, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     // ── drafting callouts ──
