@@ -24,11 +24,22 @@ const contents = [
 ];
 const [lead, ...rest] = featured;
 ---
-<Base sheet="01 · Cover">
+<Base sheet="01 · Cover" hero={home.heroArt && !!home.heroImage}>
   <!-- COVER ─────────────────────────────────────────── -->
-  <section class="cover wrap" aria-labelledby="name">
+  <section class:list={['cover', { 'cover-bleed': home.heroArt && home.heroImage }]} aria-labelledby="name">
+    {home.heroArt && home.heroImage && (
+      <>
+        <AsciiPond src={home.heroImage} alt={home.heroImageAlt} fill notes={[
+          { u: 0.56, v: 0.2, dx: 110, dy: -14, label: 'Beam', sub: 'spine spans shoulder to hip' },
+          { u: 0.7, v: 0.4, dx: 100, dy: 24, label: 'Hoop frame', sub: 'ribs carry the torso' },
+          { u: 0.63, v: 0.66, dx: 120, dy: -36, label: 'Column + pin joints', sub: 'legs take the load' },
+        ]} />
+        <div class="cover-shade" aria-hidden="true"></div>
+        {home.heroCredit && <p class="cover-credit mono">{home.heroCredit}</p>}
+      </>
+    )}
+    <div class="wrap cover-inner">
     <div class="frame">
-      {home.heroArt && home.heroImage && <AsciiPond src={home.heroImage} alt={home.heroImageAlt} />}
       <div class="zones zones-top mono detail-minor" aria-hidden="true">{[1, 2, 3, 4, 5, 6].map((n) => <span>{n}</span>)}</div>
       <div class="zones zones-side mono detail-minor" aria-hidden="true">{['A', 'B', 'C', 'D'].map((n) => <span>{n}</span>)}</div>
 
@@ -61,6 +72,7 @@ const [lead, ...rest] = featured;
           </a>
         )}
       </div>
+    </div>
     </div>
   </section>
 
@@ -205,6 +217,42 @@ const [lead, ...rest] = featured;
 <style>
   /* cover */
   .cover { padding-top: clamp(8px, 2vw, 24px); }
+  .cover:not(.cover-bleed) { max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); }
+  .cover:not(.cover-bleed) .cover-inner { padding: 0; max-width: none; }
+
+  /* Full bleed cover: an image fills the screen, the header and frame sit on top in light colors */
+  .cover-bleed {
+    position: relative; isolation: isolate;
+    min-height: max(100svh, 640px);
+    padding-top: clamp(92px, 11vw, 120px); padding-bottom: clamp(48px, 8vh, 96px);
+    background: #141615;
+    --ink: #f4efe7; --paper: #141615; --paper-2: rgb(16 18 18 / 0.82);
+    --graphite: rgb(244 239 231 / 0.74); --rule: rgb(244 239 231 / 0.26);
+    --emph: var(--accent); --accent-ink: var(--accent); --secondary: #f4efe7;
+    color: var(--ink);
+  }
+  .cover-bleed .cover-inner { position: relative; z-index: 2; }
+  .cover-bleed .frame { min-height: calc(max(100svh, 640px) - clamp(150px, 19vw, 220px)); border-color: rgb(244 239 231 / 0.35); }
+  .cover-bleed .name { text-shadow: 0 2px 30px rgb(0 0 0 / 0.45); }
+  .cover-bleed .lede { text-shadow: 0 1px 12px rgb(0 0 0 / 0.6); }
+  .cover-bleed .now { border: var(--bw) solid var(--rule); border-left: 3px solid var(--accent); }
+  /* darken the left side, where the text sits, so it always reads */
+  .cover-shade {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background:
+      linear-gradient(90deg, rgb(12 13 13 / 0.86) 0%, rgb(12 13 13 / 0.62) 34%, rgb(12 13 13 / 0.12) 62%, transparent 80%),
+      linear-gradient(180deg, rgb(12 13 13 / 0.55) 0%, transparent 18%);
+  }
+  .cover-credit {
+    position: absolute; right: var(--gutter); bottom: 14px; z-index: 2; margin: 0;
+    font-size: 0.66rem; color: rgb(244 239 231 / 0.7);
+  }
+  /* the header wraps onto more lines on narrow screens, so the cover starts lower */
+  @media (max-width: 900px) { .cover-bleed { padding-top: 144px; } }
+  @media (max-width: 560px) { .cover-bleed { padding-top: 168px; } }
+  @media (max-width: 760px) {
+    .cover-shade { background: linear-gradient(180deg, rgb(12 13 13 / 0.55), rgb(12 13 13 / 0.78) 45%, rgb(12 13 13 / 0.6)); }
+  }
   .frame {
     position: relative;
     border: var(--bw) solid var(--ink);

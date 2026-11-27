@@ -12,8 +12,9 @@ interface Props {
   description?: string;
   sheet: string; // which "sheet" of the site this is, shown in the footer title block
   admin?: boolean; // admin pages: hidden from search engines, no closing section
+  hero?: boolean; // home page: the header sits over a full bleed cover
 }
-const { title, description = site.description, sheet, admin = false } = Astro.props;
+const { title, description = site.description, sheet, admin = false, hero = false } = Astro.props;
 const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}, ${site.school}`;
 const path = Astro.url.pathname;
 
@@ -70,7 +71,7 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
       })();
     </script>
   </head>
-  <body>
+  <body class:list={{ 'has-hero': hero }}>
     <a class="skip" href="#main">Skip to content</a>
 
     <header class="masthead wrap">
@@ -167,6 +168,12 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
 </html>
 
 <style>
+  /* Over a full bleed cover the header floats on top of it, in the cover's light colors */
+  :global(body.has-hero) .masthead {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    --ink: #f4efe7; --paper: #141615; --graphite: rgb(244 239 231 / 0.72); --rule: rgb(244 239 231 / 0.28); --on-accent: #141615;
+    color: var(--ink);
+  }
   .masthead {
     display: flex;
     justify-content: space-between;

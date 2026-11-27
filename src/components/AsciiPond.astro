@@ -1,65 +1,57 @@
 ---
-// Animated ASCII mosaic of a photo, drawn behind the home page cover.
-// The photo is cut into square tiles; each tile takes the photo's color
-// there and a character chosen by brightness. The photo's own background
-// (sampled from its edges) is dropped so the subject floats on the page.
-// The water moves on its own; the cursor sends ripples through it and
-// scrambles nearby characters. Inspired by daoho.dev's koi pond.
+// Animated ASCII mosaic of an image, drawn on a canvas. Inspired by daoho.dev.
+// The image is cut into square tiles; each tile takes the image's color there
+// plus a faint character chosen by brightness. It drifts gently, ripples roll
+// through on their own, and the cursor sends ripples and scrambles characters.
+//
+// fill   true: covers the whole parent (a full background), fading out at the bottom.
+//        false: sits on the right of the parent with soft edges.
+// notes  drafting callouts pinned to points on the image (u, v from 0 to 1),
+//        drawn with leader lines in the same canvas so they always line up.
 // Swap the image in the CMS: Site and About, Home page, Cover image.
-// A PNG with a transparent background shows just the subject; any other image
-// is drawn whole, fading softly into the page at its edges.
-interface Props { src: string; alt?: string }
-const { src, alt = '' } = Astro.props;
+interface Note { u: number; v: number; dx: number; dy: number; label: string; sub?: string }
+interface Props { src: string; alt?: string; fill?: boolean; notes?: Note[] }
+const { src, alt = '', fill = false, notes = [] } = Astro.props;
 ---
-<div class="pond" data-src={src} role={alt ? 'img' : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : 'true'}>
+<div class:list={['pond', { 'is-fill': fill }]} data-src={src} data-fill={fill ? '1' : undefined} data-notes={JSON.stringify(notes)}
+  role={alt ? 'img' : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : 'true'}>
   <canvas></canvas>
 </div>
 
 <script>
   const RAMP = ' .:-/|+xXS%#';
   const SCRAMBLE = 'XS%#/|\\x+';
+  type Note = { u: number; v: number; dx: number; dy: number; label: string; sub?: string };
 
   for (const pond of document.querySelectorAll<HTMLElement>('.pond')) {
     const canvas = pond.querySelector('canvas')!;
     const ctx = canvas.getContext('2d')!;
     const host = pond.parentElement!;
+    const fill = pond.dataset.fill === '1';
+    const notes: Note[] = JSON.parse(pond.dataset.notes || '[]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const still = () => reduced.matches || document.documentElement.dataset.motion === 'off';
 
-    // ── load the photo into a small sampling grid ──
+    // ── load the image into a small sampling grid ──
     const img = new Image();
     img.decoding = 'async';
     img.src = pond.dataset.src!;
     let sw = 0, sh = 0, rgb = new Uint8ClampedArray(0), alpha = new Float32Array(0);
-
     img.onload = () => {
-      sh = 260; sw = Math.round((img.naturalWidth / img.naturalHeight) * sh);
+      sh = 300; sw = Math.round((img.naturalWidth / img.naturalHeight) * sh);
       const off = document.createElement('canvas');
       off.width = sw; off.height = sh;
       const o = off.getContext('2d', { willReadFrequently: true })!;
       o.drawImage(img, 0, 0, sw, sh);
-      const data = o.getImageData(0, 0, sw, sh).data;
-      rgb = data;
-      // Background color = median of the border pixels, per channel.
-      const border: number[][] = [[], [], []];
-      for (let x = 0; x < sw; x++) for (const y of [0, 1, sh - 2, sh - 1]) { const i = (y * sw + x) * 4; for (let c = 0; c < 3; c++) border[c].push(data[i + c]); }
-      for (let y = 0; y < sh; y++) for (const x of [0, 1, sw - 2, sw - 1]) { const i = (y * sw + x) * 4; for (let c = 0; c < 3; c++) border[c].push(data[i + c]); }
-      void border; const bg = border.map((ch) => ch.sort((a, b) => a - b)[ch.length >> 1]);
+      rgb = o.getImageData(0, 0, sw, sh).data;
       alpha = new Float32Array(sw * sh);
-      // A cut out PNG (transparent background) is used as is. Otherwise keep the
-      // pixels that differ from the background color and fade the rest out.
-      let transparent = false;
-      for (let p = 3; p < data.length; p += 4) if (data[p] < 250) { transparent = true; break; }
-      for (let p = 0; p < sw * sh; p++) {
-        const i = p * 4;
-        alpha[p] = transparent ? data[i + 3] / 255 : 1; // full scene: the edge fade below shapes it
-      }
+      for (let p = 0; p < sw * sh; p++) alpha[p] = rgb[p * 4 + 3] / 255; // transparent PNGs show only the subject
       resize();
       start();
     };
 
-    // ── layout: tile size and where the photo sits in the cover ──
-    let W = 0, H = 0, dpr = 1, cell = 10, rect = { x: 0, y: 0, w: 0, h: 0 }, paper = [239, 236, 229];
+    // ── layout ──
+    let W = 0, H = 0, dpr = 1, cell = 8, rect = { x: 0, y: 0, w: 0, h: 0 };
     function resize() {
       const r = host.getBoundingClientRect();
       dpr = Math.min(2, devicePixelRatio || 1);
@@ -69,17 +61,17 @@ const { src, alt = '' } = Astro.props;
       cell = W < 700 ? 6 : W < 1100 ? 7 : 8;
       if (!sw) return;
       const aspect = sw / sh;
-      const narrow = W < 760;
-      // Desktop: fill the cover's height on the right. Phones: a smaller mosaic in the
-      // top right, behind the name only, so the paragraph below stays readable.
-      let h = narrow ? H * 0.34 : H * 0.82;
-      let w = h * aspect;
-      const maxW = narrow ? W * 0.8 : W * 0.52;
-      if (w > maxW) { w = maxW; h = w / aspect; }
-      rect = narrow ? { x: W - w - W * 0.02, y: H * 0.05, w, h } : { x: W - w - W * 0.01, y: H * 0.15, w, h };
-      const m = getComputedStyle(document.documentElement).getPropertyValue('--paper').trim().match(/^#([0-9a-f]{6})$/i);
-      if (m) paper = [0, 2, 4].map((k) => parseInt(m[1].slice(k, k + 2), 16));
-      pond.classList.toggle('is-narrow', narrow);
+      if (fill) {
+        // cover the whole area, like CSS background-size: cover
+        const s = Math.max(W / sw, H / sh);
+        const w = sw * s, h = sh * s;
+        rect = { x: (W - w) / 2, y: (H - h) / 2, w, h };
+        buildBase();
+      } else {
+        let h = H * 0.82, w = h * aspect;
+        if (w > W * 0.52) { w = W * 0.52; h = w / aspect; }
+        rect = { x: W - w - W * 0.01, y: H * 0.15, w, h };
+      }
     }
 
     // ── ripples from the cursor (and a few on their own) ──
@@ -97,16 +89,132 @@ const { src, alt = '' } = Astro.props;
     const tileCanvas = document.createElement('canvas');
     const tctx = tileCanvas.getContext('2d')!;
     let tiles: ImageData | null = null;
+    const css = (name: string) => getComputedStyle(pond).getPropertyValue(name).trim();
 
-    // ── draw one frame ──
-    function draw(t: number) {
+    // ── fill mode: the image and its character texture are drawn once into a cached
+    // layer; each frame only redraws the parts that move (scan line and cursor) ──
+    const base = document.createElement('canvas');
+    const bctx = base.getContext('2d')!;
+    const sample = (u: number, v: number) => {
+      u = Math.min(0.9999, Math.max(0, u)); v = Math.min(0.9999, Math.max(0, v));
+      const i = (Math.floor(v * sh) * sw + Math.floor(u * sw)) * 4;
+      return [rgb[i], rgb[i + 1], rgb[i + 2]];
+    };
+    const charFor = (r: number, g: number, b: number) => {
+      const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+      return { lum, ch: RAMP[Math.min(RAMP.length - 1, Math.floor(lum * RAMP.length * 1.25))] };
+    };
+    function buildBase() {
+      base.width = canvas.width; base.height = canvas.height;
+      bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      bctx.imageSmoothingEnabled = true; bctx.imageSmoothingQuality = 'high';
+      bctx.drawImage(img, rect.x, rect.y, rect.w, rect.h);
+      bctx.font = `${Math.round(cell * 0.85)}px ${css('--f-mono') || 'monospace'}`;
+      bctx.textAlign = 'center'; bctx.textBaseline = 'middle';
+      for (let y = 0; y < H; y += cell) {
+        for (let x = 0; x < W; x += cell) {
+          const [r, g, b] = sample((x + cell / 2 - rect.x) / rect.w, (y + cell / 2 - rect.y) / rect.h);
+          const { lum, ch } = charFor(r, g, b);
+          if (ch === ' ') continue;
+          const k = lum > 0.5 ? 0.55 : 1.9;
+          bctx.globalAlpha = 0.3;
+          bctx.fillStyle = `rgb(${Math.min(255, r * k + 12) | 0},${Math.min(255, g * k + 12) | 0},${Math.min(255, b * k + 12) | 0})`;
+          bctx.fillText(ch, x + cell / 2, y + cell / 2 + 0.5);
+        }
+      }
+      bctx.globalAlpha = 1;
+    }
+    function drawFill(t: number) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
       if (!sw) return;
-      ctx.font = `${Math.round(cell * 0.82)}px ${getComputedStyle(document.documentElement).getPropertyValue('--f-mono') || 'monospace'}`;
+      ctx.drawImage(base, 0, 0, W, H);
+      ctx.font = `${Math.round(cell * 0.85)}px ${css('--f-mono') || 'monospace'}`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      if (t - lastAuto > 2.6 && !still()) { // the water is never fully still
-        ripples.push({ x: rect.x + rect.w * (0.25 + Math.random() * 0.5), y: rect.y + rect.h * (0.3 + Math.random() * 0.5), t });
+      const accent = css('--accent') || '#ffa125';
+      const tile = (x: number, y: number, u: number, v: number, glow: number, scramble: boolean) => {
+        const [r0, g0, b0] = sample(u, v);
+        const r = r0 + (255 - r0) * glow * 0.35, g = g0 + (255 - g0) * glow * 0.35, b = b0 + (255 - b0) * glow * 0.35;
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`;
+        ctx.fillRect(x, y, cell, cell);
+        const { lum, ch } = charFor(r0, g0, b0);
+        const c = scramble ? SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0] : ch;
+        if (c === ' ') return;
+        ctx.globalAlpha = Math.min(1, 0.35 + glow);
+        ctx.fillStyle = glow > 0.5 ? accent : lum > 0.5 ? `rgb(${r * 0.55 | 0},${g * 0.55 | 0},${b * 0.55 | 0})` : `rgb(${Math.min(255, r * 1.9 + 20) | 0},${Math.min(255, g * 1.9 + 20) | 0},${Math.min(255, b * 1.9 + 20) | 0})`;
+        ctx.fillText(c, x + cell / 2, y + cell / 2 + 0.5);
+      };
+      if (!still()) {
+        // scan line: a soft band that sweeps down every 7 seconds
+        const period = 7, bandH = 70;
+        const sy = ((t % period) / period) * (H + bandH * 2) - bandH;
+        for (let y = Math.max(0, Math.floor((sy - bandH) / cell) * cell); y < Math.min(H, sy + bandH); y += cell) {
+          const glow = Math.max(0, 1 - Math.abs(y + cell / 2 - sy) / bandH);
+          if (glow < 0.15) continue;
+          for (let x = 0; x < W; x += cell) {
+            const u = (x + cell / 2 - rect.x) / rect.w, v = (y + cell / 2 - rect.y) / rect.h;
+            tile(x, y, u, v, glow * 0.6, glow > 0.85 && Math.random() < 0.08);
+          }
+        }
+        // cursor: ripples bend the image and scramble the characters nearby
+        const R = 110;
+        const active = ripples.filter((rp) => t - rp.t < 1.4);
+        const near = mouse.x > -1e3 ? [{ x: mouse.x, y: mouse.y, t }] : [];
+        for (const c of [...near, ...active.slice(-3)]) {
+          for (let y = Math.max(0, Math.floor((c.y - R) / cell) * cell); y < Math.min(H, c.y + R); y += cell) {
+            for (let x = Math.max(0, Math.floor((c.x - R) / cell) * cell); x < Math.min(W, c.x + R); x += cell) {
+              const cx = x + cell / 2, cy = y + cell / 2, dx = cx - c.x, dy = cy - c.y, d = Math.hypot(dx, dy) || 1;
+              if (d > R) continue;
+              const age = t - c.t, fall = 1 - d / R;
+              const ring = Math.sin(d * 0.09 - age * 8) * Math.exp(-age * 2) * fall;
+              const u = (cx + (dx / d) * ring * 10 - rect.x) / rect.w, v = (cy + (dy / d) * ring * 10 - rect.y) / rect.h;
+              tile(x, y, u, v, Math.abs(ring) * 0.9 + (c === near[0] ? fall * 0.35 : 0), c === near[0] && d < 55);
+            }
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+      drawNotes(t);
+    }
+
+    // ── drafting callouts ──
+    function drawNotes(t: number) {
+      if (!notes.length || W < 900) return;
+      const ink = css('--ink') || '#f4efe7', accent = css('--accent') || '#ffa125', mono = css('--f-mono') || 'monospace';
+      ctx.lineWidth = 1;
+      for (const [k, n] of notes.entries()) {
+        const px = rect.x + n.u * rect.w, py = rect.y + n.v * rect.h;
+        const ex = px + n.dx, ey = py + n.dy;
+        const dir = n.dx >= 0 ? 1 : -1;
+        const pulse = still() ? 1 : 0.65 + 0.35 * Math.sin(t * 2 + k * 1.7);
+        ctx.globalAlpha = 0.9;
+        ctx.strokeStyle = ink;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(ex, ey); ctx.lineTo(ex + dir * 22, ey); ctx.stroke();
+        ctx.fillStyle = accent; ctx.globalAlpha = pulse;
+        ctx.beginPath(); ctx.arc(px, py, 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 0.25 * pulse;
+        ctx.beginPath(); ctx.arc(px, py, 9, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 0.95;
+        ctx.textAlign = dir > 0 ? 'left' : 'right'; ctx.textBaseline = 'alphabetic';
+        const tx = ex + dir * 28;
+        ctx.fillStyle = accent; ctx.font = `600 11px ${mono}`;
+        ctx.fillText(n.label.toUpperCase(), tx, ey - 2);
+        if (n.sub) { ctx.fillStyle = ink; ctx.font = `11px ${mono}`; ctx.fillText(n.sub, tx, ey + 13); }
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // ── draw one frame ──
+    function draw(t: number) {
+      if (fill) return drawFill(t);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      if (!sw) return;
+      ctx.font = `${Math.round(cell * 0.82)}px ${css('--f-mono') || 'monospace'}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      if (t - lastAuto > 2.6 && !still()) {
+        ripples.push({ x: Math.max(rect.x, 0) + Math.min(rect.w, W) * (0.3 + Math.random() * 0.6), y: Math.max(rect.y, 0) + Math.min(rect.h, H) * (0.2 + Math.random() * 0.6), t });
         lastAuto = t; if (ripples.length > 10) ripples.shift();
       }
       const c0 = Math.max(0, Math.floor(rect.x / cell) - 1), c1 = Math.min(Math.ceil(W / cell), Math.ceil((rect.x + rect.w) / cell) + 1);
@@ -118,39 +226,39 @@ const { src, alt = '' } = Astro.props;
         for (let col = c0; col < c1; col++) {
           const x = col * cell, y = row * cell, cx = x + cell / 2, cy = y + cell / 2;
           let u = (cx - rect.x) / rect.w, v = (cy - rect.y) / rect.h;
-          // gentle standing waves
-          u += Math.sin(v * 13 + t * 1.1) * 0.005 + Math.sin(u * 7 - t * 0.6) * 0.003;
-          v += Math.cos(u * 11 + t * 0.9) * 0.004;
-          // ripples: a ring that travels outward and fades
+          u += Math.sin(v * 13 + t * 1.1) * 0.0035 + Math.sin(u * 7 - t * 0.6) * 0.002;
+          v += Math.cos(u * 11 + t * 0.9) * 0.003;
           let push = 0;
           for (const rp of ripples) {
             const age = t - rp.t; if (age > 2.4) continue;
             const dx = cx - rp.x, dy = cy - rp.y, d = Math.hypot(dx, dy) || 1;
             const ring = Math.sin(d * 0.075 - age * 7) * Math.exp(-age * 1.4) * Math.exp(-d * 0.008);
-            u += (dx / d) * ring * 0.012; v += (dy / d) * ring * 0.012; push += Math.abs(ring);
+            u += (dx / d) * ring * 0.008; v += (dy / d) * ring * 0.008; push += Math.abs(ring);
           }
-          if (u < 0 || u >= 1 || v < 0 || v >= 1) continue;
+          u = Math.min(0.9999, Math.max(0, u)); v = Math.min(0.9999, Math.max(0, v));
           const p = Math.floor(v * sh) * sw + Math.floor(u * sw);
-          // soft oval edge so the mosaic never ends in a hard rectangle
-          const ex = (u - 0.5) * 2, ey = (v - 0.5) * 2;
-          // soft rectangular fade: solid in the middle, feathered toward every edge
-          const fx = Math.min(1, (1 - Math.abs(ex)) / 0.22), fy = Math.min(1, (1 - Math.abs(ey)) / 0.18);
-          const edge = Math.max(0, fx) * Math.max(0, fy);
+          let edge: number;
+          if (fill) {
+            edge = Math.min(1, (H - cy) / (H * 0.16)); // fade into the page at the bottom
+          } else {
+            const ex = (u - 0.5) * 2, ey = (v - 0.5) * 2;
+            edge = Math.max(0, Math.min(1, (1 - Math.abs(ex)) / 0.22)) * Math.max(0, Math.min(1, (1 - Math.abs(ey)) / 0.18));
+          }
           const a = alpha[p] * edge;
-          if (a < 0.06) continue;
+          if (a < 0.04) continue;
           const i = p * 4;
           let r = rgb[i], g = rgb[i + 1], b = rgb[i + 2];
           const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-          const lift = Math.min(0.25, push * 0.25); // ripple crests catch light
+          const lift = Math.min(0.3, push * 0.3); // ripple crests catch light
           r = r + (255 - r) * lift; g = g + (255 - g) * lift; b = b + (255 - b) * lift;
-          const ti = ((row - r0) * gw + (col - c0)) * 4; // one pixel per tile; no gaps, reads as one painting
+          const ti = ((row - r0) * gw + (col - c0)) * 4;
           tiles.data[ti] = r; tiles.data[ti + 1] = g; tiles.data[ti + 2] = b; tiles.data[ti + 3] = a * 255;
-          const near = Math.hypot(cx - mouse.x, cy - mouse.y) < 46;
-          const ch = near ? SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0] : RAMP[Math.min(RAMP.length - 1, Math.floor((1 - lum) * RAMP.length))];
+          const near = Math.hypot(cx - mouse.x, cy - mouse.y) < 52;
+          const ch = near ? SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0] : RAMP[Math.min(RAMP.length - 1, Math.floor(lum * RAMP.length * 1.2))];
           if (ch !== ' ') {
-            const k = lum > 0.45 ? 0.6 : 1.45;
-            ctx.globalAlpha = a * (near ? 0.95 : 0.5); // characters are a texture over the colors
-            ctx.fillStyle = `rgb(${Math.min(255, r * k) | 0},${Math.min(255, g * k) | 0},${Math.min(255, b * k) | 0})`;
+            const k = lum > 0.45 ? 0.62 : 1.7;
+            ctx.globalAlpha = a * (near ? 0.95 : 0.42);
+            ctx.fillStyle = `rgb(${Math.min(255, r * k + 10) | 0},${Math.min(255, g * k + 10) | 0},${Math.min(255, b * k + 10) | 0})`;
             ctx.fillText(ch, cx, cy + 0.5);
           }
         }
@@ -161,6 +269,7 @@ const { src, alt = '' } = Astro.props;
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(tileCanvas, c0 * cell, r0 * cell, gw * cell, gh * cell);
       ctx.globalCompositeOperation = 'source-over';
+      drawNotes(t);
     }
 
     // ── run only while visible, about 30 frames a second ──
@@ -174,7 +283,7 @@ const { src, alt = '' } = Astro.props;
     }
     function start() {
       cancelAnimationFrame(raf);
-      running = visible && !still() && !document.hidden && innerWidth > 760;
+      running = visible && !still() && !document.hidden && (fill || innerWidth > 760);
       if (running) raf = requestAnimationFrame(loop);
       else draw(1.5); // one still frame
     }
@@ -189,6 +298,6 @@ const { src, alt = '' } = Astro.props;
 <style>
   .pond { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   .pond canvas { display: block; }
-  /* Too small to read on phones, and it would crowd the name: hidden there */
-  @media (max-width: 760px) { .pond { display: none; } }
+  /* the side mosaic is too small to read on phones; the full background stays */
+  @media (max-width: 760px) { .pond:not(.is-fill) { display: none; } }
 </style>
