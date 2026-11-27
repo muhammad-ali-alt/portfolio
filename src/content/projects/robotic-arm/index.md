@@ -1,7 +1,7 @@
 ---
 title: Desktop Robotic Arm
 number: MA-004
-summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw, gripper actuator, wrist module, rotary yoke joint, shoulder drive unit, upper arm link and lower arm link are done; the rest of the arm is next.
+summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. All eight parts are modeled; the full assembly is next.
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
 context: Personal
@@ -18,6 +18,7 @@ models:
   - { src: /models/shoulder-drive-unit.glb, label: Shoulder drive unit, image: ./shoulder.png, note: 32.5 × 30.0 × 75.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/upper-arm-link.glb, label: Upper arm link, image: ./upper-arm.png, note: 115.0 × 125.0 × 35.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/lower-arm-link.glb, label: Lower arm link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/base.glb, label: Base, image: ./base.png, note: 140.0 × 41.0 × 140.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: Gripper jaw, isometric render, showing the pivot hole, hex nut pocket, three slots and serrated tip
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
@@ -42,6 +43,9 @@ revisions:
   - rev: G
     date: 2026-11-27   # PLACEHOLDER date
     note: Lower arm link modeled.
+  - rev: H
+    date: 2026-11-27   # PLACEHOLDER date
+    note: Base modeled. All eight parts complete.
 ---
 
 ## Objective
@@ -54,7 +58,7 @@ PLACEHOLDER: I am building this by following a tutorial series, then changing it
 
 ## Parts
 
-Every finished part so far, in the order it was modeled. Sizes and material volumes are measured from the STL exports. Rotate any of them in 3D in the carousel above.
+All eight parts, in the order they were modeled. Together they use about 578 cm³ of material. Sizes and material volumes are measured from the STL exports. Rotate any of them in 3D in the carousel above.
 
 | # | Part | Envelope (mm) | Material | Status |
 |---|---|---|---|---|
@@ -65,6 +69,7 @@ Every finished part so far, in the order it was modeled. Sizes and material volu
 | 5 | Shoulder drive unit | 32.5 × 30.0 × 75.0 | 38.6 cm³ | Modeled |
 | 6 | Upper arm link | 115.0 × 125.0 × 35.0 | 82.0 cm³ | Modeled |
 | 7 | Lower arm link | 157.5 × 142.5 × 70.0 | 198.6 cm³ | Modeled |
+| 8 | Base | 140.0 × 41.0 × 140.0 | 190.7 cm³ | Modeled |
 
 ### 1. Gripper jaw
 
@@ -112,15 +117,14 @@ Every finished part so far, in the order it was modeled. Sizes and material volu
 
 **How it works.** PLACEHOLDER: Which joints the link connects, and how it carries the load.
 
+### 8. Base
+
+**Role.** Holds the arm upright and carries the first rotating joint.
+
+**How it works.** PLACEHOLDER: How the base rotates, and how the lower arm link mounts to it.
+
 ## Next
 
-- [x] Gripper jaw
-- [x] Gripper actuator
-- [x] Wrist module
-- [x] Rotary yoke joint
-- [x] Shoulder drive unit
-- [x] Upper arm link
-- [x] Lower arm link
-- [ ] Elbow joint
-- [ ] Base and turntable
-- [ ] Full assembly and motion study
+- [x] All eight parts modeled
+- [ ] Full assembly
+- [ ] Motion study
