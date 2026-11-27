@@ -24,7 +24,7 @@ const contents = [
 ];
 const [lead, ...rest] = featured;
 ---
-<Base sheet="01 · Cover" hero={home.heroArt && !!home.heroImage}>
+<Base sheet="00 · Cover" hero={home.heroArt && !!home.heroImage}>
   <!-- COVER ─────────────────────────────────────────── -->
   <section class:list={['cover', { 'cover-bleed': home.heroArt && home.heroImage }]} aria-labelledby="name">
     {home.heroArt && home.heroImage && (
@@ -120,6 +120,7 @@ const [lead, ...rest] = featured;
           <Plate src={lead.data.cover} alt={lead.data.coverAlt} number={lead.data.number} ratio="3 / 2" eager sizes="(max-width: 900px) 100vw, 60vw" />
           <div class="card-meta">
             <span class="mono">{lead.data.number}</span>
+            <span class="mono ctx">{lead.data.context}</span>
             <span class="status mono" data-status={lead.data.status}>{lead.data.status}</span>
           </div>
           <h3>{lead.data.title}</h3>

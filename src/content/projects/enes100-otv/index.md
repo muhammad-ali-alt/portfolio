@@ -5,7 +5,7 @@ summary: An eight person ENES100 team built an autonomous vehicle that crosses a
 date: 2025-09-01  # approximate: Fall 2025 semester
 status: Complete
 context: Academic
-category: Physical build
+category: Physical Build
 disciplines: [Robotics, Autonomy, Mechanical Design, 3D Printing, Manufacturing]
 tools: [FDM 3D printing, Laser cutting]
 skills: [Design for 3D printing, Fabrication, Mechanical troubleshooting, Teamwork]

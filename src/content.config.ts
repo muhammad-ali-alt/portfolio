@@ -38,7 +38,7 @@ export const NOTE_TYPES = ['Design Log', 'Experiment', 'Research', 'Problem Solv
 export const SECTION_KINDS = ['Overview', 'Problem Statement', 'Objectives', 'Design Requirements', 'Research', 'Concept Development', 'Design Process', 'CAD Development', 'Engineering Analysis', 'Calculations', 'Materials and Manufacturing', 'Testing', 'Results', 'Challenges', 'Lessons Learned', 'Future Improvements', 'Custom'] as const;
 
 // What kind of project it is. Shown on the index and used to pick a default viewer.
-export const CATEGORIES = ['Engineering design', 'Physical build', 'Software', 'Research', 'Data analysis', 'Other'] as const;
+export const CATEGORIES = ['Engineering Design', 'Physical Build', 'Software', 'Research', 'Data Analysis', 'Other'] as const;
 
 // How the top of a project page presents the work. "auto" picks from what the project has:
 // clickable 3D assembly > single 3D model > side by side models > annotated image >

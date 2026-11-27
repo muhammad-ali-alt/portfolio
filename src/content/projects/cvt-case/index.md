@@ -5,7 +5,7 @@ summary: Redesigning the case around the continuously variable transmission on t
 date: 2026-10-20
 status: In progress
 context: Terps Racing
-category: Engineering design
+category: Engineering Design
 disciplines: [Mechanical Design, Manufacturing]
 tools: [SolidWorks]
 featured: true

@@ -1,7 +1,7 @@
 ---
 title: Change one thing at a time
 date: 2026-10-20  # approximate
-type: Learned
+type: Learning
 summary: A business simulation taught me the same rule as a lab experiment.
 ---
 

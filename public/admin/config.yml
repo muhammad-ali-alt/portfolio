@@ -114,7 +114,7 @@ collections:
         name: category
         widget: select
         required: false
-        options: [Engineering design, Physical build, Software, Research, Data analysis, Other]
+        options: [Engineering Design, Physical Build, Software, Research, Data Analysis, Other]
         hint: 'What kind of project this is. Shown on the page and the index.'
       - label: Main view
         name: viewer

@@ -1,7 +1,7 @@
 ---
 title: Started this logbook
 date: 2026-11-23
-type: Note
+type: General
 summary: Why this site exists and how I plan to use it.
 ---
 

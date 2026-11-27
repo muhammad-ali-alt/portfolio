@@ -5,7 +5,7 @@ summary: A four egg holder for the Terps Rockets FAR-OUT 2026-27 payload, in two
 date: 2026-10-24
 status: In progress
 context: Terps Rockets
-category: Engineering design
+category: Engineering Design
 disciplines: [Aerospace, Mechanical Design, 3D Printing]
 tools: [SolidWorks, FDM 3D printing]
 featured: true

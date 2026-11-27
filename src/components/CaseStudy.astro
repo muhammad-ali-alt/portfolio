@@ -6,7 +6,7 @@ import { mdInline } from '../lib/markdown';
 interface Props { project: CollectionEntry<'projects'> }
 const d = Astro.props.project.data;
 const ICON: Record<string, string> = { GitHub: '⌥', Docs: '¶', Demo: '▶', Video: '▶', Paper: '§', Other: '↗' };
-const any = d.overview || d.role || d.contributions.length || d.challenges.length || d.learned.length || d.links.length;
+const any = !!(d.overview || d.role || d.contributions.length || d.challenges.length || d.learned.length || d.links.length);
 ---
 {any && (
   <section class="case" aria-label="Case study">

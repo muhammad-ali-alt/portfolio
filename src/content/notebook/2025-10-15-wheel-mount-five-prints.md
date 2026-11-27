@@ -1,7 +1,7 @@
 ---
 title: Five prints for one wheel mount
 date: 2025-10-15  # approximate
-type: Failure
+type: Problem Solving
 project: enes100-otv
 summary: The rear wheel mount did not fit, and sanding was not the fix.
 ---

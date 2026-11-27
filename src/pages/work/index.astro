@@ -10,7 +10,7 @@ const projects = await getProjects();
 const usedD = DISCIPLINES.filter((d) => projects.some((p) => p.data.disciplines.includes(d)));
 const usedC = CONTEXTS.filter((c) => projects.some((p) => p.data.context === c));
 ---
-<Base title="Work" sheet="02 · Work index" description="Index of Muhammad Ali's engineering projects: CAD, robotics, motorsport, aerospace and data.">
+<Base title="Work" sheet="01 · Work index" description="Index of Muhammad Ali's engineering projects: CAD, robotics, motorsport, aerospace and data.">
   <section class="wrap">
     <header class="page-head" data-edit="/admin/#/collections/projects/new" data-edit-label="Add project">
       <span class="label">01 / Work</span>

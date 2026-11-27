@@ -5,7 +5,7 @@ summary: A six axis desktop robotic arm modeled in SolidWorks, about 287 mm tall
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
 context: Personal
-category: Engineering design
+category: Engineering Design
 disciplines: [Robotics, Mechanical Design, CAD]
 tools: [SolidWorks]
 skills: [Part modeling, Linear patterns, Mirror features]

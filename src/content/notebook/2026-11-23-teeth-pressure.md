@@ -1,7 +1,7 @@
 ---
 title: What serrated teeth actually do
 date: 2026-11-23
-type: Learned
+type: Learning
 project: robotic-arm
 summary: Teeth do not add friction. They raise pressure.
 ---

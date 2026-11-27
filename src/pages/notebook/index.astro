@@ -10,7 +10,7 @@ const types = [...new Set(entries.map((e) => e.data.type))].sort();
 const tags = [...new Set(entries.flatMap((e) => e.data.tags))].sort();
 const projects = [...new Map(rows.filter((r) => r.project).map((r) => [r.project!.id, r.project!])).values()];
 ---
-<Base title="Notebook" sheet="04 · Notebook" description="Engineering notebook: experiments, failures, calculations and lessons learned.">
+<Base title="Notebook" sheet="03 · Notebook" description="Engineering notebook: experiments, failures, calculations and lessons learned.">
   <section class="wrap">
     <header class="page-head" data-edit="/admin/#/collections/notebook/new" data-edit-label="New notebook entry">
       <span class="label">03 / Notebook</span>
@@ -128,7 +128,7 @@ const projects = [...new Map(rows.filter((r) => r.project).map((r) => [r.project
   .date { color: var(--graphite); }
   .type { display: inline-flex; align-items: center; gap: 8px; }
   .type::before { content: ''; width: 8px; height: 8px; display: inline-block; background: var(--tertiary); border-radius: min(var(--radius-btn), 4px); }
-  .type[data-type='Failure']::before { background: var(--accent); }
+  .type[data-type='Problem Solving']::before, .type[data-type='Failure']::before { background: var(--accent); }
   .type[data-type='Experiment']::before, .type[data-type='Design Log']::before { background: var(--secondary); }
   .type[data-type='Idea']::before { background: transparent; border: var(--bw) solid var(--tertiary); }
   .t { display: grid; gap: 4px; justify-items: start; }
