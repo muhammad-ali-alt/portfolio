@@ -7,6 +7,7 @@ import Base from '../../layouts/Base.astro';
 import Plate from '../../components/Plate.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
 import PartsCarousel from '../../components/PartsCarousel.astro';
+import AssemblyExplorer from '../../components/AssemblyExplorer.astro';
 import Revisions from '../../components/Revisions.astro';
 import { getAllProjects, getProjects, getCad, getNotebook, fmtMonth, latestRev, isUpload } from '../../lib/content';
 import { md } from '../../lib/markdown';
@@ -25,6 +26,16 @@ const d = project.data;
 const { Content, headings } = await render(project);
 // Still image shown in the 3D viewer until the model loads
 const poster = !d.modelPoster ? undefined : isUpload(d.modelPoster) ? d.modelPoster : (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src;
+// Assembly explorer: needs an assembly, part entries linked by `node`, and the
+// part positions file src/data/model-parts/<assembly file name>.json
+type Layout = { parts: Record<string, { node: string; center: [number, number, number] }[]> };
+const layouts = import.meta.glob<Layout>('../../data/model-parts/*.json', { eager: true, import: 'default' });
+const layout = d.model ? layouts[`../../data/model-parts/${d.model.split('/').pop()!.replace(/\.glb$/i, '')}.json`] : undefined;
+const explorerParts = !layout ? [] : await Promise.all(d.models.filter((m) => m.node && layout.parts[m.node]).map(async (m) => ({
+  key: m.node!, label: m.label, src: m.src, position: layout.parts[m.node!][0].center,
+  role: m.role, note: m.note, volume: m.volume, material: m.material, orbit: m.orbit, orientation: m.orientation,
+  image: !m.image ? undefined : typeof m.image === 'string' ? m.image : (await getImage({ src: m.image, width: 480, format: 'webp' })).src,
+})));
 // Sections added in the CMS come first, then any write up in the body.
 const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const sections = d.sections.map((s) => ({ ...s, slug: `s-${slugify(s.title)}`, html: md(s.body) }));
@@ -61,7 +72,9 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
          subset; with no assembly yet, the parts take the main spot. -->
     <div class="hero">
       {d.model ? (
-        <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} poster={poster} />
+        explorerParts.length > 0
+          ? <AssemblyExplorer src={d.model} poster={poster} number={d.number} title={d.title} orbit={d.modelOrbit} tools={d.tools} parts={explorerParts} />
+          : <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} poster={poster} />
       ) : d.models.length === 0 ? (
         <Plate src={d.cover} alt={d.coverAlt} number={d.number} ratio="auto" eager sizes="100vw" />
       ) : null}

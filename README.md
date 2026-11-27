@@ -91,6 +91,12 @@ It converts millimetres to metres, smooths curved surfaces, keeps sharp edges sh
 
 Put the file in `public/models/` and point the project's `model:` field at `/models/your-file.glb`.
 
+**Assembly explorer (clickable parts).** If a project has an assembly (`model:`) and parts (`models:`) that each name their `node`, the page shows the assembly with a marker on every part. Clicking a marker or a part highlights it, opens its details (render, role, size, volume, material, tools), and offers "Isolate in 3D". To set one up for a new assembly:
+
+1. Export the assembly as GLB with each part kept separate, one material per part, named after the part.
+2. Put the part positions in `src/data/model-parts/<assembly file name>.json` (same shape as `robotic-arm-assembly.json`).
+3. In each `models` entry, set `node` to that part's material name, and fill `role`, `volume`, `material` as you like (all editable in the CMS).
+
 Not every project needs 3D. Use the viewer for things people want to turn around (mechanisms, assemblies). Use renders for everything else.
 
 ## Edit content (the CMS)

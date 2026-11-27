@@ -100,6 +100,10 @@ collections:
           - { label: Model (.glb), name: src, widget: file, media_folder: /public/models, public_folder: /models }
           - { label: Label, name: label, widget: string, hint: 'e.g. Rev A, lightweight' }
           - { label: Note, name: note, widget: string, required: false, hint: 'e.g. 38.5 cm³ of material' }
+          - { label: Name in the assembly file, name: node, widget: string, required: false, hint: 'The part name in the assembly GLB without the -1, e.g. Base. Makes it clickable in the 3D assembly.' }
+          - { label: Role, name: role, widget: string, required: false, hint: 'One sentence: what the part does.' }
+          - { label: Material volume, name: volume, widget: string, required: false }
+          - { label: Material, name: material, widget: string, required: false, hint: 'e.g. PLA, 6061 aluminum. Leave empty if not decided.' }
           - { label: Render (for the carousel), name: image, widget: image, required: false, hint: 'Transparent render of this part.' }
           - { label: Starting camera, name: orbit, widget: string, required: false }
           - { label: Rotation, name: orientation, widget: string, required: false }

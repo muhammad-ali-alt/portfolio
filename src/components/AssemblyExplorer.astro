@@ -1,0 +1,337 @@
+---
+// ASSEMBLY EXPLORER: the full assembly in 3D, with a hotspot on every part.
+// Click a hotspot (or the part itself) to highlight it and open its details;
+// "Isolate in 3D" swaps to that part on its own. Esc steps back out.
+//
+// Data: the assembly GLB must keep each part as its own node with a material
+// named after the part (see the README: "Assembly explorer"). Each entry in a
+// project's `models` list links to its node by `node`, and hotspot positions
+// come from src/data/model-parts/<assembly>.json. Adding a part = adding an entry.
+import ModelViewer from './ModelViewer.astro';
+
+interface Part {
+  key: string; label: string; src: string; position: [number, number, number];
+  role?: string; note?: string; volume?: string; material?: string; image?: string; orbit?: string; orientation?: string;
+}
+interface Props { src: string; poster?: string; number: string; title: string; orbit?: string; tools: string[]; parts: Part[] }
+const { src, poster, number, title, orbit = '35deg 70deg 105%', tools, parts } = Astro.props;
+const pos = (p: [number, number, number]) => p.map((v) => `${v.toFixed(4)}m`).join(' ');
+---
+<figure class="ax" data-parts={JSON.stringify(parts)} data-orbit={orbit} data-tools={tools.join(', ')}>
+  <div class="ax-stage">
+    <model-viewer
+      class="ax-view ax-asm"
+      src={src}
+      poster={poster}
+      alt={`3D model of the ${title} assembly. Use the part markers to inspect each part.`}
+      camera-controls
+      touch-action="pan-y"
+      interaction-prompt="none"
+      camera-orbit={orbit}
+      field-of-view="30deg"
+      shadow-intensity="0.7"
+      shadow-softness="1"
+      exposure="0.95"
+      tone-mapping="commerce"
+      environment-image="neutral"
+      loading="lazy"
+    >
+      {parts.map((p, i) => (
+        <button type="button" class="ax-hot" slot={`hotspot-${i}`} data-position={pos(p.position)} data-i={i} aria-label={`Inspect ${p.label}`}>
+          <span class="ax-dot" aria-hidden="true"></span>
+        </button>
+      ))}
+      <div slot="progress-bar" class="ax-progress"><span></span></div>
+    </model-viewer>
+
+    <div class="ax-iso" aria-hidden="true">
+      <model-viewer class="ax-view ax-part" camera-controls touch-action="pan-y" interaction-prompt="none" field-of-view="30deg"
+        shadow-intensity="0.7" shadow-softness="1" exposure="0.95" tone-mapping="commerce" environment-image="neutral"></model-viewer>
+    </div>
+
+    <p class="ax-hud mono" aria-live="polite"><span class="ax-mode">{number} · Assembly</span><span class="ax-count">{parts.length} parts</span></p>
+    <button type="button" class="ax-back mono" hidden>← Full assembly</button>
+
+    <aside class="ax-panel" hidden aria-labelledby="ax-name" tabindex="-1">
+      <button type="button" class="ax-close" aria-label="Close and return to the full assembly">×</button>
+      <div class="ax-thumb"><img alt="" /></div>
+      <p class="ax-idx mono"></p>
+      <h3 class="ax-name" id="ax-name"></h3>
+      <p class="ax-role"></p>
+      <dl class="ax-specs mono"></dl>
+      <div class="ax-actions">
+        <button type="button" class="ax-isolate">Isolate in 3D</button>
+        <span class="ax-step">
+          <button type="button" class="ax-prev" aria-label="Previous part">←</button>
+          <button type="button" class="ax-next" aria-label="Next part">→</button>
+        </span>
+      </div>
+    </aside>
+  </div>
+  <figcaption class="mono"><span class="ax-mouse">Drag to rotate · Scroll to zoom · Right drag to pan · </span><span class="ax-touch">Drag to rotate · Pinch to zoom · Two finger drag to pan · </span>Select a marker or a part to inspect it · Esc to go back</figcaption>
+</figure>
+
+<script>
+  (self as any).ModelViewerElement = { ...(self as any).ModelViewerElement, meshoptDecoderLocation: '/decoders/meshopt_decoder.js' };
+  import('@google/model-viewer');
+
+  type Part = { key: string; label: string; src: string; position: number[]; role?: string; note?: string; volume?: string; material?: string; image?: string; orbit?: string; orientation?: string };
+  const HI = [0.6, 0.76, 0.95, 1];    // selected part: silver blue
+  const DIM = [0.24, 0.26, 0.28, 1];  // everything else while a part is selected
+
+  for (const fig of document.querySelectorAll<HTMLElement>('.ax')) {
+    const parts: Part[] = JSON.parse(fig.dataset.parts!);
+    const tools = fig.dataset.tools || '';
+    const orbit = fig.dataset.orbit!;
+    const stage = fig.querySelector<HTMLElement>('.ax-stage')!;
+    const asm = fig.querySelector('.ax-asm') as any;
+    const part = fig.querySelector('.ax-part') as any;
+    const panel = fig.querySelector<HTMLElement>('.ax-panel')!;
+    const back = fig.querySelector<HTMLButtonElement>('.ax-back')!;
+    const hots = [...fig.querySelectorAll<HTMLButtonElement>('.ax-hot')];
+    const mode = fig.querySelector('.ax-mode')!;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) { asm.setAttribute('interpolation-decay', '1000'); part.setAttribute('interpolation-decay', '1000'); }
+    const number = mode.textContent!.split(' · ')[0];
+    let sel = -1, isolated = false, originals: Map<any, number[]> | null = null;
+
+    // remember each material's original color so it can be restored
+    asm.addEventListener('load', () => {
+      fig.classList.add('is-loaded');
+      originals = new Map(asm.model.materials.map((m: any) => [m, [...m.pbrMetallicRoughness.baseColorFactor]]));
+      if (sel >= 0) paint();
+    });
+    function paint() {
+      if (!originals) return;
+      for (const [m, c] of originals) {
+        const pbr = m.pbrMetallicRoughness;
+        if (sel < 0) { pbr.setBaseColorFactor(c); m.setEmissiveFactor([0, 0, 0]); continue; }
+        const on = m.name === parts[sel].key;
+        pbr.setBaseColorFactor(on ? HI : DIM);
+        m.setEmissiveFactor(on ? [0.05, 0.08, 0.12] : [0, 0, 0]);
+      }
+    }
+
+    function fill(i: number) {
+      const p = parts[i];
+      const img = panel.querySelector<HTMLImageElement>('.ax-thumb img')!;
+      panel.querySelector<HTMLElement>('.ax-thumb')!.hidden = !p.image;
+      if (p.image) { img.src = p.image; img.alt = `${p.label}, render`; }
+      panel.querySelector('.ax-idx')!.textContent = `${String(i + 1).padStart(2, '0')} / ${String(parts.length).padStart(2, '0')}`;
+      panel.querySelector('.ax-name')!.textContent = p.label;
+      const role = panel.querySelector<HTMLElement>('.ax-role')!;
+      role.textContent = p.role ?? ''; role.hidden = !p.role;
+      const rows: [string, string | undefined][] = [['Size', p.note], ['Material', p.material], ['Volume', p.volume], ['Tools', tools]];
+      panel.querySelector('.ax-specs')!.innerHTML = rows.filter(([, v]) => v)
+        .map(([k, v]) => `<div><dt>${k}</dt><dd>${String(v).replace(/[<>&]/g, '')}</dd></div>`).join('');
+    }
+
+    function select(i: number, focus = true) {
+      sel = ((i % parts.length) + parts.length) % parts.length;
+      fill(sel);
+      paint();
+      hots.forEach((h, k) => h.classList.toggle('is-on', k === sel));
+      stage.classList.add('has-sel');
+      panel.hidden = false;
+      if (isolated) loadPart(); else {
+        const [x, y, z] = parts[sel].position;
+        asm.cameraTarget = `${x}m ${y}m ${z}m`;
+        asm.fieldOfView = '30deg';
+      }
+      mode.textContent = `${number} · ${isolated ? 'Isolated' : 'Assembly'} · ${parts[sel].label}`;
+      if (focus) panel.focus({ preventScroll: true });
+    }
+
+    function close() {
+      if (isolated) leave();
+      const was = sel; sel = -1;
+      paint();
+      hots.forEach((h) => h.classList.remove('is-on'));
+      stage.classList.remove('has-sel');
+      panel.hidden = true;
+      asm.cameraTarget = 'auto auto auto';
+      asm.fieldOfView = '30deg';
+      asm.cameraOrbit = orbit;
+      mode.textContent = `${number} · Assembly`;
+      hots[was]?.focus({ preventScroll: true });
+    }
+
+    function loadPart() {
+      const p = parts[sel];
+      if (part.getAttribute('src') !== p.src) part.src = p.src;
+      part.cameraOrbit = p.orbit ?? '35deg 65deg 105%';
+      part.orientation = p.orientation ?? '0deg 0deg 0deg';
+      part.cameraTarget = 'auto auto auto';
+      part.fieldOfView = '30deg';
+    }
+    function isolate() {
+      if (sel < 0) return;
+      isolated = true;
+      loadPart();
+      stage.classList.add('is-isolated');
+      fig.querySelector('.ax-iso')!.removeAttribute('aria-hidden');
+      part.setAttribute('alt', `3D model of the ${parts[sel].label} on its own`);
+      back.hidden = false;
+      mode.textContent = `${number} · Isolated · ${parts[sel].label}`;
+      back.focus({ preventScroll: true });
+    }
+    function leave() {
+      isolated = false;
+      stage.classList.remove('is-isolated');
+      fig.querySelector('.ax-iso')!.setAttribute('aria-hidden', 'true');
+      back.hidden = true;
+      if (sel >= 0) { mode.textContent = `${number} · Assembly · ${parts[sel].label}`; panel.focus({ preventScroll: true }); }
+    }
+
+    hots.forEach((h) => h.addEventListener('click', (e) => { e.stopPropagation(); select(+h.dataset.i!); }));
+    // clicking the part itself: find which material is under the pointer (ignore drags)
+    let down = { x: 0, y: 0 };
+    asm.addEventListener('pointerdown', (e: PointerEvent) => (down = { x: e.clientX, y: e.clientY }));
+    asm.addEventListener('click', (e: MouseEvent) => {
+      if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5 || (e.target as HTMLElement).closest('.ax-hot')) return;
+      const m = asm.materialFromPoint?.(e.clientX, e.clientY);
+      const i = m ? parts.findIndex((p) => p.key === m.name) : -1;
+      if (i >= 0) select(i, false);
+    });
+    panel.querySelector('.ax-close')!.addEventListener('click', close);
+    panel.querySelector('.ax-isolate')!.addEventListener('click', isolate);
+    panel.querySelector('.ax-prev')!.addEventListener('click', () => select(sel - 1));
+    panel.querySelector('.ax-next')!.addEventListener('click', () => select(sel + 1));
+    back.addEventListener('click', leave);
+    fig.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { if (isolated) leave(); else if (sel >= 0) close(); }
+      if (sel >= 0 && (e.target as HTMLElement).closest('.ax-panel') && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+        e.preventDefault(); select(sel + (e.key === 'ArrowRight' ? 1 : -1));
+      }
+    });
+  }
+</script>
+
+<style>
+  /* A dark CAD workspace, framed inside the page */
+  .ax {
+    --ax-bg: #0f1113; --ax-panel: rgb(22 24 27 / 0.94); --ax-line: rgb(205 214 226 / 0.16);
+    --ax-text: #e8ebef; --ax-muted: #8e959e; --ax-hi: #9cc3ea;
+    margin: 0; color: var(--ax-text);
+    border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+    background: var(--ax-bg);
+  }
+  .ax-stage {
+    position: relative; height: clamp(460px, 60vw, 720px);
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 45%, rgb(156 195 234 / 0.08), transparent 70%),
+      linear-gradient(var(--ax-line) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(90deg, var(--ax-line) 1px, transparent 1px) 0 0 / 48px 48px,
+      var(--ax-bg);
+  }
+  .ax-view { display: block; width: 100%; height: 100%; background: transparent; --poster-color: transparent; }
+  .ax-view:focus-visible { outline: 2px solid var(--ax-hi); outline-offset: -2px; }
+
+  /* assembly <-> isolated part: cross fade with a small scale */
+  /* visibility (not just pointer-events) so the hidden viewer can never catch a click */
+  .ax-asm, .ax-iso { transition: opacity calc(0.45s * var(--speed)) var(--ease), transform calc(0.55s * var(--speed)) var(--ease), visibility 0s linear 0s; }
+  .ax-iso { position: absolute; inset: 0; opacity: 0; transform: scale(1.04); visibility: hidden; transition-delay: 0s, 0s, calc(0.55s * var(--speed)); }
+  .is-isolated .ax-asm { opacity: 0; transform: scale(0.96); visibility: hidden; transition-delay: 0s, 0s, calc(0.55s * var(--speed)); }
+  .is-isolated .ax-iso { opacity: 1; transform: none; visibility: visible; transition-delay: 0s; }
+
+  /* hotspots: small rings with a soft pulse */
+  .ax-hot {
+    all: unset; pointer-events: auto; box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+    display: grid; place-items: center; position: relative;
+  }
+  .ax-dot {
+    width: 11px; height: 11px; border-radius: 50%; background: var(--ax-text);
+    box-shadow: 0 0 0 2px rgb(15 17 19 / 0.7);
+    transition: transform 0.25s var(--ease), background 0.25s;
+  }
+  .ax-hot::before {
+    content: ''; position: absolute; inset: 2px; border-radius: 50%; border: 1px solid rgb(232 235 239 / 0.55);
+    animation: ax-pulse 2.4s ease-out infinite;
+  }
+  .ax-hot:nth-of-type(2n)::before { animation-delay: 0.6s; }
+  .ax-hot:nth-of-type(3n)::before { animation-delay: 1.2s; }
+  @keyframes ax-pulse { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.9); opacity: 0; } }
+  .ax-hot:hover .ax-dot, .ax-hot:focus-visible .ax-dot { transform: scale(1.25); background: var(--ax-hi); }
+  .ax-hot:focus-visible { outline: 2px solid var(--ax-hi); outline-offset: 2px; }
+  .ax-hot.is-on .ax-dot { background: var(--ax-hi); transform: scale(1.35); }
+  .has-sel .ax-hot:not(.is-on) { opacity: 0.45; }
+  .is-isolated .ax-hot { visibility: hidden; }
+  :global(.pointer-tumbling) .ax-hot { pointer-events: none; }
+
+  .ax-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; }
+  .ax-progress span { display: block; height: 100%; width: 30%; background: var(--ax-hi); animation: ax-load 1.2s var(--ease) infinite; }
+  @keyframes ax-load { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+  .is-loaded .ax-asm .ax-progress { display: none; }
+
+  .ax-hud {
+    position: absolute; top: 12px; left: 14px; right: 14px; margin: 0; pointer-events: none;
+    display: flex; justify-content: space-between; gap: 12px;
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ax-muted);
+  }
+  .ax-mode { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .has-sel .ax-count { display: none; }
+  .ax-back {
+    position: absolute; top: 40px; left: 14px; z-index: 3; cursor: pointer;
+    font-size: 0.75rem; padding: 7px 12px; border-radius: var(--radius-btn);
+    background: var(--ax-panel); color: var(--ax-text); border: 1px solid var(--ax-line);
+  }
+  .ax-back:hover, .ax-back:focus-visible { border-color: var(--ax-hi); color: var(--ax-hi); outline: none; }
+
+  /* information panel */
+  .ax-panel {
+    position: absolute; top: 14px; right: 14px; z-index: 4; width: min(300px, 42%);
+    max-height: calc(100% - 28px); overflow: auto;
+    padding: 16px 16px 14px; border-radius: max(6px, var(--radius));
+    background: var(--ax-panel); border: 1px solid var(--ax-line);
+    box-shadow: 0 18px 50px rgb(0 0 0 / 0.45);
+    animation: ax-in calc(0.3s * var(--speed)) var(--ease);
+  }
+  .ax-panel:focus { outline: none; }
+  .ax-panel:focus-visible { outline: 2px solid var(--ax-hi); outline-offset: 2px; }
+  @keyframes ax-in { from { opacity: 0; transform: translateY(6px); } }
+  .ax-close {
+    position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    background: transparent; color: var(--ax-muted); border: 1px solid transparent; font-size: 1.05rem; line-height: 1;
+  }
+  .ax-close:hover, .ax-close:focus-visible { color: var(--ax-text); border-color: var(--ax-line); outline: none; }
+  .ax-thumb { margin: 2px 0 10px; height: 116px; border-radius: 4px; background: radial-gradient(ellipse at 50% 60%, rgb(156 195 234 / 0.1), transparent 70%); }
+  .ax-thumb img { width: 100%; height: 100%; object-fit: contain; }
+  .ax-idx { margin: 0 0 4px; font-size: 0.66rem; letter-spacing: 0.1em; color: var(--ax-hi); }
+  .ax-name { margin: 0 0 6px; font-family: var(--f-heading); font-size: 1.2rem; font-stretch: 100%; color: var(--ax-text); letter-spacing: -0.01em; text-transform: none; }
+  .ax-role { margin: 0 0 12px; font-size: 0.92rem; line-height: 1.45; color: rgb(232 235 239 / 0.82); }
+  .ax-specs { margin: 0 0 14px; font-size: 0.72rem; border-top: 1px solid var(--ax-line); }
+  .ax-specs :global(div) { display: grid; grid-template-columns: 5.5rem 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--ax-line); }
+  .ax-specs :global(dt) { color: var(--ax-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .ax-specs :global(dd) { margin: 0; color: var(--ax-text); }
+  .ax-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .ax-isolate {
+    font: 600 0.82rem/1 var(--f-heading); cursor: pointer; padding: 9px 14px; border-radius: var(--radius-btn);
+    background: var(--ax-text); color: var(--ax-bg); border: 0;
+  }
+  .ax-isolate:hover, .ax-isolate:focus-visible { background: var(--ax-hi); outline: none; }
+  .ax-step { display: flex; gap: 6px; }
+  .ax-step button {
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font: inherit;
+    background: transparent; color: var(--ax-text); border: 1px solid var(--ax-line);
+  }
+  .ax-step button:hover, .ax-step button:focus-visible { border-color: var(--ax-hi); color: var(--ax-hi); outline: none; }
+
+  .ax-touch { display: none; }
+  @media (hover: none) { .ax-touch { display: inline; } .ax-mouse { display: none; } }
+  figcaption { padding: 10px 14px; font-size: 0.7rem; color: var(--ax-muted); border-top: 1px solid var(--ax-line); }
+
+  /* phones and small tablets: the panel moves under the 3D view so it never covers the model */
+  @media (max-width: 760px) {
+    .ax { --ax-h: min(68vh, 460px); }
+    .ax-stage { height: auto; }
+    .ax-asm { height: var(--ax-h); }
+    .ax-iso { inset: 0 0 auto 0; height: var(--ax-h); }
+    .ax-panel { position: static; width: auto; max-height: none; border-radius: 0; border-width: 1px 0 0; box-shadow: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ax-hot::before { animation: none; opacity: 0.5; transform: scale(1.3); }
+    .ax-panel { animation: none; }
+    .ax-asm, .ax-iso { transition: none; }
+  }
+</style>

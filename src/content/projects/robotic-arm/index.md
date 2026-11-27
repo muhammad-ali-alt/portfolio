@@ -14,14 +14,14 @@ model: /models/robotic-arm-assembly.glb
 modelOrbit: 90deg 80deg 105%
 modelPoster: ./assembly.png
 models:
-  - { src: /models/grip.glb, label: Gripper jaw, image: ./cover.png, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
-  - { src: /models/gripper-actuator.glb, label: Gripper actuator, image: ./actuator.png, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
-  - { src: /models/wrist-module.glb, label: Wrist module, image: ./wrist.png, note: 55.0 × 31.0 × 31.0 mm, orbit: 35deg 65deg 100% }
-  - { src: /models/rotary-yoke-joint.glb, label: Rotary yoke joint, image: ./yoke.png, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
-  - { src: /models/shoulder-drive-unit.glb, label: Shoulder drive unit, image: ./shoulder.png, note: 32.5 × 30.0 × 75.0 mm, orbit: 35deg 65deg 105% }
-  - { src: /models/upper-arm-link.glb, label: Upper arm link, image: ./upper-arm.png, note: 115.0 × 125.0 × 35.0 mm, orbit: 35deg 65deg 105% }
-  - { src: /models/lower-arm-link.glb, label: Lower arm link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
-  - { src: /models/base.glb, label: Base, image: ./base.png, note: 140.0 × 41.0 × 140.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/grip.glb, node: grip, role: "One of the gripper's jaws, the part that touches the object.", volume: 2.9 cm³, label: Gripper jaw, image: ./cover.png, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
+  - { src: /models/gripper-actuator.glb, node: Gripper Actuator, role: "Drives the gripper jaws.", volume: 16.5 cm³, label: Gripper actuator, image: ./actuator.png, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
+  - { src: /models/wrist-module.glb, node: Wrist Modul, role: "The wrist joint between the arm and the gripper.", volume: 32.5 cm³, label: Wrist module, image: ./wrist.png, note: 55.0 × 31.0 × 31.0 mm, orbit: 35deg 65deg 100% }
+  - { src: /models/rotary-yoke-joint.glb, node: Rotary Yoke Joint, role: "A rotary joint in the arm.", volume: 15.7 cm³, label: Rotary yoke joint, image: ./yoke.png, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/shoulder-drive-unit.glb, node: Shoulder Drive Unit, role: "Drives the shoulder joint.", volume: 38.6 cm³, label: Shoulder drive unit, image: ./shoulder.png, note: 32.5 × 30.0 × 75.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/upper-arm-link.glb, node: Upper Arm Link, role: "The structural link of the upper arm.", volume: 82.0 cm³, label: Upper arm link, image: ./upper-arm.png, note: 115.0 × 125.0 × 35.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/lower-arm-link.glb, node: Lower Arm Link, role: "The structural link of the lower arm.", volume: 198.6 cm³, label: Lower arm link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/base.glb, node: Base, role: "Holds the arm upright and carries the first rotating joint.", volume: 190.7 cm³, label: Base, image: ./base.png, note: 140.0 × 41.0 × 140.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: The full six axis robotic arm assembly in SolidWorks, side view
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
