@@ -107,7 +107,7 @@
     "shadow": 2,
     "shadowSoftness": 1,
     "environment": "legacy",
-    "material": "satin",
+    "material": "original",
     "zoom": 100,
     "sensitivity": 1,
     "backdrop": "grid"

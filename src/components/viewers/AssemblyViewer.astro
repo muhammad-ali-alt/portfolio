@@ -131,7 +131,9 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
     const markersBtn = fig.querySelector<HTMLButtonElement>('.ax-markers')!;
     const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'off';
     if (reduced()) { asm.setAttribute('interpolation-decay', '1000'); part.setAttribute('interpolation-decay', '1000'); }
-    let sel = -1, isolated = false, originals: Map<any, number[]> | null = null;
+    let sel = -1, isolated = false, originals: Map<any, { c: number[]; e: number[] }> | null = null;
+    // a part can have several finishes, named "<part>|<finish>" (orange, slate, cyan...)
+    const partOf = (m: any) => String(m?.name ?? '').split('|')[0];
 
     const setMode = (s: string) => (mode.textContent = s);
     const idleMode = () => `Assembly · ${parts.length} parts${exploded > 0.5 ? ' · exploded' : ''}`;
@@ -139,18 +141,22 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
     // ── materials: remember the original colors so highlights can be undone ──
     asm.addEventListener('load', () => {
       fig.classList.add('is-loaded');
-      originals = new Map(asm.model.materials.map((m: any) => [m, [...m.pbrMetallicRoughness.baseColorFactor]]));
+      originals = new Map(asm.model.materials.map((m: any) => {
+        const e = [...(m.emissiveFactor ?? [0, 0, 0])];
+        return [m, { c: [...m.pbrMetallicRoughness.baseColorFactor], e }];
+      }));
       if (sel >= 0) paint();
       setupExplode();
     });
     function paint() {
       if (!originals) return;
-      for (const [m, c] of originals) {
+      for (const [m, { c, e }] of originals) {
         const pbr = m.pbrMetallicRoughness;
-        if (sel < 0) { pbr.setBaseColorFactor(c); m.setEmissiveFactor([0, 0, 0]); continue; }
-        const on = m.name === parts[sel].key;
+        if (sel < 0) { pbr.setBaseColorFactor(c); m.setEmissiveFactor(e); continue; }
+        const on = partOf(m) === parts[sel].key;
         pbr.setBaseColorFactor(on ? c : [c[0] * DIM, c[1] * DIM, c[2] * DIM, c[3]]);
-        m.setEmissiveFactor(on ? [c[0] * 0.22 + 0.03, c[1] * 0.22 + 0.05, c[2] * 0.22 + 0.08] : [0, 0, 0]);
+        // the selected part glows a little; lights on the others dim with them
+        m.setEmissiveFactor(on ? e.map((x, k) => Math.max(x, c[k] * 0.22 + [0.03, 0.05, 0.08][k])) : e.map((x) => x * DIM));
       }
     }
 
@@ -301,7 +307,7 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
     asm.addEventListener('click', (e: MouseEvent) => {
       if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5 || (e.target as HTMLElement).closest('.ws-hot')) return;
       const m = asm.materialFromPoint?.(e.clientX, e.clientY);
-      const i = m ? parts.findIndex((p) => p.key === m.name) : -1;
+      const i = m ? parts.findIndex((p) => p.key === partOf(m)) : -1;
       if (i >= 0) select(i, false);
     });
     panel.querySelector('.ws-close')!.addEventListener('click', close);
