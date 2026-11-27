@@ -56,8 +56,9 @@ export function plan(d: Data) {
   const has = available(d);
   const hero = d.viewer !== 'auto' && has[d.viewer] ? d.viewer : ORDER.find((k) => has[k]) ?? null;
   const extras = EXTRAS.filter((k) => has[k] && k !== hero);
-  // the parts carousel stays under a 3D hero, as before
-  const carousel = has.compare && hero !== 'compare';
+  // the parts carousel stays under a single 3D model; a clickable assembly already
+  // shows every part (list, panel, isolated 3D view), so it gets no carousel
+  const carousel = has.compare && hero !== 'compare' && hero !== 'assembly';
   return { hero, extras, carousel, has };
 }
 

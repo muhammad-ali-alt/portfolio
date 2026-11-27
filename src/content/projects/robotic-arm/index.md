@@ -76,7 +76,7 @@ PLACEHOLDER: How the joints move together, and one thing you would change if you
 
 ## Parts
 
-All eight parts, in the order they were modeled. Together they use about 578 cm³ of material. Sizes and material volumes are measured from the STL exports. Rotate any of them in 3D in the carousel above.
+All eight parts, in the order they were modeled. Together they use about 578 cm³ of material. Sizes and material volumes are measured from the STL exports. Pick any of them in the 3D assembly above to inspect it or view it on its own.
 
 | # | Part | Envelope (mm) | Material | Status |
 |---|---|---|---|---|
