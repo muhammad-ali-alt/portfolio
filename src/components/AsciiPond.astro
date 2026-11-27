@@ -10,10 +10,10 @@
 //        drawn with leader lines in the same canvas so they always line up.
 // Swap the image in the CMS: Site and About, Home page, Cover image.
 interface Note { u: number; v: number; dx: number; dy: number; label: string; sub?: string }
-interface Props { src: string; alt?: string; fill?: boolean; notes?: Note[] }
-const { src, alt = '', fill = false, notes = [] } = Astro.props;
+interface Props { src: string; srcMobile?: string; alt?: string; fill?: boolean; notes?: Note[] }
+const { src, srcMobile = '', alt = '', fill = false, notes = [] } = Astro.props;
 ---
-<div class:list={['pond', { 'is-fill': fill }]} data-src={src} data-fill={fill ? '1' : undefined} data-notes={JSON.stringify(notes)}
+<div class:list={['pond', { 'is-fill': fill }]} data-src={src} data-src-mobile={srcMobile || undefined} data-fill={fill ? '1' : undefined} data-notes={JSON.stringify(notes)}
   role={alt ? 'img' : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : 'true'}>
   <canvas></canvas>
 </div>
@@ -35,7 +35,8 @@ const { src, alt = '', fill = false, notes = [] } = Astro.props;
     // ── load the image into a small sampling grid ──
     const img = new Image();
     img.decoding = 'async';
-    img.src = pond.dataset.src!;
+    // a separate image for phones, if set (chosen once, at load)
+    img.src = pond.dataset.srcMobile && innerWidth < 760 ? pond.dataset.srcMobile : pond.dataset.src!;
     let sw = 0, sh = 0, rgb = new Uint8ClampedArray(0), alpha = new Float32Array(0);
     img.onload = () => {
       sh = 300; sw = Math.round((img.naturalWidth / img.naturalHeight) * sh);

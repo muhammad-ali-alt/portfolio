@@ -31,6 +31,7 @@
     }
   ],
   "heroCredit": "",
-  "heroVideoMobile": "/uploads/cover-phone.mp4",
-  "heroVideoCredit": "Animation: Shobhit, via Pinterest"
+  "heroVideoMobile": "",
+  "heroVideoCredit": "",
+  "heroImageMobile": "/uploads/cover-phone-image.jpg"
 }

@@ -29,7 +29,7 @@ const [lead, ...rest] = featured;
   <section class:list={['cover', { 'cover-bleed': home.heroArt && home.heroImage }]} aria-labelledby="name">
     {home.heroArt && home.heroImage && (
       <>
-        <AsciiPond src={home.heroImage} alt={home.heroImageAlt} fill notes={[
+        <AsciiPond src={home.heroImage} srcMobile={home.heroImageMobile} alt={home.heroImageAlt} fill notes={[
           { u: 0.56, v: 0.2, dx: 110, dy: -14, label: 'Beam', sub: 'spine spans shoulder to hip' },
           { u: 0.7, v: 0.4, dx: 100, dy: 24, label: 'Hoop frame', sub: 'ribs carry the torso' },
           { u: 0.63, v: 0.66, dx: 120, dy: -36, label: 'Column + pin joints', sub: 'legs take the load' },
@@ -38,8 +38,8 @@ const [lead, ...rest] = featured;
           <video class="cover-video" data-src={home.heroVideoMobile} poster={home.heroVideoMobile.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none" aria-hidden="true"></video>
         )}
         <div class="cover-shade" aria-hidden="true"></div>
-        {home.heroCredit && <p class:list={['cover-credit mono', { 'is-desktop': home.heroVideoMobile && home.heroVideoCredit }]}>{home.heroCredit}</p>}
-        {home.heroVideoMobile && home.heroVideoCredit && <p class="cover-credit cover-credit-phone mono">{home.heroVideoCredit}</p>}
+        {home.heroCredit && <p class:list={['cover-credit mono', { 'is-desktop': (home.heroVideoMobile || home.heroImageMobile) && home.heroVideoCredit }]}>{home.heroCredit}</p>}
+        {(home.heroVideoMobile || home.heroImageMobile) && home.heroVideoCredit && <p class="cover-credit cover-credit-phone mono">{home.heroVideoCredit}</p>}
       </>
     )}
     <div class="wrap cover-inner">
@@ -276,7 +276,7 @@ const [lead, ...rest] = featured;
   @media (max-width: 900px) { .cover-bleed { padding-top: 144px; } }
   @media (max-width: 560px) { .cover-bleed { padding-top: 168px; } }
   @media (max-width: 760px) {
-    .cover-shade { background: linear-gradient(180deg, rgb(12 13 13 / 0.55), rgb(12 13 13 / 0.78) 45%, rgb(12 13 13 / 0.6)); }
+    .cover-shade { background: linear-gradient(180deg, rgb(12 13 13 / 0.3), rgb(12 13 13 / 0.45) 35%, rgb(12 13 13 / 0.6) 70%, rgb(12 13 13 / 0.45)); }
   }
   .frame {
     position: relative;
