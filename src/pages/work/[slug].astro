@@ -9,7 +9,7 @@ import ProjectExplore from '../../components/ProjectExplore.astro';
 import CaseStudy from '../../components/CaseStudy.astro';
 import { prepare, pageHeadings, plan, VIEWER_LABEL } from '../../lib/viewers';
 import Revisions from '../../components/Revisions.astro';
-import { getAllProjects, getProjects, getCad, getNotebook, fmtMonth, latestRev, isUpload } from '../../lib/content';
+import { getAllProjects, getProjects, getCad, getNotebook, fmtMonth, fmtDay, latestRev, isUpload } from '../../lib/content';
 import { md } from '../../lib/markdown';
 
 export async function getStaticPaths() {
@@ -133,7 +133,7 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
             <li><a href={`/cad/${c.id}/`}><span class="mono">{c.data.number}</span> {c.data.title} <span class="label">CAD · {c.data.kind}</span></a></li>
           ))}
           {relatedNotes.map((n) => (
-            <li><a href={`/notebook/${n.id}/`}><span class="mono">{n.data.date.toISOString().slice(0, 10)}</span> {n.data.title} <span class="label">Notebook · {n.data.type}</span></a></li>
+            <li><a href={`/notebook/${n.id}/`}><span class="mono">{fmtDay(n.data.date)}</span> {n.data.title} <span class="label">Notebook · {n.data.type}</span></a></li>
           ))}
         </ul>
       </section>

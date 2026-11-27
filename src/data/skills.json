@@ -5,7 +5,7 @@
       "items": [
         {
           "name": "SolidWorks",
-          "since": "",
+          "since": "2026",
           "note": "Learning: parts, patterns, mirror features"
         }
       ]
@@ -15,17 +15,17 @@
       "items": [
         {
           "name": "FDM 3D printing",
-          "since": "",
+          "since": "2025",
           "note": "Every printed part on the ENES100 vehicle; print settings for strength"
         },
         {
           "name": "Laser cutting",
-          "since": "",
+          "since": "2025",
           "note": "Cut and drilled the ENES100 chassis"
         },
         {
           "name": "Hand tools and assembly",
-          "since": "",
+          "since": "2022",
           "note": "Team builds and four years of shop work"
         },
         {
@@ -35,7 +35,7 @@
         },
         {
           "name": "Lathe",
-          "since": "",
+          "since": "2026",
           "note": "Safety training completed"
         }
       ]
@@ -55,7 +55,7 @@
         },
         {
           "name": "Excel",
-          "since": "",
+          "since": "2026",
           "note": "XLOOKUP, PivotTables, GETPIVOTDATA"
         },
         {

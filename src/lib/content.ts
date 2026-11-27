@@ -62,7 +62,8 @@ export async function getToolUsage() {
 }
 
 export const fmtMonth = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
-export const fmtDay = (d: Date) => d.toISOString().slice(0, 10);
+// One date style across the site: "Nov 2026" for months, "Nov 23, 2026" for days.
+export const fmtDay = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 export const latestRev = (p: Project) => p.data.revisions.at(-1)?.rev ?? '—';
 /** Images can be an optimized asset or an uploaded path. */
 export const isUpload = (src: unknown): src is string => typeof src === 'string';

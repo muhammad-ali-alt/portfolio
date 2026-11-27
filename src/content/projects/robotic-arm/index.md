@@ -15,13 +15,13 @@ model: /models/robotic-arm-assembly.glb
 modelOrbit: 90deg 80deg 105%
 modelPoster: ./assembly.png
 models:
-  - { src: /models/grip.glb, node: grip, role: "One of the gripper's jaws, the part that touches the object.", volume: 2.9 cm³, label: Gripper jaw, image: ./cover.png, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
-  - { src: /models/gripper-actuator.glb, node: Gripper Actuator, role: "Drives the gripper jaws.", volume: 16.5 cm³, label: Gripper actuator, image: ./actuator.png, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
-  - { src: /models/wrist-module.glb, node: Wrist Modul, role: "The wrist joint between the arm and the gripper.", volume: 32.5 cm³, label: Wrist module, image: ./wrist.png, note: 55.0 × 31.0 × 31.0 mm, orbit: 35deg 65deg 100% }
-  - { src: /models/rotary-yoke-joint.glb, node: Rotary Yoke Joint, role: "A rotary joint in the arm.", volume: 15.7 cm³, label: Rotary yoke joint, image: ./yoke.png, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
-  - { src: /models/shoulder-drive-unit.glb, node: Shoulder Drive Unit, role: "Drives the shoulder joint.", volume: 38.6 cm³, label: Shoulder drive unit, image: ./shoulder.png, note: 32.5 × 30.0 × 75.0 mm, orbit: 35deg 65deg 105% }
-  - { src: /models/upper-arm-link.glb, node: Upper Arm Link, role: "The structural link of the upper arm.", volume: 82.0 cm³, label: Upper arm link, image: ./upper-arm.png, note: 115.0 × 125.0 × 35.0 mm, orbit: 35deg 65deg 105% }
-  - { src: /models/lower-arm-link.glb, node: Lower Arm Link, role: "The structural link of the lower arm.", volume: 198.6 cm³, label: Lower arm link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/grip.glb, node: grip, role: "One of the gripper's jaws, the part that touches the object.", volume: 2.9 cm³, label: Gripper Jaw, image: ./cover.png, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
+  - { src: /models/gripper-actuator.glb, node: Gripper Actuator, role: "Drives the gripper jaws.", volume: 16.5 cm³, label: Gripper Actuator, image: ./actuator.png, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
+  - { src: /models/wrist-module.glb, node: Wrist Modul, role: "The wrist joint between the arm and the gripper.", volume: 32.5 cm³, label: Wrist Module, image: ./wrist.png, note: 55.0 × 31.0 × 31.0 mm, orbit: 35deg 65deg 100% }
+  - { src: /models/rotary-yoke-joint.glb, node: Rotary Yoke Joint, role: "A rotary joint in the arm.", volume: 15.7 cm³, label: Rotary Yoke Joint, image: ./yoke.png, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/shoulder-drive-unit.glb, node: Shoulder Drive Unit, role: "Drives the shoulder joint.", volume: 38.6 cm³, label: Shoulder Drive Unit, image: ./shoulder.png, note: 32.5 × 30.0 × 75.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/upper-arm-link.glb, node: Upper Arm Link, role: "The structural link of the upper arm.", volume: 82.0 cm³, label: Upper Arm Link, image: ./upper-arm.png, note: 115.0 × 125.0 × 35.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/lower-arm-link.glb, node: Lower Arm Link, role: "The structural link of the lower arm.", volume: 198.6 cm³, label: Lower Arm Link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/base.glb, node: Base, role: "Holds the arm upright and carries the first rotating joint.", volume: 190.7 cm³, label: Base, image: ./base.png, note: 140.0 × 41.0 × 140.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: The full six axis robotic arm assembly in SolidWorks, side view
 role: Modeled all eight parts and put them together into the full assembly in SolidWorks, following the CADelics 6 axis robotic arm series.
@@ -33,25 +33,25 @@ credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (
 revisions:
   - rev: A
     date: 2026-11-01   # PLACEHOLDER date
-    note: Gripper jaw modeled.
+    note: Gripper Jaw modeled.
   - rev: B
     date: 2026-11-24   # PLACEHOLDER date
-    note: Gripper actuator modeled.
+    note: Gripper Actuator modeled.
   - rev: C
     date: 2026-11-25   # PLACEHOLDER date
-    note: Wrist module modeled.
+    note: Wrist Module modeled.
   - rev: D
     date: 2026-11-25   # PLACEHOLDER date
-    note: Rotary yoke joint modeled.
+    note: Rotary Yoke Joint modeled.
   - rev: E
     date: 2026-11-26   # PLACEHOLDER date
-    note: Shoulder drive unit modeled.
+    note: Shoulder Drive Unit modeled.
   - rev: F
     date: 2026-11-27   # PLACEHOLDER date
-    note: Upper arm link modeled.
+    note: Upper Arm Link modeled.
   - rev: G
     date: 2026-11-27   # PLACEHOLDER date
-    note: Lower arm link modeled.
+    note: Lower Arm Link modeled.
   - rev: H
     date: 2026-11-27   # PLACEHOLDER date
     note: Base modeled. All eight parts complete.
@@ -80,16 +80,16 @@ All eight parts, in the order they were modeled. Together they use about 578 cm�
 
 | # | Part | Envelope (mm) | Material | Status |
 |---|---|---|---|---|
-| 1 | Gripper jaw | 49.0 × 14.0 × 8.5 | 2.9 cm³ | Modeled |
-| 2 | Gripper actuator | 31.0 × 30.9 × 35.0 | 16.5 cm³ | Modeled |
-| 3 | Wrist module | 55.0 × 31.0 × 31.0 | 32.5 cm³ | Modeled |
-| 4 | Rotary yoke joint | 68.0 × 40.0 × 44.0 | 15.7 cm³ | Modeled |
-| 5 | Shoulder drive unit | 32.5 × 30.0 × 75.0 | 38.6 cm³ | Modeled |
-| 6 | Upper arm link | 115.0 × 125.0 × 35.0 | 82.0 cm³ | Modeled |
-| 7 | Lower arm link | 157.5 × 142.5 × 70.0 | 198.6 cm³ | Modeled |
+| 1 | Gripper Jaw | 49.0 × 14.0 × 8.5 | 2.9 cm³ | Modeled |
+| 2 | Gripper Actuator | 31.0 × 30.9 × 35.0 | 16.5 cm³ | Modeled |
+| 3 | Wrist Module | 55.0 × 31.0 × 31.0 | 32.5 cm³ | Modeled |
+| 4 | Rotary Yoke Joint | 68.0 × 40.0 × 44.0 | 15.7 cm³ | Modeled |
+| 5 | Shoulder Drive Unit | 32.5 × 30.0 × 75.0 | 38.6 cm³ | Modeled |
+| 6 | Upper Arm Link | 115.0 × 125.0 × 35.0 | 82.0 cm³ | Modeled |
+| 7 | Lower Arm Link | 157.5 × 142.5 × 70.0 | 198.6 cm³ | Modeled |
 | 8 | Base | 140.0 × 41.0 × 140.0 | 190.7 cm³ | Modeled |
 
-### 1. Gripper jaw
+### 1. Gripper Jaw
 
 **Role.** One of the gripper's jaws, the part that touches the object.
 
@@ -99,37 +99,37 @@ All eight parts, in the order they were modeled. Together they use about 578 cm�
 - **Three slots.** They cut material and weight, which also means a shorter print and less filament. PLACEHOLDER: confirm against the tutorial whether they have another purpose.
 - **Serrated teeth.** They put the same grip force onto a much smaller area, so the pressure goes up and the teeth dig in slightly. That locks the object in place instead of relying only on friction, which (F = μN) doesn't depend on contact area.
 
-### 2. Gripper actuator
+### 2. Gripper Actuator
 
 **Role.** Drives the gripper jaws.
 
 **How it works.** PLACEHOLDER: How the actuator moves the jaws, and how it connects to the jaw's pivot hole.
 
-### 3. Wrist module
+### 3. Wrist Module
 
 **Role.** The wrist joint between the arm and the gripper.
 
 **How it works.** PLACEHOLDER: What motion the wrist gives the arm, and how it connects to the gripper actuator.
 
-### 4. Rotary yoke joint
+### 4. Rotary Yoke Joint
 
 **Role.** A rotary joint in the arm.
 
 **How it works.** PLACEHOLDER: Which axis this joint rotates about, and which parts it connects.
 
-### 5. Shoulder drive unit
+### 5. Shoulder Drive Unit
 
 **Role.** Drives the shoulder joint.
 
 **How it works.** PLACEHOLDER: What drives the shoulder, and which parts it connects.
 
-### 6. Upper arm link
+### 6. Upper Arm Link
 
 **Role.** The structural link of the upper arm.
 
 **How it works.** PLACEHOLDER: Which joints the link connects, and how it carries the load.
 
-### 7. Lower arm link
+### 7. Lower Arm Link
 
 **Role.** The structural link of the lower arm.
 

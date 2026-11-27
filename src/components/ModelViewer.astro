@@ -3,6 +3,8 @@
 // The 3D library only downloads on pages that actually use this.
 // Lighting, shadows, materials, zoom, spin and backdrop come from the
 // theme (Studio: 3D Visuals) through html[data-v3d], and update live.
+// It sits in the same dark workspace as every other project viewer.
+import '../styles/workspace.css';
 interface Props {
   src: string;          // e.g. "/models/gripper.glb"
   alt: string;          // describe the model for screen readers
@@ -13,7 +15,7 @@ interface Props {
 }
 const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65deg 62%', poster } = Astro.props;
 ---
-<figure class="mv">
+<figure class="mv ws">
   <model-viewer
     src={src}
     alt={alt}
@@ -32,6 +34,7 @@ const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65
     field-of-view="30deg"
     loading="lazy"
     reveal="auto"
+    class="ws-grid"
   >
     <div slot="progress-bar" class="progress"><span></span></div>
   </model-viewer>
@@ -39,17 +42,17 @@ const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65
     <span>{number} · 3D</span>
     <span class="orbit">θ {orbit.split(' ')[0].replace('deg', '°')} φ {orbit.split(' ')[1].replace('deg', '°')}</span>
   </div>
-  <figcaption class="mono">
+  <figcaption class="ws-foot">
     <span class="views" role="group" aria-label="Camera views">
-      <button type="button" class="btn" data-view="default" aria-pressed="true">Default</button>
-      <button type="button" class="btn" data-view="side" aria-pressed="false">Side</button>
-      <button type="button" class="btn" data-view="top" aria-pressed="false">Top</button>
-      <button type="button" class="btn" data-view="rear" aria-pressed="false">Rear</button>
+      <button type="button" class="ws-btn" data-view="default" aria-pressed="true">Default</button>
+      <button type="button" class="ws-btn" data-view="side" aria-pressed="false">Side</button>
+      <button type="button" class="ws-btn" data-view="top" aria-pressed="false">Top</button>
+      <button type="button" class="ws-btn" data-view="rear" aria-pressed="false">Rear</button>
     </span>
     <span class="tools">
-      <button type="button" class="btn" data-act="spin" aria-pressed="false">Spin</button>
-      <button type="button" class="btn" data-act="reset">Reset</button>
-      <button type="button" class="btn" data-act="full" aria-label="Full screen">⤢</button>
+      <button type="button" class="ws-btn" data-act="spin" aria-pressed="false">Spin</button>
+      <button type="button" class="ws-btn" data-act="reset">Reset</button>
+      <button type="button" class="ws-btn" data-act="full" aria-label="Full screen">⤢</button>
     </span>
     <span class="hint">Drag to rotate · Scroll or pinch to zoom · Right drag to pan</span>
   </figcaption>
@@ -130,7 +133,8 @@ const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65
 
     const applySettings = () => {
       const s = read3d();
-      mv.exposure = s.exposure;
+      // brighter than the theme value: the workspace behind the model is dark
+      mv.exposure = Math.min(1.6, s.exposure * 1.45);
       mv.shadowIntensity = s.shadow;
       mv.shadowSoftness = s.shadowSoftness;
       mv.environmentImage = s.environment;
@@ -163,48 +167,29 @@ const { src, alt, number = '', orientation = '0deg 0deg 0deg', orbit = '35deg 65
 </script>
 
 <style>
-  .mv {
-    position: relative; margin: 0;
-    background-color: var(--surface); background-image: var(--g-card);
-    border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
-  }
-  .mv:fullscreen { display: grid; grid-template-rows: 1fr auto; }
+  .mv { position: relative; }
+  .mv:fullscreen { display: grid; grid-template-rows: 1fr auto; border-radius: 0; }
   .mv:fullscreen model-viewer { height: 100%; }
   model-viewer {
     display: block;
     width: 100%;
     /* the viewer sets its own height, so set ours explicitly */
     height: clamp(320px, 52vw, 640px);
-    background-color: var(--surface);
     --poster-color: transparent;
   }
-  /* Backdrop (Studio: 3D Visuals) */
-  :global(html[data-mv-bg='grid']) model-viewer {
-    background-image:
-      linear-gradient(var(--rule) 1px, transparent 1px),
-      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-  :global(html[data-mv-bg='dark']) model-viewer { background-color: #15171a; }
-  :global(html[data-mv-bg='transparent']) model-viewer,
-  :global(html[data-mv-bg='transparent']) .mv { background: transparent; }
-  model-viewer:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  model-viewer:focus-visible { outline: 2px solid var(--ws-hi); outline-offset: -2px; }
 
   .progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; }
-  .progress span { display: block; height: 100%; width: 30%; background: var(--accent); animation: load 1.2s var(--ease) infinite; }
+  .progress span { display: block; height: 100%; width: 30%; background: var(--ws-hi); animation: load 1.2s var(--ease) infinite; }
   @keyframes load { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
   .mv.is-loaded .progress { display: none; }
 
   .hud {
     position: absolute; top: 10px; left: 12px; right: 12px;
     display: flex; justify-content: space-between; pointer-events: none;
-    color: var(--graphite); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ws-muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em;
   }
-  :global(html[data-mv-bg='dark']) .hud { color: #9a9a9a; }
-  figcaption {
-    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px 16px;
-    padding: 10px 12px; border-top: var(--bw) solid var(--rule); color: var(--graphite); font-size: 0.7rem;
-  }
+  figcaption { align-items: center; }
   .views, .tools { display: flex; gap: 6px; flex-wrap: wrap; }
   .hint { flex-basis: 100%; order: 3; }
   @media (min-width: 900px) { .hint { flex-basis: auto; order: 0; } }

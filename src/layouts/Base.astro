@@ -1,4 +1,5 @@
 ---
+import { fmtDay } from '../lib/content';
 // The frame every page sits inside: <head>, navigation, and the
 // closing "back cover" at the bottom of every page.
 import '../styles/global.css';
@@ -25,7 +26,7 @@ const nav = [
   { n: '04', label: 'Toolbox', href: '/toolbox/' },
   { n: '05', label: 'About', href: '/about/' },
 ];
-const built = new Date().toISOString().slice(0, 10);
+const built = fmtDay(new Date());
 const links = site.links.filter((l) => l.href);
 
 // The published theme (src/data/site-theme.json) is baked into every page.
@@ -141,7 +142,7 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
           </div>
           <div class="tb-cell tb-name">
             <span class="label">Title</span>
-            <span>{site.wordmark}, {site.school}</span>
+            <span>{site.name}, {site.school}</span>
           </div>
         </div>
         <p class="hint label">Press <kbd>G</kbd> to see the construction grid.</p>
