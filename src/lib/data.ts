@@ -62,6 +62,7 @@ export const achievements = load('achievements.json', z.object({
 const HOME_IDS = ['contents', 'featured', 'fields', 'about'] as const;
 const homeRaw = load('home.json', z.object({
   lede: str, statement: str,
+  heroImage: str, heroImageAlt: str, heroArt: z.boolean().default(false),
   sections: z.array(z.object({ id: z.string(), title: z.string(), label: str, visible: z.boolean().default(true) })).default([]),
 }), homeJson);
 const known = homeRaw.sections.filter((s) => (HOME_IDS as readonly string[]).includes(s.id));

@@ -1,6 +1,9 @@
 {
   "lede": "Second year mechanical engineering track student at the University of Maryland, on Terps Racing and Terps Rockets. I print, cut, build, and write down what went wrong. This site is my logbook: every project gets a number, every change gets a revision.",
   "statement": "Mechanical design first. Then wherever it leads: *motorsport*, *aerospace*, *space*, *autonomous vehicles*, and the *data* that tells you whether any of it worked.",
+  "heroImage": "/uploads/hero.png",
+  "heroImageAlt": "A tiger lying in shallow water, drawn as an animated mosaic of characters",
+  "heroArt": true,
   "sections": [
     {
       "id": "contents",
