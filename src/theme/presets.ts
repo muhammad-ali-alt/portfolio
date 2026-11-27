@@ -87,6 +87,17 @@ export const THEMES: Record<string, { label: string; note: string; patch: DeepPa
       background: { style: 'solid' }, three: { backdrop: 'plain', exposure: 0.65, environment: 'neutral' },
     },
   },
+  raven: {
+    label: 'Raven',
+    note: 'Charcoal and black surfaces, off white type, muted grey, one cold electric blue. Matches the dark 3D workspace on project pages.',
+    patch: {
+      colors: { bg: '#e9eaec', bg2: '#dfe1e4', surface: '#f3f4f5', text: '#15171a', text2: '#5d636b', border: '#c9cdd2', primary: '#3d8bff', secondary: '#15171a', tertiary: '#8e959e', accent: '#2a6fd6', highlight: '#3d8bff' },
+      darkColors: { bg: '#0d0e10', bg2: '#131518', surface: '#181b1f', text: '#e8ebef', text2: '#8e959e', border: '#2a2e34', primary: '#7fb2ff', secondary: '#e8ebef', tertiary: '#8e959e', accent: '#9cc3ea', highlight: '#7fb2ff' },
+      scheme: 'dark', typePreset: 'technical', motionPreset: 'smooth',
+      layout: { radius: 6, border: 1, shadow: 'subtle', details: 'reduced', ...DENSITY.balanced, density: 'balanced' },
+      background: { style: 'solid' }, three: { backdrop: 'grid', exposure: 0.7, environment: 'neutral' },
+    },
+  },
   helk: {
     label: 'Helk',
     note: 'Deep teal and petrol with aqua text and warm yellow accents. Brown carries emphasis in the day palette.',

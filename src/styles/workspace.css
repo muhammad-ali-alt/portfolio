@@ -1,0 +1,150 @@
+/* ─────────────────────────────────────────────────────────────
+   WORKSPACE
+   The dark "CAD workspace" every project viewer sits in: the frame,
+   the top bar, markers, floating panels, buttons and chips. Viewers
+   (src/components/viewers/*) only add their own stage layout.
+   Charcoal and black, off white and muted grey type, one cold blue.
+   ───────────────────────────────────────────────────────────── */
+.ws {
+  --ws-bg: #0f1113;
+  --ws-bg2: #15181b;
+  --ws-panel: rgb(22 24 27 / 0.94);
+  --ws-line: rgb(205 214 226 / 0.14);
+  --ws-line2: rgb(205 214 226 / 0.28);
+  --ws-text: #e8ebef;
+  --ws-muted: #8e959e;
+  --ws-faint: #5d636b;
+  --ws-hi: #9cc3ea;
+  --ws-hi2: #3d8bff;
+  --ws-mono: var(--f-mono, ui-monospace, monospace);
+  margin: 0;
+  color: var(--ws-text);
+  background: var(--ws-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  position: relative;
+  isolation: isolate;
+}
+.ws [hidden] { display: none !important; }
+.ws :where(h2, h3, h4) { color: var(--ws-text); text-transform: none; }
+.ws ::selection { background: rgb(156 195 234 / 0.35); }
+
+/* top bar: drawing number, mode, tools */
+.ws-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 10px 14px; border-bottom: 1px solid var(--ws-line);
+  font-family: var(--ws-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ws-muted);
+}
+.ws-id { color: var(--ws-text); }
+.ws-mode { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-mode::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ws-hi); margin-right: 8px; vertical-align: 1px; box-shadow: 0 0 0 3px rgb(156 195 234 / 0.15); }
+.ws-tools { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* the stage: a faint grid with a soft light in the middle */
+.ws-grid {
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 45%, rgb(156 195 234 / 0.07), transparent 70%),
+    linear-gradient(var(--ws-line) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(90deg, var(--ws-line) 1px, transparent 1px) 0 0 / 48px 48px,
+    var(--ws-bg);
+}
+
+.ws-foot {
+  display: flex; justify-content: space-between; gap: 6px 16px; flex-wrap: wrap;
+  padding: 9px 14px; border-top: 1px solid var(--ws-line);
+  font-family: var(--ws-mono); font-size: 0.68rem; color: var(--ws-muted);
+}
+
+/* buttons */
+.ws-btn {
+  font: 500 0.7rem/1 var(--ws-mono); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ws-text); background: rgb(255 255 255 / 0.03); border: 1px solid var(--ws-line2);
+  padding: 7px 10px; border-radius: max(3px, calc(var(--radius-btn, 4px) * 0.4)); cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.ws-btn:hover { border-color: var(--ws-hi); color: var(--ws-hi); }
+.ws-btn:focus-visible, .ws-chip:focus-visible, .ws-hot:focus-visible, .ws-icon:focus-visible { outline: 2px solid var(--ws-hi); outline-offset: 2px; }
+.ws-btn[aria-pressed='true'] { background: var(--ws-hi); border-color: var(--ws-hi); color: var(--ws-bg); }
+.ws-btn.is-solid { background: var(--ws-text); color: var(--ws-bg); border-color: var(--ws-text); }
+.ws-btn.is-solid:hover { background: var(--ws-hi); border-color: var(--ws-hi); color: var(--ws-bg); }
+.ws-icon {
+  width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; cursor: pointer;
+  background: transparent; color: var(--ws-text); border: 1px solid var(--ws-line2); font: inherit; line-height: 1;
+}
+.ws-icon:hover { border-color: var(--ws-hi); color: var(--ws-hi); }
+
+/* chips: lists of parts, stages, tabs */
+.ws-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.ws-chip {
+  display: flex; align-items: baseline; gap: 8px; text-align: left;
+  font: 500 0.74rem/1.2 var(--ws-mono); color: var(--ws-muted); background: transparent;
+  border: 1px solid transparent; border-left: 2px solid var(--ws-line2); padding: 6px 9px; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ws-chip .n { color: var(--ws-faint); font-size: 0.66rem; }
+.ws-chip:hover { color: var(--ws-text); border-left-color: var(--ws-hi); }
+.ws-chip[aria-current='true'], .ws-chip[aria-selected='true'] { color: var(--ws-text); border-left-color: var(--ws-hi); background: rgb(156 195 234 / 0.08); }
+.ws-chip[aria-current='true'] .n, .ws-chip[aria-selected='true'] .n { color: var(--ws-hi); }
+
+/* hotspot markers: a small ring with a soft pulse */
+.ws-hot {
+  all: unset; pointer-events: auto; box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  display: grid; place-items: center; position: relative;
+}
+.ws-hot .dot {
+  width: 11px; height: 11px; border-radius: 50%; background: var(--ws-text);
+  box-shadow: 0 0 0 2px rgb(15 17 19 / 0.7); transition: transform 0.25s var(--ease), background 0.25s;
+}
+.ws-hot::before {
+  content: ''; position: absolute; inset: 2px; border-radius: 50%; border: 1px solid rgb(232 235 239 / 0.55);
+  animation: ws-pulse 2.4s ease-out infinite; animation-delay: calc(var(--i, 0) * -0.6s);
+}
+@keyframes ws-pulse { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.9); opacity: 0; } }
+.ws-hot:hover .dot, .ws-hot:focus-visible .dot { transform: scale(1.25); background: var(--ws-hi); }
+.ws-hot.is-on .dot { background: var(--ws-hi); transform: scale(1.35); }
+.ws-hot .tip {
+  position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+  font: 500 0.66rem/1 var(--ws-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ws-text);
+  background: var(--ws-panel); border: 1px solid var(--ws-line2); padding: 5px 7px; opacity: 0; transition: opacity 0.15s;
+}
+.ws-hot:hover .tip, .ws-hot:focus-visible .tip { opacity: 1; }
+
+/* floating information panel */
+.ws-panel {
+  position: absolute; z-index: 4; top: 14px; right: 14px; width: min(300px, 42%);
+  max-height: calc(100% - 28px); overflow: auto;
+  padding: 16px 16px 14px; border-radius: 6px;
+  background: var(--ws-panel); border: 1px solid var(--ws-line);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.45);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  animation: ws-in calc(0.3s * var(--speed, 1)) var(--ease);
+}
+.ws-panel:focus { outline: none; }
+.ws-panel:focus-visible { outline: 2px solid var(--ws-hi); outline-offset: 2px; }
+@keyframes ws-in { from { opacity: 0; transform: translateY(6px); } }
+.ws-close {
+  position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  background: transparent; color: var(--ws-muted); border: 1px solid transparent; font-size: 1.05rem; line-height: 1;
+}
+.ws-close:hover, .ws-close:focus-visible { color: var(--ws-text); border-color: var(--ws-line2); outline: none; }
+.ws-kicker { margin: 0 0 4px; font: 500 0.66rem/1.2 var(--ws-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ws-hi); }
+.ws-title { margin: 0 0 6px; font-family: var(--f-heading); font-size: 1.2rem; font-weight: 650; line-height: 1.15; letter-spacing: -0.01em; color: var(--ws-text); }
+.ws-text { margin: 0 0 12px; font-size: 0.92rem; line-height: 1.5; color: rgb(232 235 239 / 0.82); }
+.ws-text :where(p) { margin: 0 0 0.6em; }
+.ws-specs { margin: 0 0 14px; font: 0.72rem/1.35 var(--ws-mono); border-top: 1px solid var(--ws-line); }
+.ws-specs > div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--ws-line); }
+.ws-specs dt { color: var(--ws-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.ws-specs dd { margin: 0; color: var(--ws-text); }
+.ws-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+
+/* phones: panels sit under the stage instead of over it */
+@media (max-width: 760px) {
+  .ws-panel { position: static; width: auto; max-height: none; border-radius: 0; border-width: 1px 0 0; box-shadow: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws-hot::before { animation: none; opacity: 0.5; transform: scale(1.3); }
+  .ws-panel { animation: none; }
+}
+:root[data-motion='off'] .ws-hot::before { animation: none; opacity: 0.5; transform: scale(1.3); }

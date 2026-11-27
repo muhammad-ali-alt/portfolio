@@ -1,0 +1,110 @@
+---
+// STAGES: a build, test or design process stepped through in order, like a
+// timeline you can scrub. Click a tick, use the arrows, or ← → on the keyboard.
+// Data: `stages` on the project (title, body, optional image and caption).
+import '../../styles/workspace.css';
+interface Stage { title: string; html: string; image?: string; caption?: string }
+interface Props { number: string; title: string; stages: Stage[]; label?: string }
+const { number, title, stages, label = 'Process' } = Astro.props;
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+const anyImage = stages.some((s) => s.image);
+---
+<figure class="ws st" data-n={stages.length}>
+  <div class="ws-bar">
+    <span class="ws-id">{number}</span>
+    <span class="ws-mode" aria-live="polite">{label} · Stage 01 of {String(stages.length).padStart(2, '0')}</span>
+    <div class="ws-tools">
+      <button type="button" class="ws-icon st-prev" aria-label="Previous stage">←</button>
+      <button type="button" class="ws-icon st-next" aria-label="Next stage">→</button>
+    </div>
+  </div>
+  <div class="st-rail" role="tablist" aria-label={`${title}, stages`}>
+    {stages.map((s, i) => (
+      <button type="button" role="tab" class="st-tick" id={`st-${number}-t${i}`} aria-controls={`st-${number}-p${i}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-i={i}>
+        <span class="n">{nn(i)}</span><span class="t">{s.title}</span>
+      </button>
+    ))}
+    <span class="st-fill" aria-hidden="true"></span>
+  </div>
+  <div class="st-stage ws-grid">
+    {stages.map((s, i) => (
+      <section class:list={['st-panel', { 'has-img': anyImage }]} role="tabpanel" id={`st-${number}-p${i}`} aria-labelledby={`st-${number}-t${i}`} hidden={i !== 0}>
+        {anyImage && (
+          <div class="st-media">
+            {s.image ? <img src={s.image} alt={s.caption ?? s.title} loading="lazy" /> : <span class="st-big" aria-hidden="true">{nn(i)}</span>}
+            {s.caption && <p class="st-cap">{s.caption}</p>}
+          </div>
+        )}
+        <div class="st-copy">
+          <p class="ws-kicker">Stage {nn(i)} / {String(stages.length).padStart(2, '0')}</p>
+          <h3 class="ws-title">{s.title}</h3>
+          <div class="ws-text" set:html={s.html} />
+        </div>
+      </section>
+    ))}
+  </div>
+  <figcaption class="ws-foot"><span>Select a stage or use ← →</span><span>{stages.length} stages</span></figcaption>
+</figure>
+
+<script>
+  for (const fig of document.querySelectorAll<HTMLElement>('.st')) {
+    const ticks = [...fig.querySelectorAll<HTMLButtonElement>('.st-tick')];
+    const panels = [...fig.querySelectorAll<HTMLElement>('.st-panel')];
+    const fill = fig.querySelector<HTMLElement>('.st-fill')!;
+    const mode = fig.querySelector('.ws-mode')!, base = mode.textContent!.split(' · ')[0];
+    const n = ticks.length, pad = (i: number) => String(i).padStart(2, '0');
+    let cur = 0;
+    function go(i: number, focus = false) {
+      cur = (i + n) % n;
+      ticks.forEach((t, k) => { t.setAttribute('aria-selected', String(k === cur)); t.tabIndex = k === cur ? 0 : -1; t.classList.toggle('done', k < cur); });
+      panels.forEach((p, k) => (p.hidden = k !== cur));
+      fill.style.width = `${((cur + 1) / n) * 100}%`;
+      mode.textContent = `${base} · Stage ${pad(cur + 1)} of ${pad(n)}`;
+      if (focus) ticks[cur].focus();
+    }
+    ticks.forEach((t, k) => t.addEventListener('click', () => go(k)));
+    fig.querySelector('.st-prev')!.addEventListener('click', () => go(cur - 1));
+    fig.querySelector('.st-next')!.addEventListener('click', () => go(cur + 1));
+    fig.querySelector('.st-rail')!.addEventListener('keydown', (e: Event) => {
+      const k = (e as KeyboardEvent).key;
+      if (k === 'ArrowRight' || k === 'ArrowLeft') { e.preventDefault(); go(cur + (k === 'ArrowRight' ? 1 : -1), true); }
+      if (k === 'Home' || k === 'End') { e.preventDefault(); go(k === 'Home' ? 0 : n - 1, true); }
+    });
+    go(0);
+  }
+</script>
+
+<style>
+  .st-rail { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); border-bottom: 1px solid var(--ws-line); background: var(--ws-bg2); }
+  .st-rail::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--ws-line); }
+  .st-fill { position: absolute; left: 0; top: 0; height: 2px; width: 0; background: var(--ws-hi); transition: width calc(0.5s * var(--speed)) var(--ease); }
+  .st-tick {
+    display: grid; gap: 4px; text-align: left; padding: 12px 14px 12px; background: transparent; border: 0; border-right: 1px solid var(--ws-line);
+    color: var(--ws-muted); cursor: pointer; font: 500 0.72rem/1.25 var(--ws-mono); min-width: 0;
+  }
+  .st-tick:last-of-type { border-right: 0; }
+  .st-tick .n { font-size: 0.66rem; color: var(--ws-faint); letter-spacing: 0.1em; }
+  .st-tick .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .st-tick:hover { color: var(--ws-text); }
+  .st-tick.done .n { color: var(--ws-muted); }
+  .st-tick[aria-selected='true'] { color: var(--ws-text); background: rgb(156 195 234 / 0.07); }
+  .st-tick[aria-selected='true'] .n { color: var(--ws-hi); }
+  .st-tick:focus-visible { outline: 2px solid var(--ws-hi); outline-offset: -2px; }
+
+  .st-stage { padding: clamp(18px, 3vw, 36px); min-height: 300px; }
+  .st-panel { animation: ws-in calc(0.35s * var(--speed)) var(--ease); }
+  .st-panel.has-img { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 40px); align-items: center; }
+  .st-media { margin: 0; }
+  .st-media img { display: block; width: 100%; border-radius: 4px; border: 1px solid var(--ws-line); }
+  .st-big { display: grid; place-items: center; aspect-ratio: 4 / 3; font: 600 clamp(3rem, 8vw, 6rem)/1 var(--ws-mono); color: var(--ws-line2); border: 1px dashed var(--ws-line2); border-radius: 4px; }
+  .st-cap { margin: 8px 0 0; font: 0.7rem/1.4 var(--ws-mono); color: var(--ws-muted); }
+  .st-copy { max-width: 62ch; }
+  .st-copy .ws-title { font-size: clamp(1.25rem, 1rem + 1vw, 1.7rem); }
+  .st-copy .ws-text { font-size: 1rem; }
+  @media (max-width: 760px) {
+    .st-rail { grid-auto-columns: minmax(64px, 1fr); overflow-x: auto; }
+    .st-tick .t { display: none; }
+    .st-panel.has-img { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { .st-panel { animation: none; } .st-fill { transition: none; } }
+</style>

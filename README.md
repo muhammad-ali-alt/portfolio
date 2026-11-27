@@ -71,6 +71,31 @@ If you mistype a field (say `status: Done`), the build stops and tells you which
 
 Allowed disciplines and contexts are listed in `src/content.config.ts`. Add a new one there and it appears in the filters.
 
+## How a project is presented (viewers)
+
+Each project page picks its main view from what the project has (`viewer: auto`), or you choose one in the CMS ("Main view"). Everything else the project has still appears lower on the page under "Explore". All viewers share one dark workspace look (`src/styles/workspace.css`).
+
+| Viewer | Shows | Needs in the front matter |
+|---|---|---|
+| assembly | Clickable 3D assembly: parts list, markers, panels, isolate a part, exploded view | `model`, `models` entries with `node`, and a parts file (below) |
+| model | One 3D model | `model` |
+| compare | Several 3D models in a carousel | `models` |
+| annotated | Cover image with callout markers | `cover`, `hotspots` |
+| stages | A build or test process, stepped through | `stages` |
+| software | Screens as tabs, code snippets, a demo button | `screens`, `snippets`, `demo` |
+| data | Bar and line charts with exact readouts | `charts` |
+| image | The cover image | `cover` |
+
+Case study fields (each shows only when filled): `category`, `overview`, `role`, `contributions`, `challenges` (challenge and solution), `learned`, `links`. The egg holder's `charts` entry is a working example.
+
+Code: `src/lib/viewers.ts` decides and prepares, `src/components/viewers/` draws. To add a new viewer type, add it to `VIEWERS` in `src/content.config.ts`, then to `plan()` in `viewers.ts`, then render it in `ProjectHero.astro` and `ProjectExplore.astro`.
+
+**Clickable assembly setup.**
+
+1. Export the assembly as GLB with each part kept as its own node, one material per part, named after the part.
+2. Put the part positions in `src/data/model-parts/<assembly file name>.json` (same shape as `robotic-arm-assembly.json`).
+3. In each `models` entry, set `node` to that part's material name. Fill `role`, `design`, `volume` and `material` as you like. All of these are editable in the CMS.
+
 ## Getting CAD out of SolidWorks
 
 | Purpose | Format | How |
@@ -90,12 +115,6 @@ python tools/stl2glb.py "C:/path/to/part.STL" public/models/part.glb
 It converts millimetres to metres, smooths curved surfaces, keeps sharp edges sharp, and prints the part's size so you can sanity check it. Needs numpy (`pip install numpy`). The gripper jaw came out at 69 KB. Keep any model under about 10 MB.
 
 Put the file in `public/models/` and point the project's `model:` field at `/models/your-file.glb`.
-
-**Assembly explorer (clickable parts).** If a project has an assembly (`model:`) and parts (`models:`) that each name their `node`, the page shows the assembly with a marker on every part. Clicking a marker or a part highlights it, opens its details (render, role, size, volume, material, tools), and offers "Isolate in 3D". To set one up for a new assembly:
-
-1. Export the assembly as GLB with each part kept separate, one material per part, named after the part.
-2. Put the part positions in `src/data/model-parts/<assembly file name>.json` (same shape as `robotic-arm-assembly.json`).
-3. In each `models` entry, set `node` to that part's material name, and fill `role`, `volume`, `material` as you like (all editable in the CMS).
 
 Not every project needs 3D. Use the viewer for things people want to turn around (mechanisms, assemblies). Use renders for everything else.
 

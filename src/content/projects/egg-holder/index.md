@@ -5,6 +5,7 @@ summary: A four egg holder for the Terps Rockets FAR-OUT 2026-27 payload, in two
 date: 2026-10-24
 status: In progress
 context: Terps Rockets
+category: Engineering design
 disciplines: [Aerospace, Mechanical Design, 3D Printing]
 tools: [SolidWorks, FDM 3D printing]
 featured: true
@@ -13,6 +14,17 @@ models:
   - { src: /models/egg-holder-light.glb, label: 'Rev A, lightweight', image: ./lightweight.png, note: '38.5 cm³ of material', orbit: 35deg 62deg 100% }
   - { src: /models/egg-holder-full.glb, label: 'Rev B, full', image: ./full.png, note: '85.0 cm³ of material', orbit: 35deg 62deg 100% }
 coverAlt: The two egg holder iterations side by side, the lightweight open frame on the left and the full solid wall version on the right
+charts:
+  - title: Material per iteration
+    kind: bar
+    x: Iteration
+    y: Material volume (cm³)
+    note: Same 120.6 × 63.5 × 120.7 mm envelope and the same four egg plate. Swapping the solid wall for two rings and struts cuts material by 55%.
+    series:
+      - name: Material volume
+        points:
+          - { x: Rev A lightweight, y: 38.5 }
+          - { x: Rev B full, y: 85.0 }
 specs:
   - { label: Envelope, value: 120.6 × 63.5 × 120.7 mm (both versions) }
   - { label: Capacity, value: 4 eggs }

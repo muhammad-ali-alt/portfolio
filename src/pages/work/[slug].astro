@@ -4,10 +4,10 @@
 import { render } from 'astro:content';
 import { getImage } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
-import Plate from '../../components/Plate.astro';
-import ModelViewer from '../../components/ModelViewer.astro';
-import PartsCarousel from '../../components/PartsCarousel.astro';
-import AssemblyExplorer from '../../components/AssemblyExplorer.astro';
+import ProjectHero from '../../components/ProjectHero.astro';
+import ProjectExplore from '../../components/ProjectExplore.astro';
+import CaseStudy from '../../components/CaseStudy.astro';
+import { prepare, pageHeadings, plan, VIEWER_LABEL } from '../../lib/viewers';
 import Revisions from '../../components/Revisions.astro';
 import { getAllProjects, getProjects, getCad, getNotebook, fmtMonth, latestRev, isUpload } from '../../lib/content';
 import { md } from '../../lib/markdown';
@@ -17,29 +17,21 @@ export async function getStaticPaths() {
   const listed = await getProjects();
   return (await getAllProjects()).map((p) => {
     const i = listed.findIndex((x) => x.id === p.id);
-    return { params: { slug: p.id }, props: { project: p, next: listed[(i + 1) % listed.length] } };
+    return { params: { slug: p.id }, props: { project: p, next: listed[(i + 1) % listed.length], prev: listed[(i - 1 + listed.length) % listed.length], all: listed } };
   });
 }
 
-const { project, next } = Astro.props;
+const { project, next, prev, all } = Astro.props;
 const d = project.data;
 const { Content, headings } = await render(project);
 // Still image shown in the 3D viewer until the model loads
 const poster = !d.modelPoster ? undefined : isUpload(d.modelPoster) ? d.modelPoster : (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src;
-// Assembly explorer: needs an assembly, part entries linked by `node`, and the
-// part positions file src/data/model-parts/<assembly file name>.json
-type Layout = { parts: Record<string, { node: string; center: [number, number, number] }[]> };
-const layouts = import.meta.glob<Layout>('../../data/model-parts/*.json', { eager: true, import: 'default' });
-const layout = d.model ? layouts[`../../data/model-parts/${d.model.split('/').pop()!.replace(/\.glb$/i, '')}.json`] : undefined;
-const explorerParts = !layout ? [] : await Promise.all(d.models.filter((m) => m.node && layout.parts[m.node]).map(async (m) => ({
-  key: m.node!, label: m.label, src: m.src, position: layout.parts[m.node!][0].center,
-  role: m.role, note: m.note, volume: m.volume, material: m.material, orbit: m.orbit, orientation: m.orientation,
-  image: !m.image ? undefined : typeof m.image === 'string' ? m.image : (await getImage({ src: m.image, width: 480, format: 'webp' })).src,
-})));
+// How this project is presented (src/lib/viewers.ts) and the data its viewers need
+const v = await prepare(project);
 // Sections added in the CMS come first, then any write up in the body.
 const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const sections = d.sections.map((s) => ({ ...s, slug: `s-${slugify(s.title)}`, html: md(s.body) }));
-const toc = [...sections.map((s) => ({ slug: s.slug, text: s.title })), ...headings.filter((h) => h.depth === 2)];
+const toc = [...pageHeadings(d), ...sections.map((s) => ({ slug: s.slug, text: s.title })), ...headings.filter((h) => h.depth === 2)];
 const relatedCad = (await getCad()).filter((c) => c.data.project === project.id);
 const relatedNotes = (await getNotebook()).filter((n) => n.data.project === project.id);
 const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
@@ -49,7 +41,7 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
     <header class="p-head" data-edit={edit} data-edit-label="Edit project">
       <a class="back label" href="/work/">← Index of work</a>
       {d.archived && <span class="sample-tag">Archived</span>}
-      <div class="p-num mono">{d.number}{d.sample && <span class="sample-tag">Sample, not real work</span>}</div>
+      <div class="p-num mono">{d.number}{d.category && <span class="p-cat">{d.category}</span>}{v.hero && v.hero !== 'image' && <span class="p-cat">{VIEWER_LABEL[v.hero]}</span>}{d.sample && <span class="sample-tag">Sample, not real work</span>}</div>
       <h1>{d.title}</h1>
       <p class="p-sum">{d.summary}</p>
     </header>
@@ -68,23 +60,10 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
       {d.specs.map((sp) => <div class="wide"><dt class="label">{sp.label}</dt><dd>{sp.value}</dd></div>)}
     </dl>
 
-    <!-- Main view: the assembly (`model`). Individual parts (`models`) sit under it as a
-         subset; with no assembly yet, the parts take the main spot. -->
-    <div class="hero">
-      {d.model ? (
-        explorerParts.length > 0
-          ? <AssemblyExplorer src={d.model} poster={poster} number={d.number} title={d.title} orbit={d.modelOrbit} tools={d.tools} parts={explorerParts} />
-          : <ModelViewer src={d.model} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} poster={poster} />
-      ) : d.models.length === 0 ? (
-        <Plate src={d.cover} alt={d.coverAlt} number={d.number} ratio="auto" eager sizes="100vw" />
-      ) : null}
-      {d.models.length > 0 && (
-        <section class="parts" aria-label="Parts">
-          {d.model && <div class="section-head"><span class="label">Parts</span><h2>Individual parts</h2><span class="label">{d.models.length}</span></div>}
-          <PartsCarousel parts={d.models} number={d.number} title={d.title} />
-        </section>
-      )}
-    </div>
+    <!-- Main view, picked per project (viewer: auto, or set in the CMS) -->
+    <ProjectHero project={project} v={v} poster={poster} />
+    <CaseStudy project={project} />
+    <ProjectExplore project={project} v={v} />
 
     <Revisions revisions={d.revisions} />
 
@@ -160,7 +139,20 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
       </section>
     )}
 
-    <a class="next" href={`/work/${next.id}/`}>
+    <!-- Switch between projects without going back to the index -->
+    {all.length > 1 && (
+      <nav class="switch" aria-label="Other projects">
+        <a class="switch-end" href={`/work/${prev.id}/`} rel="prev"><span aria-hidden="true">←</span><span class="label">Previous</span></a>
+        <ol>
+          {all.map((p) => (
+            <li><a href={`/work/${p.id}/`} aria-current={p.id === project.id ? 'page' : undefined} title={p.data.title}><span class="mono">{p.data.number}</span><span class="t">{p.data.title}</span>{plan(p.data).hero === 'assembly' && <span class="dot" aria-label="interactive 3D"></span>}</a></li>
+          ))}
+        </ol>
+        <a class="switch-end" href="/work/"><span class="label">All work</span></a>
+      </nav>
+    )}
+
+    <a class="next" href={`/work/${next.id}/`} rel="next">
       <span class="label">Next entry</span>
       <span class="next-title"><span class="mono">{next.data.number}</span>{next.data.title} →</span>
     </a>
@@ -172,6 +164,21 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
   .back { text-decoration: none; width: fit-content; }
   .p-num { display: flex; gap: 12px; align-items: center; color: var(--accent-ink); font-size: 0.85rem; }
   .p-head h1 { max-width: 16ch; }
+  .p-cat { padding: 3px 8px; border: var(--bw) solid var(--rule); border-radius: 999px; font-size: 0.7rem; color: var(--graphite); letter-spacing: 0.04em; }
+
+  .switch { display: flex; align-items: stretch; gap: 0; margin-top: clamp(56px, 8vw, 100px); border-top: var(--bw) solid var(--rule); border-bottom: var(--bw) solid var(--rule); }
+  .switch ol { list-style: none; margin: 0; padding: 0; display: flex; flex: 1; overflow-x: auto; scrollbar-width: thin; }
+  .switch li { flex: 1 1 0; min-width: 150px; }
+  .switch li a, .switch-end { display: flex; align-items: center; gap: 8px; height: 100%; padding: 12px 14px; text-decoration: none; border-right: var(--bw) solid var(--rule); font-family: var(--f-heading); font-size: 0.9rem; }
+  .switch li a .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .switch li a .mono { font-size: 0.72rem; color: var(--graphite); flex: none; }
+  .switch li a[aria-current='page'] { background: var(--surface); box-shadow: inset 0 -2px 0 var(--accent); }
+  .switch li a:hover { background: var(--surface); }
+  .switch .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+  .switch-end { flex: none; white-space: nowrap; }
+  .switch-end:last-child { border-right: 0; border-left: var(--bw) solid var(--rule); }
+  .switch + .next { margin-top: 0; border-top: 0; }
+  @media (max-width: 760px) { .switch li { min-width: 92px; } .switch li a .t { display: none; } .switch-end .label { display: none; } }
   .p-sum { font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem); max-width: 50ch; color: var(--graphite); margin: 0; }
 
   .tblock {

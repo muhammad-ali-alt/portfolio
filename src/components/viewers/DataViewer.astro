@@ -1,0 +1,165 @@
+---
+// DATA: line and bar charts drawn as SVG at build time, so they load instantly
+// and print. Hover, or focus a chart and use ← →, to read exact values; toggle
+// series on and off. Data: `charts` on the project.
+import '../../styles/workspace.css';
+interface Chart { title: string; kind: 'bar' | 'line'; x: string; y: string; note?: string; series: { name: string; points: { x: number | string; y: number }[] }[] }
+interface Props { number: string; title: string; charts: Chart[] }
+const { number, title, charts } = Astro.props;
+const COLORS = ['#9cc3ea', '#e8ebef', '#3d8bff', '#8e959e', '#c9a7ff'];
+const W = 640, H = 300, L = 56, R = 16, T = 16, B = 44;
+
+// a "nice" axis maximum and ticks
+const nice = (m: number) => { if (m <= 0) return 1; const p = 10 ** Math.floor(Math.log10(m)); const f = m / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; };
+const fmt = (v: number) => (Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1).replace(/\.0$/, '') : String(+v.toFixed(2)));
+
+const built = charts.map((c) => {
+  const xs = [...new Set(c.series.flatMap((s) => s.points.map((p) => String(p.x))))];
+  const numeric = c.kind === 'line' && c.series.every((s) => s.points.every((p) => typeof p.x === 'number'));
+  const nums = numeric ? c.series.flatMap((s) => s.points.map((p) => p.x as number)) : [];
+  const x0 = numeric ? Math.min(...nums) : 0, x1 = numeric ? Math.max(...nums) : 1;
+  const ys = c.series.flatMap((s) => s.points.map((p) => p.y));
+  const yMin = Math.min(0, ...ys), yMax = nice(Math.max(...ys) * 1.05);
+  const pw = W - L - R, ph = H - T - B;
+  const band = pw / xs.length;
+  const sx = (x: number | string) => numeric ? L + ((Number(x) - x0) / (x1 - x0 || 1)) * pw : L + band * (xs.indexOf(String(x)) + 0.5);
+  const sy = (y: number) => T + ph - ((y - yMin) / (yMax - yMin || 1)) * ph;
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((k) => yMin + (yMax - yMin) * k);
+  const bw = Math.min(56, (band * 0.7) / c.series.length);
+  const series = c.series.map((s, si) => ({
+    name: s.name, color: COLORS[si % COLORS.length],
+    path: s.points.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`).join(''),
+    bars: s.points.map((p) => ({ x: sx(p.x) - (bw * c.series.length) / 2 + bw * si, y: Math.min(sy(p.y), sy(0)), h: Math.abs(sy(p.y) - sy(0)), w: bw - 3, v: p.y, label: String(p.x) })),
+    pts: s.points.map((p) => ({ cx: sx(p.x), cy: sy(p.y) })),
+  }));
+  // what the readout shows at each x position
+  const cols = xs.map((x) => ({ x, px: sx(numeric ? Number(x) : x), vals: c.series.map((s) => s.points.find((p) => String(p.x) === x)?.y ?? null) }));
+  const xLabels = numeric ? [0, 0.5, 1].map((k) => ({ px: L + pw * k, t: fmt(x0 + (x1 - x0) * k) })) : xs.map((x) => ({ px: sx(x), t: x }));
+  const summary = c.series.map((s) => `${s.name}: ${s.points.map((p) => `${p.x} ${fmt(p.y)}`).join(', ')}`).join('. ');
+  return { ...c, series, cols, ticks, xLabels, sy, summary, numeric };
+});
+---
+<figure class="ws dv" data-charts={JSON.stringify(built.map((c) => ({ cols: c.cols, names: c.series.map((s) => s.name), colors: c.series.map((s) => s.color), x: c.x, y: c.y })))}>
+  <div class="ws-bar">
+    <span class="ws-id">{number}</span>
+    <span class="ws-mode" aria-live="polite">Data · {built[0].title}</span>
+  </div>
+  {built.length > 1 && (
+    <div class="dv-tabs" role="tablist" aria-label={`${title}, charts`}>
+      {built.map((c, i) => <button type="button" role="tab" class="ws-chip" aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} aria-controls={`dv-${number}-${i}`}><span class="n">{String(i + 1).padStart(2, '0')}</span>{c.title}</button>)}
+    </div>
+  )}
+  <div class="dv-stage">
+    {built.map((c, ci) => (
+      <section class="dv-chart" id={`dv-${number}-${ci}`} role={built.length > 1 ? 'tabpanel' : undefined} hidden={ci !== 0} data-ci={ci}>
+        <div class="dv-head">
+          <h3 class="ws-title">{c.title}</h3>
+          {c.series.length > 1 && (
+            <div class="dv-legend" role="group" aria-label="Show or hide series">
+              {c.series.map((s, si) => <button type="button" class="ws-btn dv-key" aria-pressed="true" data-si={si}><i style={`background:${s.color}`}></i>{s.name}</button>)}
+            </div>
+          )}
+        </div>
+        <div class="dv-plot">
+          <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${c.title}. ${c.summary}`} tabindex="0" preserveAspectRatio="xMidYMid meet">
+            {c.ticks.map((t) => (
+              <g class="dv-grid"><line x1={L} x2={W - R} y1={c.sy(t)} y2={c.sy(t)} /><text x={L - 8} y={c.sy(t) + 4} text-anchor="end">{fmt(t)}</text></g>
+            ))}
+            {c.xLabels.map((l) => <text class="dv-xl" x={l.px} y={H - B + 18} text-anchor="middle">{l.t}</text>)}
+            {c.x && <text class="dv-axis" x={L + (W - L - R) / 2} y={H - 6} text-anchor="middle">{c.x}</text>}
+            {c.y && <text class="dv-axis" x={14} y={T + (H - T - B) / 2} text-anchor="middle" transform={`rotate(-90 14 ${T + (H - T - B) / 2})`}>{c.y}</text>}
+            {c.series.map((s, si) => (
+              <g class="dv-s" data-si={si} style={`--c:${s.color}`}>
+                {c.kind === 'bar'
+                  ? s.bars.map((b) => <g><rect x={b.x} y={b.y} width={b.w} height={Math.max(1, b.h)} rx="2" /><text class="dv-v" x={b.x + b.w / 2} y={b.y - 6} text-anchor="middle">{fmt(b.v)}</text></g>)
+                  : <><path d={s.path} /> {s.pts.map((p) => <circle cx={p.cx} cy={p.cy} r="3" />)}</>}
+              </g>
+            ))}
+            <line class="dv-cursor" x1="0" x2="0" y1={T} y2={H - B} />
+          </svg>
+          <div class="dv-read" hidden></div>
+        </div>
+        {c.note && <p class="dv-note">{c.note}</p>}
+      </section>
+    ))}
+  </div>
+  <figcaption class="ws-foot"><span>Hover the chart, or focus it and use ← →</span><span>Values exact, from the project data</span></figcaption>
+</figure>
+
+<script>
+  for (const fig of document.querySelectorAll<HTMLElement>('.dv')) {
+    const data: { cols: { x: string; px: number; vals: (number | null)[] }[]; names: string[]; colors: string[]; x: string; y: string }[] = JSON.parse(fig.dataset.charts!);
+    const mode = fig.querySelector('.ws-mode')!;
+    const tabs = [...fig.querySelectorAll<HTMLButtonElement>('.dv-tabs [role=tab]')];
+    const charts = [...fig.querySelectorAll<HTMLElement>('.dv-chart')];
+    tabs.forEach((t, k) => {
+      const go = (i: number) => { i = (i + tabs.length) % tabs.length; tabs.forEach((x, j) => { x.setAttribute('aria-selected', String(j === i)); x.tabIndex = j === i ? 0 : -1; }); charts.forEach((c, j) => (c.hidden = j !== i)); mode.textContent = `Data · ${charts[i].querySelector('.ws-title')!.textContent}`; tabs[i].focus(); };
+      t.addEventListener('click', () => go(k));
+      t.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); go(k + (e.key === 'ArrowRight' ? 1 : -1)); } });
+    });
+    charts.forEach((ch) => {
+      const d = data[+ch.dataset.ci!];
+      const svg = ch.querySelector('svg')!, cursor = ch.querySelector<SVGLineElement>('.dv-cursor')!, read = ch.querySelector<HTMLElement>('.dv-read')!;
+      const off = new Set<number>();
+      let cur = -1;
+      const show = (i: number) => {
+        cur = Math.max(0, Math.min(d.cols.length - 1, i));
+        const col = d.cols[cur], box = svg.getBoundingClientRect(), k = box.width / svg.viewBox.baseVal.width;
+        cursor.setAttribute('x1', String(col.px)); cursor.setAttribute('x2', String(col.px)); cursor.classList.add('on');
+        read.hidden = false;
+        read.innerHTML = `<b>${d.x ? d.x + ' ' : ''}${col.x}</b>` + col.vals.map((v, si) => v == null || off.has(si) ? '' : `<span><i style="background:${d.colors[si]}"></i>${d.names[si]} <em>${v}</em></span>`).join('');
+        const left = col.px * k;
+        read.style.left = `${Math.min(box.width - read.offsetWidth - 4, Math.max(4, left + 12))}px`;
+      };
+      const hide = () => { cur = -1; read.hidden = true; cursor.classList.remove('on'); };
+      svg.addEventListener('pointermove', (e) => {
+        const box = svg.getBoundingClientRect(), x = ((e.clientX - box.left) / box.width) * svg.viewBox.baseVal.width;
+        let best = 0; d.cols.forEach((c, i) => { if (Math.abs(c.px - x) < Math.abs(d.cols[best].px - x)) best = i; });
+        show(best);
+      });
+      svg.addEventListener('pointerleave', hide);
+      svg.addEventListener('blur', hide);
+      svg.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); show(cur < 0 ? 0 : cur + (e.key === 'ArrowRight' ? 1 : -1)); }
+        if (e.key === 'Escape') hide();
+      });
+      ch.querySelectorAll<HTMLButtonElement>('.dv-key').forEach((b) => b.addEventListener('click', () => {
+        const si = +b.dataset.si!, on = b.getAttribute('aria-pressed') !== 'true';
+        b.setAttribute('aria-pressed', String(on)); on ? off.delete(si) : off.add(si);
+        ch.querySelector(`.dv-s[data-si="${si}"]`)!.classList.toggle('off', !on);
+        if (cur >= 0) show(cur);
+      }));
+    });
+  }
+</script>
+
+<style>
+  .dv-tabs { display: flex; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--ws-line); background: var(--ws-bg2); overflow-x: auto; }
+  .dv-tabs .ws-chip { white-space: nowrap; }
+  .dv-stage { padding: clamp(16px, 3vw, 32px); }
+  .dv-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+  .dv-head .ws-title { margin: 0; }
+  .dv-legend { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dv-key { display: inline-flex; align-items: center; gap: 6px; }
+  .dv-key i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+  .dv-key[aria-pressed='true'] { background: transparent; color: var(--ws-text); border-color: var(--ws-line2); }
+  .dv-key[aria-pressed='false'] { opacity: 0.45; }
+  .dv-plot { position: relative; max-width: 780px; margin-inline: auto; }
+  .dv-plot svg { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--ws-mono); }
+  .dv-plot svg:focus-visible { outline: 2px solid var(--ws-hi); outline-offset: 4px; }
+  .dv-grid line { stroke: var(--ws-line); }
+  .dv-grid text, .dv-xl { fill: var(--ws-muted); font-size: 10px; }
+  .dv-axis { fill: var(--ws-faint); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .dv-s rect { fill: var(--c); opacity: 0.9; transition: opacity 0.2s; }
+  .dv-s path { fill: none; stroke: var(--c); stroke-width: 2; }
+  .dv-s circle { fill: var(--ws-bg); stroke: var(--c); stroke-width: 2; }
+  .dv-v { fill: var(--ws-text); font-size: 10px; }
+  .dv-s.off { opacity: 0.08; }
+  .dv-cursor { stroke: var(--ws-hi); stroke-dasharray: 3 3; opacity: 0; }
+  .dv-cursor.on { opacity: 0.8; }
+  .dv-read { position: absolute; top: 4px; pointer-events: none; display: grid; gap: 4px; padding: 8px 10px; background: var(--ws-panel); border: 1px solid var(--ws-line2); border-radius: 4px; font: 0.7rem/1.3 var(--ws-mono); color: var(--ws-text); white-space: nowrap; }
+  .dv-read :global(b) { color: var(--ws-hi); font-weight: 500; }
+  .dv-read :global(i) { display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 2px; }
+  .dv-read :global(em) { font-style: normal; color: var(--ws-text); margin-left: 6px; }
+  .dv-note { margin: 10px 0 0; font: 0.72rem/1.45 var(--ws-mono); color: var(--ws-muted); }
+</style>

@@ -37,6 +37,15 @@ export const NOTE_TYPES = ['Design Log', 'Experiment', 'Research', 'Problem Solv
 // Project write up sections (CMS: Projects, Sections). Each one is optional and reorderable.
 export const SECTION_KINDS = ['Overview', 'Problem Statement', 'Objectives', 'Design Requirements', 'Research', 'Concept Development', 'Design Process', 'CAD Development', 'Engineering Analysis', 'Calculations', 'Materials and Manufacturing', 'Testing', 'Results', 'Challenges', 'Lessons Learned', 'Future Improvements', 'Custom'] as const;
 
+// What kind of project it is. Shown on the index and used to pick a default viewer.
+export const CATEGORIES = ['Engineering design', 'Physical build', 'Software', 'Research', 'Data analysis', 'Other'] as const;
+
+// How the top of a project page presents the work. "auto" picks from what the project has:
+// clickable 3D assembly > single 3D model > side by side models > annotated image >
+// build stages > software screens > charts > cover image. Anything not picked as the
+// main view still appears lower on the page in its own explorer.
+export const VIEWERS = ['auto', 'assembly', 'model', 'compare', 'annotated', 'stages', 'software', 'data', 'image'] as const;
+
 export const STATUSES = ['Idea', 'Planned', 'In progress', 'Complete', 'Paused'] as const;
 
 // An image is either a file next to the entry (optimized by Astro) or an
@@ -82,7 +91,7 @@ const projects = defineCollection({
       models: z
         .array(z.object({ src: z.string(), label: z.string(), note: z.string().optional(), orbit: z.string().optional(), orientation: z.string().optional(), image: img(image).optional(),
           // for the assembly explorer: the part's node name in the assembly file (without the -1 suffix), what it does, how much material
-          node: z.string().optional(), role: z.string().optional(), volume: z.string().optional(), material: z.string().optional() }))
+          node: z.string().optional(), role: z.string().optional(), design: z.string().optional(), volume: z.string().optional(), material: z.string().optional() }))
         .default([]),
       modelOrientation: z.string().optional(), // e.g. "-90deg 0deg 0deg" if it exported on its side
       modelOrbit: z.string().optional(), // starting camera, e.g. "35deg 65deg 100%"
@@ -92,6 +101,33 @@ const projects = defineCollection({
         .array(z.object({ rev: z.string(), date: z.coerce.date(), note: z.string() }))
         .default([]),
       downloads: fileList,
+
+      // ── case study (all optional; each block only shows when filled) ──
+      category: z.enum(CATEGORIES).optional(),
+      viewer: z.enum(VIEWERS).default('auto'),
+      overview: z.string().optional(), // a short paragraph: what it is and why it exists
+      role: z.string().optional(), // one sentence: your part in it
+      contributions: z.array(z.string()).default([]),
+      challenges: z.array(z.object({ challenge: z.string(), solution: z.string().default('') })).default([]),
+      learned: z.array(z.string()).default([]),
+      links: z.array(z.object({ label: z.string(), url: z.string(), kind: z.enum(['GitHub', 'Docs', 'Demo', 'Video', 'Paper', 'Other']).default('Other') })).default([]),
+
+      // ── explorers for non 3D work ──
+      // annotated image: markers on the cover (x, y from 0 to 1) that open a panel
+      hotspots: z.array(z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1), label: z.string(), body: z.string().default(''), image: img(image).optional() })).default([]),
+      // build stages or a walkthrough, stepped through in order
+      stages: z.array(z.object({ title: z.string(), body: z.string().default(''), image: img(image).optional(), caption: z.string().optional() })).default([]),
+      // software: screens (tabs) and code snippets
+      screens: z.array(z.object({ title: z.string(), image: img(image).optional(), body: z.string().default('') })).default([]),
+      snippets: z.array(z.object({ title: z.string(), lang: z.string().default(''), code: z.string() })).default([]),
+      demo: z.string().optional(), // a live demo URL
+      // data: simple line or bar charts
+      charts: z.array(z.object({
+        title: z.string(), kind: z.enum(['bar', 'line']).default('bar'), x: z.string().default(''), y: z.string().default(''), note: z.string().optional(),
+        series: z.array(z.object({ name: z.string(), points: z.array(z.object({ x: z.union([z.number(), z.string()]).transform((v) => (typeof v === 'string' && v.trim() !== '' && !isNaN(+v) ? +v : v)), y: z.number() })) })).min(1),
+      })).default([]),
+      // exploded view of a clickable assembly: how far parts travel (0 turns it off)
+      explode: z.number().min(0).max(3).default(1),
     }),
 });
 

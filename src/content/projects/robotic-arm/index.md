@@ -5,6 +5,7 @@ summary: A six axis desktop robotic arm modeled in SolidWorks, about 287 mm tall
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
 context: Personal
+category: Engineering design
 disciplines: [Robotics, Mechanical Design, CAD]
 tools: [SolidWorks]
 skills: [Part modeling, Linear patterns, Mirror features]
@@ -23,6 +24,11 @@ models:
   - { src: /models/lower-arm-link.glb, node: Lower Arm Link, role: "The structural link of the lower arm.", volume: 198.6 cm³, label: Lower arm link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/base.glb, node: Base, role: "Holds the arm upright and carries the first rotating joint.", volume: 190.7 cm³, label: Base, image: ./base.png, note: 140.0 × 41.0 × 140.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: The full six axis robotic arm assembly in SolidWorks, side view
+role: Modeled all eight parts and put them together into the full assembly in SolidWorks, following the CADelics 6 axis robotic arm series.
+contributions:
+  - Modeled each part on its own, using part modeling, linear patterns and mirror features
+  - Assembled the nine components (the gripper jaw is used twice) into an arm about 287 mm tall
+  - Measured each part's envelope and material volume from the STL exports
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
   - rev: A

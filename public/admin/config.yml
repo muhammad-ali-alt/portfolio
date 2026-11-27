@@ -102,6 +102,7 @@ collections:
           - { label: Note, name: note, widget: string, required: false, hint: 'e.g. 38.5 cm³ of material' }
           - { label: Name in the assembly file, name: node, widget: string, required: false, hint: 'The part name in the assembly GLB without the -1, e.g. Base. Makes it clickable in the 3D assembly.' }
           - { label: Role, name: role, widget: string, required: false, hint: 'One sentence: what the part does.' }
+          - { label: Design notes, name: design, widget: text, required: false, hint: 'Why it looks the way it does: the decisions behind this part. Shown in its panel.' }
           - { label: Material volume, name: volume, widget: string, required: false }
           - { label: Material, name: material, widget: string, required: false, hint: 'e.g. PLA, 6061 aluminum. Leave empty if not decided.' }
           - { label: Render (for the carousel), name: image, widget: image, required: false, hint: 'Transparent render of this part.' }
@@ -109,6 +110,124 @@ collections:
           - { label: Rotation, name: orientation, widget: string, required: false }
       - { label: 3D model rotation, name: modelOrientation, widget: string, required: false, hint: 'Only if the model loads on its side, e.g. 0deg -90deg 0deg' }
       - { label: 3D starting camera, name: modelOrbit, widget: string, required: false, hint: 'angle around, angle down, distance. e.g. 35deg 65deg 90%' }
+      - label: Category
+        name: category
+        widget: select
+        required: false
+        options: [Engineering design, Physical build, Software, Research, Data analysis, Other]
+        hint: 'What kind of project this is. Shown on the page and the index.'
+      - label: Main view
+        name: viewer
+        widget: select
+        default: auto
+        options:
+          - { label: 'Automatic (best available)', value: auto }
+          - { label: 'Clickable 3D assembly', value: assembly }
+          - { label: 'Single 3D model', value: model }
+          - { label: 'Several 3D models (carousel)', value: compare }
+          - { label: 'Annotated cover image', value: annotated }
+          - { label: 'Walkthrough (stages)', value: stages }
+          - { label: 'Software (screens and code)', value: software }
+          - { label: 'Data (charts)', value: data }
+          - { label: 'Cover image only', value: image }
+        hint: 'What shows at the top. Automatic picks the richest thing this project has. Everything else still shows lower on the page.'
+      - { label: Exploded view distance, name: explode, widget: number, value_type: float, min: 0, max: 3, step: 0.1, default: 1, required: false, hint: 'Clickable 3D assemblies only. 0 hides the Explode button.' }
+      - { label: 'Case study: overview', name: overview, widget: text, required: false, hint: 'A short paragraph: what it is and why it exists.' }
+      - { label: 'Case study: my role', name: role, widget: string, required: false, hint: 'One sentence: your part in it.' }
+      - { label: 'Case study: contributions', name: contributions, widget: list, required: false, default: [], hint: 'One line each.' }
+      - label: 'Case study: challenges and solutions'
+        name: challenges
+        widget: list
+        required: false
+        default: []
+        summary: '{{fields.challenge}}'
+        fields:
+          - { label: Challenge, name: challenge, widget: string }
+          - { label: Solution, name: solution, widget: text, required: false }
+      - { label: 'Case study: what I learned', name: learned, widget: list, required: false, default: [], hint: 'One lesson per line.' }
+      - label: 'Links (GitHub, docs, demo)'
+        name: links
+        widget: list
+        required: false
+        default: []
+        summary: '{{fields.kind}}: {{fields.label}}'
+        fields:
+          - { label: Label, name: label, widget: string }
+          - { label: URL, name: url, widget: string }
+          - { label: Kind, name: kind, widget: select, options: [GitHub, Docs, Demo, Video, Paper, Other], default: Other }
+      - label: 'Explore: callouts on the cover image'
+        name: hotspots
+        widget: list
+        required: false
+        default: []
+        summary: '{{fields.label}}'
+        hint: 'Markers on the cover image. x and y go from 0 (left, top) to 1 (right, bottom).'
+        fields:
+          - { label: Label, name: label, widget: string }
+          - { label: 'x (0 to 1)', name: x, widget: number, value_type: float, min: 0, max: 1, step: 0.01 }
+          - { label: 'y (0 to 1)', name: y, widget: number, value_type: float, min: 0, max: 1, step: 0.01 }
+          - { label: Text, name: body, widget: markdown, required: false }
+          - { label: Close up image, name: image, widget: image, required: false }
+      - label: 'Explore: walkthrough stages'
+        name: stages
+        widget: list
+        required: false
+        default: []
+        allow_reorder: true
+        summary: '{{fields.title}}'
+        hint: 'A build, test or design process in order. Visitors step through it.'
+        fields:
+          - { label: Title, name: title, widget: string }
+          - { label: Text, name: body, widget: markdown, required: false }
+          - { label: Image, name: image, widget: image, required: false }
+          - { label: Caption, name: caption, widget: string, required: false }
+      - label: 'Explore: software screens'
+        name: screens
+        widget: list
+        required: false
+        default: []
+        allow_reorder: true
+        summary: '{{fields.title}}'
+        fields:
+          - { label: Title, name: title, widget: string }
+          - { label: Screenshot, name: image, widget: image, required: false }
+          - { label: Text, name: body, widget: markdown, required: false }
+      - label: 'Explore: code snippets'
+        name: snippets
+        widget: list
+        required: false
+        default: []
+        summary: '{{fields.title}}'
+        fields:
+          - { label: Title, name: title, widget: string }
+          - { label: Language, name: lang, widget: string, required: false, hint: 'e.g. Python, MATLAB' }
+          - { label: Code, name: code, widget: text }
+      - { label: 'Explore: live demo URL', name: demo, widget: string, required: false }
+      - label: 'Explore: charts'
+        name: charts
+        widget: list
+        required: false
+        default: []
+        summary: '{{fields.title}}'
+        fields:
+          - { label: Title, name: title, widget: string }
+          - { label: Kind, name: kind, widget: select, options: [bar, line], default: bar }
+          - { label: X axis label, name: x, widget: string, required: false }
+          - { label: Y axis label, name: y, widget: string, required: false }
+          - { label: Note under the chart, name: note, widget: string, required: false }
+          - label: Series
+            name: series
+            widget: list
+            summary: '{{fields.name}}'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - label: Points
+                name: points
+                widget: list
+                summary: '{{fields.x}}: {{fields.y}}'
+                fields:
+                  - { label: x (number, or a category name for bars), name: x, widget: string }
+                  - { label: y, name: y, widget: number, value_type: float }
       - label: Sections
         name: sections
         widget: list

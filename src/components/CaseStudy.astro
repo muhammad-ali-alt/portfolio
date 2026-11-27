@@ -1,0 +1,74 @@
+---
+// The case file: overview, role, challenges and solutions, lessons, links.
+// Every block is optional and only shows when the project has it.
+import type { CollectionEntry } from 'astro:content';
+import { mdInline } from '../lib/markdown';
+interface Props { project: CollectionEntry<'projects'> }
+const d = Astro.props.project.data;
+const ICON: Record<string, string> = { GitHub: '⌥', Docs: '¶', Demo: '▶', Video: '▶', Paper: '§', Other: '↗' };
+const any = d.overview || d.role || d.contributions.length || d.challenges.length || d.learned.length || d.links.length;
+---
+{any && (
+  <section class="case" aria-label="Case study">
+    {d.overview && (
+      <div class="c-block c-over">
+        <h2 class="label" id="c-overview">Overview</h2>
+        <p class="c-lead" set:html={mdInline(d.overview)} />
+      </div>
+    )}
+    {(d.role || d.contributions.length > 0) && (
+      <div class="c-block">
+        <h2 class="label" id="c-role">My role</h2>
+        {d.role && <p class="c-role" set:html={mdInline(d.role)} />}
+        {d.contributions.length > 0 && <ul class="c-list">{d.contributions.map((c) => <li set:html={mdInline(c)} />)}</ul>}
+      </div>
+    )}
+    {d.challenges.length > 0 && (
+      <div class="c-block c-wide">
+        <h2 class="label" id="c-challenges">Challenges and solutions</h2>
+        <ol class="c-ch">
+          {d.challenges.map((c, i) => (
+            <li>
+              <span class="mono n">{String(i + 1).padStart(2, '0')}</span>
+              <div><p class="c-q" set:html={mdInline(c.challenge)} />{c.solution && <p class="c-a"><span class="label">Solution</span> <span set:html={mdInline(c.solution)} /></p>}</div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    )}
+    {d.learned.length > 0 && (
+      <div class="c-block">
+        <h2 class="label" id="c-learned">What I learned</h2>
+        <ul class="c-list">{d.learned.map((c) => <li set:html={mdInline(c)} />)}</ul>
+      </div>
+    )}
+    {d.links.length > 0 && (
+      <div class="c-block">
+        <h2 class="label">Links</h2>
+        <ul class="c-links">{d.links.map((l) => <li><a class="btn" href={l.url} target={/^https?:/.test(l.url) ? '_blank' : undefined} rel="noopener"><span aria-hidden="true">{ICON[l.kind]}</span> {l.label}<span class="visually-hidden"> ({l.kind})</span></a></li>)}</ul>
+      </div>
+    )}
+  </section>
+)}
+
+<style>
+  .case { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin: 0 0 clamp(32px, 5vw, 64px); border-top: calc(var(--bw) * 1.5) solid var(--ink); }
+  .c-block { padding: 18px 20px 20px 0; border-bottom: var(--bw) solid var(--rule); min-width: 0; }
+  .c-block:nth-child(2n) { padding-left: 20px; border-left: var(--bw) solid var(--rule); }
+  .c-over, .c-wide { grid-column: 1 / -1; padding-left: 0 !important; border-left: 0 !important; }
+  .c-block h2.label { margin: 0 0 10px; font-size: 0.72rem; }
+  .c-lead { margin: 0; max-width: 62ch; font-size: clamp(1.05rem, 1rem + 0.3vw, 1.25rem); line-height: 1.5; }
+  .c-role { margin: 0 0 10px; font-family: var(--f-heading); font-weight: 550; }
+  .c-list { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+  .c-ch { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px 28px; }
+  .c-ch li { display: grid; grid-template-columns: 2.2rem 1fr; gap: 6px; }
+  .c-ch .n { color: var(--accent-ink); font-size: 0.85rem; padding-top: 2px; }
+  .c-q { margin: 0 0 6px; font-family: var(--f-heading); font-weight: 600; }
+  .c-a { margin: 0; color: var(--graphite); }
+  .c-links { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (max-width: 760px) {
+    .case { grid-template-columns: 1fr; }
+    .c-block:nth-child(2n) { padding-left: 0; border-left: 0; }
+  }
+</style>

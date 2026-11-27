@@ -1,0 +1,27 @@
+---
+// Explorers that are not the main view: annotated images, walkthroughs, software
+// and data, each in its own section lower on the page (and in the Sections list).
+import AnnotatedViewer from './viewers/AnnotatedViewer.astro';
+import StagesViewer from './viewers/StagesViewer.astro';
+import SoftwareViewer from './viewers/SoftwareViewer.astro';
+import DataViewer from './viewers/DataViewer.astro';
+import type { CollectionEntry } from 'astro:content';
+import { EXPLORE_TITLES, type prepare } from '../lib/viewers';
+interface Props { project: CollectionEntry<'projects'>; v: Awaited<ReturnType<typeof prepare>> }
+const { project, v } = Astro.props;
+const d = project.data;
+---
+{v.extras.map((k) => (
+  <section class="explore">
+    <div class="section-head"><span class="label">Explore</span><h2 id={`x-${k}`}>{EXPLORE_TITLES[k as keyof typeof EXPLORE_TITLES]}</h2><span></span></div>
+    {k === 'annotated' && <AnnotatedViewer src={v.cover!} alt={d.coverAlt ?? d.title} number={d.number} title={d.title} spots={v.hotspots} />}
+    {k === 'stages' && <StagesViewer number={d.number} title={d.title} stages={v.stages} />}
+    {k === 'software' && <SoftwareViewer number={d.number} title={d.title} screens={v.screens} snippets={v.snippets} demo={d.demo} />}
+    {k === 'data' && <DataViewer number={d.number} title={d.title} charts={v.charts} />}
+  </section>
+))}
+
+<style>
+  .explore { margin-block: clamp(40px, 6vw, 80px); }
+  .explore .section-head { margin-bottom: 16px; }
+</style>

@@ -1,0 +1,388 @@
+---
+// ASSEMBLY VIEWER: a clickable 3D assembly.
+// The full assembly with a marker on every part and a parts list beside it.
+// Select a part (marker, list or the part itself) to highlight it and open its
+// panel; "Isolate in 3D" swaps to that part on its own; "Explode" pulls the
+// parts apart along lines from the assembly's center. Esc steps back out.
+//
+// Data: the assembly GLB keeps each part as its own node with a material named
+// after the part. Each project `models` entry links to a part by `node`, and the
+// positions come from src/data/model-parts/<assembly>.json (README: "Assembly explorer").
+import '../../styles/workspace.css';
+
+export interface AsmPart {
+  key: string; label: string; src: string; position: [number, number, number];
+  nodes: { node: string; center: [number, number, number] }[];
+  role?: string; design?: string; note?: string; volume?: string; material?: string; image?: string; orbit?: string; orientation?: string;
+}
+interface Props { src: string; poster?: string; number: string; title: string; orbit?: string; tools: string[]; parts: AsmPart[]; center: [number, number, number]; explode?: number }
+const { src, poster, number, title, orbit = '35deg 70deg 105%', tools, parts, center, explode = 1 } = Astro.props;
+const pos = (p: number[]) => p.map((v) => `${v.toFixed(4)}m`).join(' ');
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+---
+<figure class="ws ax" data-parts={JSON.stringify(parts)} data-orbit={orbit} data-tools={tools.join(', ')} data-center={JSON.stringify(center)} data-explode={explode} data-number={number}>
+  <div class="ws-bar">
+    <span class="ws-id">{number}</span>
+    <span class="ws-mode" aria-live="polite">Assembly · {parts.length} parts</span>
+    <div class="ws-tools">
+      {explode > 0 && <button type="button" class="ws-btn ax-explode" aria-pressed="false" hidden>Explode</button>}
+      <button type="button" class="ws-btn ax-markers" aria-pressed="true">Markers</button>
+      <button type="button" class="ws-btn ax-reset">Reset view</button>
+    </div>
+  </div>
+
+  <div class="ax-body">
+    <nav class="ax-list" aria-label={`Parts of the ${title}`}>
+      <p class="ax-list-h">Parts <span>{parts.length}</span></p>
+      <ul>
+        {parts.map((p, i) => (
+          <li><button type="button" class="ws-chip" data-i={i} aria-current="false"><span class="n">{nn(i)}</span>{p.label}</button></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="ax-stage ws-grid">
+      <model-viewer
+        class="ax-view ax-asm"
+        src={src}
+        poster={poster}
+        alt={`3D model of the ${title} assembly. Use the parts list or the markers to inspect each part.`}
+        camera-controls
+        touch-action="pan-y"
+        interaction-prompt="none"
+        camera-orbit={orbit}
+        max-camera-orbit="auto auto 400%"
+        field-of-view="30deg"
+        shadow-intensity="0.7"
+        shadow-softness="1"
+        exposure="0.95"
+        tone-mapping="commerce"
+        environment-image="neutral"
+        loading="lazy"
+      >
+        {parts.map((p, i) => (
+          <button type="button" class="ws-hot" slot={`hotspot-${i}`} data-position={pos(p.position)} data-i={i} style={`--i:${i}`} aria-label={`Inspect ${p.label}`}>
+            <span class="dot" aria-hidden="true"></span><span class="tip" aria-hidden="true">{p.label}</span>
+          </button>
+        ))}
+        <div slot="progress-bar" class="ax-progress"><span></span></div>
+      </model-viewer>
+
+      <div class="ax-iso" aria-hidden="true">
+        <model-viewer class="ax-view ax-part" camera-controls touch-action="pan-y" interaction-prompt="none" field-of-view="30deg"
+          shadow-intensity="0.7" shadow-softness="1" exposure="0.95" tone-mapping="commerce" environment-image="neutral"></model-viewer>
+      </div>
+
+      <button type="button" class="ws-btn ax-back" hidden>← Full assembly</button>
+
+      <aside class="ws-panel ax-panel" hidden aria-labelledby={`ax-name-${number}`} tabindex="-1">
+        <button type="button" class="ws-close" aria-label="Close and return to the full assembly">×</button>
+        <div class="ax-thumb"><img alt="" /></div>
+        <p class="ws-kicker ax-idx"></p>
+        <h3 class="ws-title ax-name" id={`ax-name-${number}`}></h3>
+        <p class="ws-text ax-role"></p>
+        <p class="ws-text ax-design"></p>
+        <dl class="ws-specs ax-specs"></dl>
+        <div class="ws-row">
+          <button type="button" class="ws-btn is-solid ax-isolate">Isolate in 3D</button>
+          <span class="ax-step">
+            <button type="button" class="ws-icon ax-prev" aria-label="Previous part">←</button>
+            <button type="button" class="ws-icon ax-next" aria-label="Next part">→</button>
+          </span>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <figcaption class="ws-foot">
+    <span><span class="ax-mouse">Drag to rotate · Scroll to zoom · Right drag to pan</span><span class="ax-touch">Drag to rotate · Pinch to zoom · Two finger drag to pan</span></span>
+    <span>Select a part to inspect it · Esc to go back</span>
+  </figcaption>
+</figure>
+
+<script>
+  (self as any).ModelViewerElement = { ...(self as any).ModelViewerElement, meshoptDecoderLocation: '/decoders/meshopt_decoder.js' };
+  import('@google/model-viewer');
+
+  type V3 = [number, number, number];
+  type Part = { key: string; label: string; src: string; position: V3; nodes: { node: string; center: V3 }[]; role?: string; design?: string; note?: string; volume?: string; material?: string; image?: string; orbit?: string; orientation?: string };
+  const HI = [0.6, 0.76, 0.95, 1];    // selected part: silver blue
+  const DIM = [0.24, 0.26, 0.28, 1];  // everything else while a part is selected
+  const esc = (s: string) => s.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c]!);
+  // three.js renames nodes on load: spaces become underscores, some symbols are dropped
+  const sanitize = (n: string) => n.replace(/\s/g, '_').replace(/[\[\]\.:\/]/g, '');
+
+  for (const fig of document.querySelectorAll<HTMLElement>('.ax')) {
+    const parts: Part[] = JSON.parse(fig.dataset.parts!);
+    const tools = fig.dataset.tools || '';
+    const orbit = fig.dataset.orbit!;
+    const number = fig.dataset.number!;
+    const center: V3 = JSON.parse(fig.dataset.center!);
+    const spread = Number(fig.dataset.explode || 1);
+    const stage = fig.querySelector<HTMLElement>('.ax-stage')!;
+    const asm = fig.querySelector('.ax-asm') as any;
+    const part = fig.querySelector('.ax-part') as any;
+    const panel = fig.querySelector<HTMLElement>('.ax-panel')!;
+    const back = fig.querySelector<HTMLButtonElement>('.ax-back')!;
+    const hots = [...fig.querySelectorAll<HTMLButtonElement>('.ws-hot')];
+    const chips = [...fig.querySelectorAll<HTMLButtonElement>('.ax-list .ws-chip')];
+    const mode = fig.querySelector('.ws-mode')!;
+    const explodeBtn = fig.querySelector<HTMLButtonElement>('.ax-explode');
+    const markersBtn = fig.querySelector<HTMLButtonElement>('.ax-markers')!;
+    const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'off';
+    if (reduced()) { asm.setAttribute('interpolation-decay', '1000'); part.setAttribute('interpolation-decay', '1000'); }
+    let sel = -1, isolated = false, originals: Map<any, number[]> | null = null;
+
+    const setMode = (s: string) => (mode.textContent = s);
+    const idleMode = () => `Assembly · ${parts.length} parts${exploded > 0.5 ? ' · exploded' : ''}`;
+
+    // ── materials: remember the original colors so highlights can be undone ──
+    asm.addEventListener('load', () => {
+      fig.classList.add('is-loaded');
+      originals = new Map(asm.model.materials.map((m: any) => [m, [...m.pbrMetallicRoughness.baseColorFactor]]));
+      if (sel >= 0) paint();
+      setupExplode();
+    });
+    function paint() {
+      if (!originals) return;
+      for (const [m, c] of originals) {
+        const pbr = m.pbrMetallicRoughness;
+        if (sel < 0) { pbr.setBaseColorFactor(c); m.setEmissiveFactor([0, 0, 0]); continue; }
+        const on = m.name === parts[sel].key;
+        pbr.setBaseColorFactor(on ? HI : DIM);
+        m.setEmissiveFactor(on ? [0.05, 0.08, 0.12] : [0, 0, 0]);
+      }
+    }
+
+    // ── exploded view: moves the part nodes inside model-viewer's three.js scene ──
+    let exploded = 0, explodeTarget = 0, moves: { obj: any; base: any; off: number[] }[] = [];
+    function setupExplode() {
+      if (!explodeBtn) return;
+      const sym = Object.getOwnPropertySymbols(asm).find((s) => s.description === 'scene');
+      const ms = sym && asm[sym];
+      if (!ms?.target) return;  // model-viewer internals changed: keep the button hidden
+      const root = ms.target;
+      root.updateMatrixWorld(true);
+      const byName = new Map<string, any>();
+      root.traverse((o: any) => byName.set(o.name, o));
+      moves = [];
+      for (const p of parts) for (const n of p.nodes) {
+        const obj = byName.get(n.node) ?? byName.get(sanitize(n.node));
+        if (!obj?.parent) continue;
+        const dir = n.center.map((v, k) => (v - center[k]) * (k === 1 ? 0.9 : 1.3) * spread);
+        // turn the model space offset into the node's parent space
+        const a = obj.parent.worldToLocal(root.localToWorld(obj.position.clone().set(0, 0, 0)));
+        const b = obj.parent.worldToLocal(root.localToWorld(obj.position.clone().set(dir[0], dir[1], dir[2])));
+        moves.push({ obj, base: obj.position.clone(), off: [b.x - a.x, b.y - a.y, b.z - a.z] });
+      }
+      if (!moves.length) return;
+      explodeBtn.hidden = false;
+      (fig as any)._ms = ms;
+    }
+    const offsetOf = (p: Part, k: number) => (p.nodes[0] ? (p.nodes[0].center[k] - center[k]) * (k === 1 ? 0.9 : 1.3) * spread : 0);
+    function applyExplode(f: number) {
+      exploded = f;
+      for (const m of moves) m.obj.position.set(m.base.x + m.off[0] * f, m.base.y + m.off[1] * f, m.base.z + m.off[2] * f);
+      parts.forEach((p, i) => {
+        const q = p.position.map((v, k) => v + offsetOf(p, k) * f);
+        asm.updateHotspot({ name: `hotspot-${i}`, position: q.map((v) => `${v.toFixed(4)}m`).join(' ') });
+      });
+      (fig as any)._ms?.queueRender();
+    }
+    let raf = 0;
+    function explodeTo(target: number) {
+      // pull the camera back while exploded so every part stays in frame
+      if ((target > 0) !== (explodeTarget > 0)) {
+        const o = asm.getCameraOrbit?.();
+        if (o) asm.cameraOrbit = `${o.theta}rad ${o.phi}rad ${o.radius * (target > 0 ? 1.7 : 1 / 1.7)}m`;
+      }
+      explodeTarget = target;
+      explodeBtn?.setAttribute('aria-pressed', String(target > 0));
+      cancelAnimationFrame(raf);
+      if (reduced()) { applyExplode(target); if (sel < 0) setMode(idleMode()); return; }
+      const from = exploded, t0 = performance.now(), dur = 700;
+      const step = (now: number) => {
+        const k = Math.min(1, (now - t0) / dur), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        applyExplode(from + (target - from) * e);
+        if (k < 1) raf = requestAnimationFrame(step); else if (sel < 0) setMode(idleMode());
+      };
+      raf = requestAnimationFrame(step);
+      if (sel < 0) asm.cameraTarget = 'auto auto auto';
+    }
+
+    // ── the panel ──
+    function fill(i: number) {
+      const p = parts[i];
+      const img = panel.querySelector<HTMLImageElement>('.ax-thumb img')!;
+      panel.querySelector<HTMLElement>('.ax-thumb')!.hidden = !p.image;
+      if (p.image) { img.src = p.image; img.alt = `${p.label}, render`; }
+      panel.querySelector('.ax-idx')!.textContent = `Part ${String(i + 1).padStart(2, '0')} / ${String(parts.length).padStart(2, '0')}`;
+      panel.querySelector('.ax-name')!.textContent = p.label;
+      for (const [cls, v] of [['.ax-role', p.role], ['.ax-design', p.design]] as const) {
+        const el = panel.querySelector<HTMLElement>(cls)!; el.textContent = v ?? ''; el.hidden = !v;
+      }
+      const rows: [string, string | undefined][] = [['Size', p.note], ['Material', p.material], ['Volume', p.volume], ['Tools', tools], ['CAD', `<a href="${esc(p.src)}" download>${esc(p.src.split('/').pop()!)} ↓</a>`]];
+      panel.querySelector('.ax-specs')!.innerHTML = rows.filter(([, v]) => v)
+        .map(([k, v]) => `<div><dt>${k}</dt><dd>${k === 'CAD' ? v : esc(String(v))}</dd></div>`).join('');
+    }
+
+    function select(i: number, focus = true) {
+      sel = ((i % parts.length) + parts.length) % parts.length;
+      fill(sel);
+      paint();
+      hots.forEach((h, k) => h.classList.toggle('is-on', k === sel));
+      chips.forEach((c, k) => c.setAttribute('aria-current', String(k === sel)));
+      stage.classList.add('has-sel');
+      panel.hidden = false;
+      if (isolated) loadPart(); else {
+        const p = parts[sel], q = p.position.map((v, k) => v + offsetOf(p, k) * exploded);
+        asm.cameraTarget = `${q[0]}m ${q[1]}m ${q[2]}m`;
+      }
+      setMode(`${isolated ? 'Isolated' : 'Assembly'} · ${parts[sel].label}`);
+      if (focus) panel.focus({ preventScroll: true });
+    }
+
+    function close() {
+      if (isolated) leave();
+      const was = sel; sel = -1;
+      paint();
+      hots.forEach((h) => h.classList.remove('is-on'));
+      chips.forEach((c) => c.setAttribute('aria-current', 'false'));
+      stage.classList.remove('has-sel');
+      panel.hidden = true;
+      asm.cameraTarget = 'auto auto auto';
+      setMode(idleMode());
+      (chips[was] ?? hots[was])?.focus({ preventScroll: true });
+    }
+
+    function loadPart() {
+      const p = parts[sel];
+      if (part.getAttribute('src') !== p.src) part.src = p.src;
+      part.cameraOrbit = p.orbit ?? '35deg 65deg 105%';
+      part.orientation = p.orientation ?? '0deg 0deg 0deg';
+      part.cameraTarget = 'auto auto auto';
+      part.setAttribute('alt', `3D model of the ${p.label} on its own`);
+    }
+    function isolate() {
+      if (sel < 0) return;
+      isolated = true;
+      loadPart();
+      stage.classList.add('is-isolated');
+      fig.querySelector('.ax-iso')!.removeAttribute('aria-hidden');
+      back.hidden = false;
+      setMode(`Isolated · ${parts[sel].label}`);
+      back.focus({ preventScroll: true });
+    }
+    function leave() {
+      isolated = false;
+      stage.classList.remove('is-isolated');
+      fig.querySelector('.ax-iso')!.setAttribute('aria-hidden', 'true');
+      back.hidden = true;
+      if (sel >= 0) { setMode(`Assembly · ${parts[sel].label}`); panel.focus({ preventScroll: true }); }
+    }
+    function reset() {
+      if (sel >= 0) close();
+      if (exploded > 0 || explodeTarget > 0) explodeTo(0);
+      asm.cameraOrbit = orbit; asm.cameraTarget = 'auto auto auto'; asm.fieldOfView = '30deg';
+    }
+
+    // ── wiring ──
+    hots.forEach((h) => h.addEventListener('click', (e) => { e.stopPropagation(); select(+h.dataset.i!); }));
+    chips.forEach((c, k) => {
+      c.addEventListener('click', () => (sel === k && !isolated ? close() : select(k, false)));
+      c.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        chips[(k + (e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1) + chips.length) % chips.length].focus();
+      });
+    });
+    let down = { x: 0, y: 0 };
+    asm.addEventListener('pointerdown', (e: PointerEvent) => (down = { x: e.clientX, y: e.clientY }));
+    asm.addEventListener('click', (e: MouseEvent) => {
+      if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5 || (e.target as HTMLElement).closest('.ws-hot')) return;
+      const m = asm.materialFromPoint?.(e.clientX, e.clientY);
+      const i = m ? parts.findIndex((p) => p.key === m.name) : -1;
+      if (i >= 0) select(i, false);
+    });
+    panel.querySelector('.ws-close')!.addEventListener('click', close);
+    panel.querySelector('.ax-isolate')!.addEventListener('click', isolate);
+    panel.querySelector('.ax-prev')!.addEventListener('click', () => select(sel - 1));
+    panel.querySelector('.ax-next')!.addEventListener('click', () => select(sel + 1));
+    back.addEventListener('click', leave);
+    explodeBtn?.addEventListener('click', () => { if (isolated) leave(); explodeTo(explodeTarget > 0 ? 0 : 1); });
+    markersBtn.addEventListener('click', () => {
+      const on = markersBtn.getAttribute('aria-pressed') !== 'true';
+      markersBtn.setAttribute('aria-pressed', String(on));
+      stage.classList.toggle('no-markers', !on);
+    });
+    fig.querySelector('.ax-reset')!.addEventListener('click', reset);
+    fig.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { if (isolated) leave(); else if (sel >= 0) close(); else if (exploded > 0) explodeTo(0); }
+      if (sel >= 0 && (e.target as HTMLElement).closest('.ax-panel') && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+        e.preventDefault(); select(sel + (e.key === 'ArrowRight' ? 1 : -1));
+      }
+    });
+  }
+</script>
+
+<style>
+  .ax-body { display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+  .ax-list { border-right: 1px solid var(--ws-line); padding: 14px 10px 14px 12px; background: var(--ws-bg2); }
+  .ax-list-h { display: flex; justify-content: space-between; margin: 0 4px 10px; font: 500 0.66rem/1 var(--ws-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ws-muted); }
+  .ax-list-h span { color: var(--ws-faint); }
+  .ax-list ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .ax-list .ws-chip { width: 100%; }
+
+  .ax-stage { position: relative; height: clamp(460px, 56vw, 700px); }
+  .ax-view { display: block; width: 100%; height: 100%; background: transparent; --poster-color: transparent; }
+  .ax-view:focus-visible { outline: 2px solid var(--ws-hi); outline-offset: -2px; }
+
+  /* assembly <-> isolated part: cross fade with a small scale. visibility (not just
+     pointer-events) so the hidden viewer can never catch a click */
+  .ax-asm, .ax-iso { transition: opacity calc(0.45s * var(--speed)) var(--ease), transform calc(0.55s * var(--speed)) var(--ease), visibility 0s linear 0s; }
+  .ax-iso { position: absolute; inset: 0; opacity: 0; transform: scale(1.04); visibility: hidden; transition-delay: 0s, 0s, calc(0.55s * var(--speed)); }
+  .is-isolated .ax-asm { opacity: 0; transform: scale(0.96); visibility: hidden; transition-delay: 0s, 0s, calc(0.55s * var(--speed)); }
+  .is-isolated .ax-iso { opacity: 1; transform: none; visibility: visible; transition-delay: 0s; }
+
+  .has-sel .ws-hot:not(.is-on) { opacity: 0.45; }
+  .no-markers .ws-hot:not(.is-on) { visibility: hidden; }
+  .is-isolated .ws-hot { visibility: hidden; }
+  :global(.pointer-tumbling) .ws-hot { pointer-events: none; }
+
+  .ax-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; }
+  .ax-progress span { display: block; height: 100%; width: 30%; background: var(--ws-hi); animation: ax-load 1.2s var(--ease) infinite; }
+  @keyframes ax-load { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+  .is-loaded .ax-asm .ax-progress { display: none; }
+
+  .ax-back { position: absolute; top: 14px; left: 14px; z-index: 3; background: var(--ws-panel); }
+
+  .ax-thumb { margin: 2px 0 10px; height: 116px; border-radius: 4px; background: radial-gradient(ellipse at 50% 60%, rgb(156 195 234 / 0.1), transparent 70%); }
+  .ax-thumb img { width: 100%; height: 100%; object-fit: contain; }
+  .ax-design { font-size: 0.85rem; color: var(--ws-muted); }
+  .ax-step { display: flex; gap: 6px; }
+  .ax-specs :global(a) { color: var(--ws-hi); text-decoration: none; }
+  .ax-specs :global(a:hover) { text-decoration: underline; }
+
+  .ax-touch { display: none; }
+  @media (hover: none) { .ax-touch { display: inline; } .ax-mouse { display: none; } }
+
+  /* tablets: the parts list becomes a scrolling row above the stage */
+  @media (max-width: 1000px) {
+    .ax-body { grid-template-columns: minmax(0, 1fr); }
+    .ax-list { min-width: 0; border-right: 0; border-bottom: 1px solid var(--ws-line); padding: 8px 10px; display: flex; align-items: center; gap: 10px; }
+    .ax-list-h { margin: 0; flex: none; }
+    .ax-list ul { display: flex; gap: 4px; min-width: 0; overflow-x: auto; scrollbar-width: thin; }
+    .ax-list .ws-chip { width: auto; white-space: nowrap; }
+  }
+  /* phones: the panel moves under the 3D view so it never covers the model */
+  @media (max-width: 760px) {
+    .ax { --ax-h: min(68vh, 460px); }
+    .ax-stage { height: auto; }
+    .ax-asm { height: var(--ax-h); }
+    .ax-iso { inset: 0 0 auto 0; height: var(--ax-h); }
+    .ax-list-h { display: none; }
+    .ws-bar .ws-mode { flex-basis: 100%; order: 3; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ax-asm, .ax-iso { transition: none; }
+  }
+</style>

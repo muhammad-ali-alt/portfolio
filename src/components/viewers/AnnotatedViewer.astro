@@ -1,0 +1,84 @@
+---
+// ANNOTATED IMAGE: markers pinned to a photo or render. Select one to open its
+// panel; arrows step through them; Esc closes. For physical builds, prototypes,
+// test rigs, or anything better shown than modeled.
+// Data: `hotspots` on the project (x, y from 0 to 1 across the image).
+import '../../styles/workspace.css';
+interface Spot { x: number; y: number; label: string; html: string; image?: string }
+interface Props { src: string; alt: string; number: string; title: string; spots: Spot[]; label?: string }
+const { src, alt, number, title, spots, label = 'Annotated' } = Astro.props;
+const nn = (i: number) => String(i + 1).padStart(2, '0');
+---
+<figure class="ws an" data-spots={JSON.stringify(spots)}>
+  <div class="ws-bar">
+    <span class="ws-id">{number}</span>
+    <span class="ws-mode" aria-live="polite">{label} · {spots.length} callouts</span>
+    <div class="ws-tools"><button type="button" class="ws-btn an-markers" aria-pressed="true">Markers</button></div>
+  </div>
+  <div class="an-stage ws-grid">
+    <div class="an-frame">
+      <img src={src} alt={alt} />
+      {spots.map((s, i) => (
+        <button type="button" class="ws-hot" style={`left:${s.x * 100}%;top:${s.y * 100}%;--i:${i}`} data-i={i} aria-label={`${nn(i)}: ${s.label}`}>
+          <span class="dot" aria-hidden="true"></span><span class="tip" aria-hidden="true">{s.label}</span>
+        </button>
+      ))}
+    </div>
+    <aside class="ws-panel an-panel" hidden tabindex="-1" aria-label={`Callout on the ${title}`}>
+      <button type="button" class="ws-close" aria-label="Close">×</button>
+      <img class="an-img" alt="" hidden />
+      <p class="ws-kicker an-idx"></p>
+      <h3 class="ws-title an-name"></h3>
+      <div class="ws-text an-body"></div>
+      <div class="ws-row"><span></span><span class="an-step"><button type="button" class="ws-icon an-prev" aria-label="Previous callout">←</button><button type="button" class="ws-icon an-next" aria-label="Next callout">→</button></span></div>
+    </aside>
+  </div>
+  <figcaption class="ws-foot"><span>Select a marker to read the callout</span><span>← → to step · Esc to close</span></figcaption>
+</figure>
+
+<script>
+  for (const fig of document.querySelectorAll<HTMLElement>('.an')) {
+    const spots: { label: string; html: string; image?: string }[] = JSON.parse(fig.dataset.spots!);
+    const hots = [...fig.querySelectorAll<HTMLButtonElement>('.ws-hot')];
+    const panel = fig.querySelector<HTMLElement>('.an-panel')!;
+    const mode = fig.querySelector('.ws-mode')!, idle = mode.textContent;
+    let sel = -1;
+    function select(i: number) {
+      sel = (i + spots.length) % spots.length;
+      const s = spots[sel], img = panel.querySelector<HTMLImageElement>('.an-img')!;
+      img.hidden = !s.image; if (s.image) img.src = s.image;
+      panel.querySelector('.an-idx')!.textContent = `Callout ${String(sel + 1).padStart(2, '0')} / ${String(spots.length).padStart(2, '0')}`;
+      panel.querySelector('.an-name')!.textContent = s.label;
+      panel.querySelector('.an-body')!.innerHTML = s.html;
+      hots.forEach((h, k) => h.classList.toggle('is-on', k === sel));
+      fig.classList.add('has-sel'); panel.hidden = false; panel.focus({ preventScroll: true });
+      mode.textContent = `Callout · ${s.label}`;
+    }
+    function close() {
+      const was = sel; sel = -1; panel.hidden = true; fig.classList.remove('has-sel');
+      hots.forEach((h) => h.classList.remove('is-on')); mode.textContent = idle; hots[was]?.focus({ preventScroll: true });
+    }
+    hots.forEach((h) => h.addEventListener('click', () => select(+h.dataset.i!)));
+    panel.querySelector('.ws-close')!.addEventListener('click', close);
+    panel.querySelector('.an-prev')!.addEventListener('click', () => select(sel - 1));
+    panel.querySelector('.an-next')!.addEventListener('click', () => select(sel + 1));
+    const mb = fig.querySelector<HTMLButtonElement>('.an-markers')!;
+    mb.addEventListener('click', () => { const on = mb.getAttribute('aria-pressed') !== 'true'; mb.setAttribute('aria-pressed', String(on)); fig.classList.toggle('no-markers', !on); });
+    fig.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sel >= 0) close();
+      if (sel >= 0 && (e.key === 'ArrowRight' || e.key === 'ArrowLeft') && (e.target as HTMLElement).closest('.an-panel')) { e.preventDefault(); select(sel + (e.key === 'ArrowRight' ? 1 : -1)); }
+    });
+  }
+</script>
+
+<style>
+  .an-stage { position: relative; padding: clamp(16px, 3vw, 40px); display: grid; place-items: center; min-height: 360px; }
+  .an-frame { position: relative; width: min(100%, 980px); }
+  .an-frame img { display: block; width: 100%; height: auto; border-radius: 4px; }
+  .an-frame .ws-hot { position: absolute; transform: translate(-50%, -50%); }
+  .has-sel .ws-hot:not(.is-on) { opacity: 0.45; }
+  .no-markers .ws-hot:not(.is-on) { visibility: hidden; }
+  .an-img { width: 100%; max-height: 140px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; }
+  .an-step { display: flex; gap: 6px; }
+  @media (max-width: 760px) { .an-stage { display: block; padding: 12px; } .an-frame { width: 100%; } .an-panel { margin: 12px -12px -12px; } }
+</style>

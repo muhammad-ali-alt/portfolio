@@ -1,0 +1,95 @@
+---
+// SOFTWARE: tabs for each screen or feature, a Code tab for snippets, and a
+// live demo button when there is one. For apps, tools, scripts and firmware.
+// Data: `screens`, `snippets` and `demo` on the project.
+import '../../styles/workspace.css';
+interface Screen { title: string; image?: string; html: string }
+interface Snippet { title: string; lang: string; code: string }
+interface Props { number: string; title: string; screens: Screen[]; snippets: Snippet[]; demo?: string }
+const { number, title, screens, snippets, demo } = Astro.props;
+const tabs = [...screens.map((s) => s.title), ...(snippets.length ? ['Code'] : [])];
+const id = (i: number) => `sw-${number}-${i}`;
+---
+<figure class="ws sw">
+  <div class="ws-bar">
+    <span class="ws-id">{number}</span>
+    <span class="ws-mode" aria-live="polite">Software · {tabs[0]}</span>
+    {demo && <div class="ws-tools"><a class="ws-btn is-solid" href={demo} target="_blank" rel="noopener">Live demo ↗</a></div>}
+  </div>
+  <div class="sw-tabs" role="tablist" aria-label={`${title}, views`}>
+    {tabs.map((t, i) => (
+      <button type="button" role="tab" class="ws-chip" id={`${id(i)}-t`} aria-controls={`${id(i)}-p`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+        <span class="n">{String(i + 1).padStart(2, '0')}</span>{t}
+      </button>
+    ))}
+  </div>
+  <div class="sw-stage ws-grid">
+    {screens.map((s, i) => (
+      <section class="sw-panel" role="tabpanel" id={`${id(i)}-p`} aria-labelledby={`${id(i)}-t`} hidden={i !== 0}>
+        {s.image && (
+          <div class="sw-window">
+            <div class="sw-chrome" aria-hidden="true"><i></i><i></i><i></i><span>{s.title}</span></div>
+            <img src={s.image} alt={`${title}, ${s.title}`} loading="lazy" />
+          </div>
+        )}
+        <div class="sw-copy"><h3 class="ws-title">{s.title}</h3><div class="ws-text" set:html={s.html} /></div>
+      </section>
+    ))}
+    {snippets.length > 0 && (
+      <section class="sw-panel" role="tabpanel" id={`${id(screens.length)}-p`} aria-labelledby={`${id(screens.length)}-t`} hidden={screens.length > 0}>
+        {snippets.map((c) => (
+          <div class="sw-code">
+            <div class="sw-code-h"><span>{c.title}</span><span>{c.lang}</span><button type="button" class="ws-btn sw-copy-btn">Copy</button></div>
+            <pre tabindex="0"><code>{c.code}</code></pre>
+          </div>
+        ))}
+      </section>
+    )}
+  </div>
+</figure>
+
+<script>
+  for (const fig of document.querySelectorAll<HTMLElement>('.sw')) {
+    const tabs = [...fig.querySelectorAll<HTMLButtonElement>('[role=tab]')];
+    const panels = [...fig.querySelectorAll<HTMLElement>('[role=tabpanel]')];
+    const mode = fig.querySelector('.ws-mode')!;
+    const go = (i: number, focus = false) => {
+      i = (i + tabs.length) % tabs.length;
+      tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; });
+      panels.forEach((p, k) => (p.hidden = k !== i));
+      mode.textContent = `Software · ${tabs[i].textContent!.replace(/^\d+/, '')}`;
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((t, k) => {
+      t.addEventListener('click', () => go(k));
+      t.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); go(k + (e.key === 'ArrowRight' ? 1 : -1), true); } });
+    });
+    for (const b of fig.querySelectorAll<HTMLButtonElement>('.sw-copy-btn')) {
+      b.addEventListener('click', async () => {
+        const code = b.closest('.sw-code')!.querySelector('code')!.textContent!;
+        try { await navigator.clipboard.writeText(code); b.textContent = 'Copied'; } catch { b.textContent = 'Select and copy'; }
+        setTimeout(() => (b.textContent = 'Copy'), 1600);
+      });
+    }
+  }
+</script>
+
+<style>
+  .sw-tabs { display: flex; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--ws-line); background: var(--ws-bg2); overflow-x: auto; }
+  .sw-tabs .ws-chip { white-space: nowrap; }
+  .sw-stage { padding: clamp(16px, 3vw, 36px); min-height: 320px; }
+  .sw-panel { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 40px); align-items: start; animation: ws-in calc(0.35s * var(--speed)) var(--ease); }
+  .sw-panel:has(.sw-code), .sw-panel:not(:has(.sw-window)) { grid-template-columns: 1fr; }
+  .sw-window { border: 1px solid var(--ws-line2); border-radius: 6px; overflow: hidden; background: #000; box-shadow: 0 20px 50px rgb(0 0 0 / 0.4); }
+  .sw-chrome { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: var(--ws-bg2); border-bottom: 1px solid var(--ws-line); font: 0.66rem var(--ws-mono); color: var(--ws-muted); }
+  .sw-chrome i { width: 8px; height: 8px; border-radius: 50%; background: var(--ws-line2); }
+  .sw-chrome span { margin-left: 8px; }
+  .sw-window img { display: block; width: 100%; }
+  .sw-code { border: 1px solid var(--ws-line2); border-radius: 6px; overflow: hidden; margin-bottom: 14px; background: #0a0b0c; }
+  .sw-code-h { display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 12px; border-bottom: 1px solid var(--ws-line); font: 0.7rem var(--ws-mono); color: var(--ws-muted); }
+  .sw-code-h span:first-child { color: var(--ws-text); flex: 1; }
+  .sw-code pre { margin: 0; padding: 14px; overflow: auto; max-height: 420px; font: 0.8rem/1.55 var(--ws-mono); color: #d6dbe1; background: transparent; border: 0; }
+  .sw-code pre:focus-visible { outline: 2px solid var(--ws-hi); outline-offset: -2px; }
+  @media (max-width: 760px) { .sw-panel { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .sw-panel { animation: none; } }
+</style>

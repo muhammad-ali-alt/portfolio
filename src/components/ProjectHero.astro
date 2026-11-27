@@ -1,0 +1,40 @@
+---
+// The main view at the top of a project page. Which viewer appears is decided in
+// src/lib/viewers.ts; this file only places it.
+import ModelViewer from './ModelViewer.astro';
+import PartsCarousel from './PartsCarousel.astro';
+import Plate from './Plate.astro';
+import AssemblyViewer from './viewers/AssemblyViewer.astro';
+import AnnotatedViewer from './viewers/AnnotatedViewer.astro';
+import StagesViewer from './viewers/StagesViewer.astro';
+import SoftwareViewer from './viewers/SoftwareViewer.astro';
+import DataViewer from './viewers/DataViewer.astro';
+import type { CollectionEntry } from 'astro:content';
+import type { prepare } from '../lib/viewers';
+interface Props { project: CollectionEntry<'projects'>; v: Awaited<ReturnType<typeof prepare>>; poster?: string }
+const { project, v, poster } = Astro.props;
+const d = project.data;
+---
+<div class="hero">
+  {v.hero === 'assembly' && v.assembly && <AssemblyViewer src={d.model!} poster={poster} number={d.number} title={d.title} orbit={d.modelOrbit} tools={d.tools} parts={v.assembly.parts} center={v.assembly.center} explode={d.explode} />}
+  {v.hero === 'model' && <ModelViewer src={d.model!} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} poster={poster} />}
+  {v.hero === 'compare' && <PartsCarousel parts={d.models} number={d.number} title={d.title} />}
+  {v.hero === 'annotated' && <AnnotatedViewer src={v.cover!} alt={d.coverAlt ?? d.title} number={d.number} title={d.title} spots={v.hotspots} />}
+  {v.hero === 'stages' && <StagesViewer number={d.number} title={d.title} stages={v.stages} />}
+  {v.hero === 'software' && <SoftwareViewer number={d.number} title={d.title} screens={v.screens} snippets={v.snippets} demo={d.demo} />}
+  {v.hero === 'data' && <DataViewer number={d.number} title={d.title} charts={v.charts} />}
+  {v.hero === 'image' && <Plate src={d.cover} alt={d.coverAlt} number={d.number} ratio="auto" eager sizes="100vw" />}
+
+  {v.carousel && (
+    <section class="parts" aria-label="Parts">
+      <div class="section-head"><span class="label">{v.hero === 'assembly' ? 'Renders' : 'Parts'}</span><h2>Individual parts</h2><span class="label">{d.models.length}</span></div>
+      <PartsCarousel parts={d.models} number={d.number} title={d.title} />
+    </section>
+  )}
+</div>
+
+<style>
+  .hero { margin-bottom: clamp(24px, 4vw, 48px); }
+  .hero > :global(*) + .parts { margin-top: clamp(32px, 5vw, 64px); }
+  .parts .section-head { margin-bottom: 16px; }
+</style>
