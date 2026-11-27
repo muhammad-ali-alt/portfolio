@@ -105,8 +105,9 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
 
   type V3 = [number, number, number];
   type Part = { key: string; label: string; src: string; position: V3; nodes: { node: string; center: V3 }[]; role?: string; design?: string; note?: string; volume?: string; material?: string; image?: string; orbit?: string; orientation?: string };
-  const HI = [0.6, 0.76, 0.95, 1];    // selected part: silver blue
-  const DIM = [0.24, 0.26, 0.28, 1];  // everything else while a part is selected
+  // While a part is selected it keeps its own color and glows slightly; the rest
+  // keep theirs but drop into shadow, so the colors still read.
+  const DIM = 0.22;
   const esc = (s: string) => s.replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' })[c]!);
   // three.js renames nodes on load: spaces become underscores, some symbols are dropped
   const sanitize = (n: string) => n.replace(/\s/g, '_').replace(/[\[\]\.:\/]/g, '');
@@ -148,8 +149,8 @@ const nn = (i: number) => String(i + 1).padStart(2, '0');
         const pbr = m.pbrMetallicRoughness;
         if (sel < 0) { pbr.setBaseColorFactor(c); m.setEmissiveFactor([0, 0, 0]); continue; }
         const on = m.name === parts[sel].key;
-        pbr.setBaseColorFactor(on ? HI : DIM);
-        m.setEmissiveFactor(on ? [0.05, 0.08, 0.12] : [0, 0, 0]);
+        pbr.setBaseColorFactor(on ? c : [c[0] * DIM, c[1] * DIM, c[2] * DIM, c[3]]);
+        m.setEmissiveFactor(on ? [c[0] * 0.22 + 0.03, c[1] * 0.22 + 0.05, c[2] * 0.22 + 0.08] : [0, 0, 0]);
       }
     }
 
