@@ -267,7 +267,7 @@ collections:
           - { label: Cover introduction, name: lede, widget: text }
           - { label: Statement, name: statement, widget: string, hint: 'Wrap words in *asterisks* to highlight them.' }
           - { label: Animated cover mosaic, name: heroArt, widget: boolean, default: true, hint: 'Draws the cover image as moving character tiles behind your name.' }
-          - { label: Cover image, name: heroImage, widget: image, required: false, hint: 'Best: a PNG with the background cut out (transparent). A photo with a plain, even background also works.' }
+          - { label: Cover image, name: heroImage, widget: image, required: false, hint: 'Any image works and is drawn whole with soft edges. A PNG with a transparent background shows only the subject.' }
           - { label: Cover image description, name: heroImageAlt, widget: string, required: false }
           - label: Sections
             name: sections
