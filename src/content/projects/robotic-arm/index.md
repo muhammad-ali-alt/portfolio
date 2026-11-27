@@ -1,7 +1,7 @@
 ---
 title: Desktop Robotic Arm
 number: MA-004
-summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw, gripper actuator, wrist module, rotary yoke joint, shoulder drive unit and upper arm link are done; the rest of the arm is next.
+summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. The gripper jaw, gripper actuator, wrist module, rotary yoke joint, shoulder drive unit, upper arm link and lower arm link are done; the rest of the arm is next.
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
 context: Personal
@@ -17,6 +17,7 @@ models:
   - { src: /models/rotary-yoke-joint.glb, label: Rotary yoke joint, image: ./yoke.png, note: 68.0 × 40.0 × 44.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/shoulder-drive-unit.glb, label: Shoulder drive unit, image: ./shoulder.png, note: 32.5 × 30.0 × 75.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/upper-arm-link.glb, label: Upper arm link, image: ./upper-arm.png, note: 115.0 × 125.0 × 35.0 mm, orbit: 35deg 65deg 105% }
+  - { src: /models/lower-arm-link.glb, label: Lower arm link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: Gripper jaw, isometric render, showing the pivot hole, hex nut pocket, three slots and serrated tip
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
@@ -38,6 +39,9 @@ revisions:
   - rev: F
     date: 2026-11-27   # PLACEHOLDER date
     note: Upper arm link modeled.
+  - rev: G
+    date: 2026-11-27   # PLACEHOLDER date
+    note: Lower arm link modeled.
 ---
 
 ## Objective
@@ -60,6 +64,7 @@ Every finished part so far, in the order it was modeled. Sizes and material volu
 | 4 | Rotary yoke joint | 68.0 × 40.0 × 44.0 | 15.7 cm³ | Modeled |
 | 5 | Shoulder drive unit | 32.5 × 30.0 × 75.0 | 38.6 cm³ | Modeled |
 | 6 | Upper arm link | 115.0 × 125.0 × 35.0 | 82.0 cm³ | Modeled |
+| 7 | Lower arm link | 157.5 × 142.5 × 70.0 | 198.6 cm³ | Modeled |
 
 ### 1. Gripper jaw
 
@@ -101,6 +106,12 @@ Every finished part so far, in the order it was modeled. Sizes and material volu
 
 **How it works.** PLACEHOLDER: Which joints the link connects, and how it carries the load.
 
+### 7. Lower arm link
+
+**Role.** The structural link of the lower arm.
+
+**How it works.** PLACEHOLDER: Which joints the link connects, and how it carries the load.
+
 ## Next
 
 - [x] Gripper jaw
@@ -109,6 +120,7 @@ Every finished part so far, in the order it was modeled. Sizes and material volu
 - [x] Rotary yoke joint
 - [x] Shoulder drive unit
 - [x] Upper arm link
+- [x] Lower arm link
 - [ ] Elbow joint
 - [ ] Base and turntable
 - [ ] Full assembly and motion study
