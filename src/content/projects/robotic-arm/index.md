@@ -1,7 +1,7 @@
 ---
 title: Desktop Robotic Arm
 number: MA-004
-summary: A six axis desktop robotic arm modeled in SolidWorks, built up part by part. All eight parts are modeled; the full assembly is next.
+summary: A six axis desktop robotic arm modeled in SolidWorks, about 287 mm tall, built from eight parts I modeled one at a time and then assembled.
 date: 2026-11-01  # PLACEHOLDER: the real date you started
 status: In progress
 context: Personal
@@ -9,7 +9,10 @@ disciplines: [Robotics, Mechanical Design, CAD]
 tools: [SolidWorks]
 skills: [Part modeling, Linear patterns, Mirror features]
 featured: true
-cover: ./cover.png
+cover: ./assembly.png
+model: /models/robotic-arm-assembly.glb
+modelOrbit: 90deg 80deg 105%
+modelPoster: ./assembly.png
 models:
   - { src: /models/grip.glb, label: Gripper jaw, image: ./cover.png, note: 49.0 × 14.0 × 8.5 mm, orbit: 35deg 65deg 100% }
   - { src: /models/gripper-actuator.glb, label: Gripper actuator, image: ./actuator.png, note: 31.0 × 30.9 × 35.0 mm, orbit: 35deg 65deg 115% }
@@ -19,7 +22,7 @@ models:
   - { src: /models/upper-arm-link.glb, label: Upper arm link, image: ./upper-arm.png, note: 115.0 × 125.0 × 35.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/lower-arm-link.glb, label: Lower arm link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/base.glb, label: Base, image: ./base.png, note: 140.0 × 41.0 × 140.0 mm, orbit: 35deg 65deg 105% }
-coverAlt: Gripper jaw, isometric render, showing the pivot hole, hex nut pocket, three slots and serrated tip
+coverAlt: The full six axis robotic arm assembly in SolidWorks, side view
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
   - rev: A
@@ -46,6 +49,9 @@ revisions:
   - rev: H
     date: 2026-11-27   # PLACEHOLDER date
     note: Base modeled. All eight parts complete.
+  - rev: I
+    date: 2026-11-27   # PLACEHOLDER date
+    note: Full assembly, nine components.
 ---
 
 ## Objective
@@ -55,6 +61,12 @@ PLACEHOLDER: One or two sentences. What should the arm do when it is finished? H
 ## Starting point
 
 PLACEHOLDER: I am building this by following a tutorial series, then changing it. Write down here which parts follow the tutorial and which parts are your own decisions. Recruiters respect an honest "I learned this from X, then I changed Y because Z" much more than a copied model with no explanation.
+
+## Assembly
+
+The full arm is about 287 mm tall and made of nine components: the eight parts below, with the gripper jaw used twice. Rotate it at the top of this page.
+
+PLACEHOLDER: How the joints move together, and one thing you would change if you built it again.
 
 ## Parts
 
@@ -126,5 +138,5 @@ All eight parts, in the order they were modeled. Together they use about 578 cm�
 ## Next
 
 - [x] All eight parts modeled
-- [ ] Full assembly
+- [x] Full assembly
 - [ ] Motion study
