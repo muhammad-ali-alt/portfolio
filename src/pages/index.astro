@@ -35,10 +35,11 @@ const [lead, ...rest] = featured;
           { u: 0.63, v: 0.66, dx: 120, dy: -36, label: 'Column + pin joints', sub: 'legs take the load' },
         ]} />
         {home.heroVideoMobile && (
-          <video class="cover-video" data-src={home.heroVideoMobile} muted loop playsinline preload="none" aria-hidden="true"></video>
+          <video class="cover-video" data-src={home.heroVideoMobile} poster={home.heroVideoMobile.replace(/\.mp4$/, '.jpg')} muted loop playsinline preload="none" aria-hidden="true"></video>
         )}
         <div class="cover-shade" aria-hidden="true"></div>
-        {home.heroCredit && <p class="cover-credit mono">{home.heroCredit}</p>}
+        {home.heroCredit && <p class:list={['cover-credit mono', { 'is-desktop': home.heroVideoMobile && home.heroVideoCredit }]}>{home.heroCredit}</p>}
+        {home.heroVideoMobile && home.heroVideoCredit && <p class="cover-credit cover-credit-phone mono">{home.heroVideoCredit}</p>}
       </>
     )}
     <div class="wrap cover-inner">
@@ -192,7 +193,7 @@ const [lead, ...rest] = featured;
   if (video && matchMedia('(max-width: 760px)').matches) {
     video.src = video.dataset.src!;
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'off';
-    if (calm) video.addEventListener('loadeddata', () => video.pause(), { once: true });
+    if (calm) video.addEventListener('loadeddata', () => { video.pause(); video.currentTime = 1.6; }, { once: true });
     else video.play().catch(() => {});
   }
   // Live dimension under the name: measures the real width of the
@@ -256,6 +257,13 @@ const [lead, ...rest] = featured;
   }
   /* Phones with a cover video: the video replaces the mosaic */
   .cover-video { display: none; }
+  .cover-credit-phone { display: none; }
+  @media (max-width: 760px) {
+    .cover-credit-phone { display: block; }
+    .cover-credit.is-desktop { display: none; }
+    /* the video is already dark: lighter shade so the car still shows */
+    .cover-bleed:has(.cover-video) .cover-shade { background: linear-gradient(180deg, rgb(12 13 13 / 0.3), rgb(12 13 13 / 0.45) 35%, rgb(12 13 13 / 0.66) 70%, rgb(12 13 13 / 0.5)); }
+  }
   @media (max-width: 760px) {
     .cover-video { display: block; position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; }
     .cover-bleed:has(.cover-video) :global(.pond) { display: none; }
