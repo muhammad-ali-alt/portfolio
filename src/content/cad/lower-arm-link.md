@@ -4,7 +4,7 @@ number: C-010
 kind: Part
 series: Desktop Robotic Arm
 summary: The lower arm link for the six axis desktop robotic arm, the seventh finished part of MA-004.
-date: 2026-11-27  # PLACEHOLDER: the real date you modeled it
+date: 2026-11-27
 software: SolidWorks
 purpose: Structural link of the lower arm.
 model: /models/lower-arm-link.glb
@@ -20,4 +20,4 @@ stats:
 
 Measured from the STL export: **198.6 cm³** of material. Modeled following the CADelics 6-Axis Robotic Arm Series tutorial.
 
-PLACEHOLDER: Which joints the link connects, and how it carries the load.
+It sits on the base turret at the bottom and carries the elbow bolt circle at the top. It is the biggest part, at 198.6 cm³, because it carries the weight of everything above it.

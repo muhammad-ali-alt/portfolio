@@ -2,7 +2,7 @@
 title: Over Terrain Vehicle Assembly
 number: C-002
 kind: Assembly
-summary: Full assembly of the ENES100 autonomous vehicle, with mecanum wheels, electronics deck and crane arm. CAD by a teammate; I printed the parts and cut the chassis.
+summary: Full assembly of the ENES100 autonomous vehicle, with mecanum wheels, electronics deck and crane arm. CAD by Sierra Stamper. I printed the parts and cut the chassis.
 date: 2025-11-01  # approximate
 software: Onshape
 purpose: Team CAD for the ENES100 Over Terrain Vehicle.
@@ -21,6 +21,6 @@ stats:
   envelope: about 355 × 233 × 229 mm
 ---
 
-PLACEHOLDER: Teammate's name goes here as the CAD author, once they say it's OK to post.
+CAD by Sierra Stamper. I printed the parts and cut the chassis.
 
 185 part instances built from 72 unique parts. The web version was compressed from 17.4 MB to under 400 KB.

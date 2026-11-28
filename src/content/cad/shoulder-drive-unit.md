@@ -4,7 +4,7 @@ number: C-008
 kind: Part
 series: Desktop Robotic Arm
 summary: The shoulder drive unit for the six axis desktop robotic arm, the fifth finished part of MA-004.
-date: 2026-11-26  # PLACEHOLDER: the real date you modeled it
+date: 2026-11-26
 software: SolidWorks
 purpose: Drives the shoulder joint of the robotic arm.
 model: /models/shoulder-drive-unit.glb
@@ -20,4 +20,4 @@ stats:
 
 Measured from the STL export: **38.6 cm³** of material. Modeled following the CADelics 6-Axis Robotic Arm Series tutorial.
 
-PLACEHOLDER: What drives the shoulder, and which parts it connects.
+It connects the upper arm link to the rotary yoke joint.

@@ -12,4 +12,4 @@ summary: The rear wheel mount did not fit, and sanding was not the fix.
 
 **What fixed it.** Changing the part and printing again. It took five prints to get a mount that fit.
 
-**Lesson.** PLACEHOLDER: what you would check before the first print next time.
+**Lesson.** Measure the parts the mount attaches to and print a thin test piece first, before printing the full mount.

@@ -4,7 +4,7 @@ number: C-012
 kind: Assembly
 series: Desktop Robotic Arm
 summary: The full six axis desktop robotic arm, all eight parts assembled, about 287 mm tall.
-date: 2026-11-27  # PLACEHOLDER: the real date you finished the assembly
+date: 2026-11-27
 software: SolidWorks
 purpose: Final assembly of MA-004.
 model: /models/robotic-arm-assembly.glb
@@ -23,4 +23,4 @@ stats:
 
 Nine components: the base, shoulder drive unit, lower and upper arm links, rotary yoke joint, wrist module, gripper actuator, and two gripper jaws. Modeled following the CADelics 6-Axis Robotic Arm Series tutorial.
 
-PLACEHOLDER: How the joints move together, and what you would change next.
+The base holds the arm and the lower arm link turns on top of it, then the upper arm link pivots at the elbow, and the wrist and gripper sit at the end. If I built it again, I would cut material out of the lower arm link. At 198.6 cm³ it is about a third of the whole arm.

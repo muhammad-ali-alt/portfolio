@@ -16,8 +16,8 @@ model: /models/otv.glb
 modelPoster: ./cover.png
 modelOrientation: 0deg -90deg 0deg
 modelOrbit: 135deg 68deg 95%
-credit: ENES100 Introduction to Engineering Design, University of Maryland, Fall 2025. Team Builders, eight members. The CAD models were made by a teammate.
-overview: The Over Terrain Vehicle had to drive itself through an obstacle course, read a duty cycle signal, detect whether a puck was magnetic, and lift the puck with a crane. The CAD came from a teammate; my job was turning those models into parts that actually fit and worked.
+credit: ENES100 Introduction to Engineering Design, University of Maryland, Fall 2025. Team Builders, eight members. The CAD models were made by teammate Sierra Stamper.
+overview: The Over Terrain Vehicle had to drive itself through an obstacle course, read a duty cycle signal, detect whether a puck was magnetic, and lift the puck with a crane. The CAD came from teammate Sierra Stamper, and my job was turning those models into parts that actually fit and worked.
 role: Fabrication and propulsion on an eight person team.
 contributions:
   - Printed every 3D printed part on the vehicle
@@ -43,4 +43,4 @@ The full notes are in the notebook: [five prints for one wheel mount](/notebook/
 
 ## What I took from it
 
-PLACEHOLDER: One or two sentences in your own words. What would you do differently on the next team build?
+Check fit in CAD against the real parts before printing, and debug one cause at a time. The drift only made sense once the blocked motor was fixed.

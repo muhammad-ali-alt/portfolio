@@ -2,7 +2,7 @@
 title: Desktop Robotic Arm
 number: MA-004
 summary: A six axis desktop robotic arm modeled in SolidWorks, about 287 mm tall, built from eight parts I modeled one at a time and then assembled.
-date: 2026-11-01  # PLACEHOLDER: the real date you started
+date: 2026-11-23
 status: In progress
 context: Personal
 category: Engineering Design
@@ -35,45 +35,45 @@ contributions:
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
   - rev: A
-    date: 2026-11-01   # PLACEHOLDER date
+    date: 2026-11-23
     note: Gripper Jaw modeled.
   - rev: B
-    date: 2026-11-24   # PLACEHOLDER date
+    date: 2026-11-24
     note: Gripper Actuator modeled.
   - rev: C
-    date: 2026-11-25   # PLACEHOLDER date
+    date: 2026-11-25
     note: Wrist Module modeled.
   - rev: D
-    date: 2026-11-25   # PLACEHOLDER date
+    date: 2026-11-25
     note: Rotary Yoke Joint modeled.
   - rev: E
-    date: 2026-11-26   # PLACEHOLDER date
+    date: 2026-11-26
     note: Shoulder Drive Unit modeled.
   - rev: F
-    date: 2026-11-27   # PLACEHOLDER date
+    date: 2026-11-27
     note: Upper Arm Link modeled.
   - rev: G
-    date: 2026-11-27   # PLACEHOLDER date
+    date: 2026-11-27
     note: Lower Arm Link modeled.
   - rev: H
-    date: 2026-11-27   # PLACEHOLDER date
+    date: 2026-11-27
     note: Base modeled. All eight parts complete.
   - rev: I
-    date: 2026-11-27   # PLACEHOLDER date
+    date: 2026-11-27
     note: Full assembly, nine components.
 ---
 
 ## Objective
 
-PLACEHOLDER: One or two sentences. What should the arm do when it is finished? How many joints, what reach, what should it pick up?
+Learn SolidWorks part modeling and assemblies by building a complete six axis desktop arm, one part at a time. The goal is a full assembly that could be 3D printed and motorized later.
 
 ## Starting point
 
-PLACEHOLDER: I am building this by following a tutorial series, then changing it. Write down here which parts follow the tutorial and which parts are your own decisions. Recruiters respect an honest "I learned this from X, then I changed Y because Z" much more than a copied model with no explanation.
+I followed the CADelics 6 axis robotic arm series for the geometry of all eight parts. The modeling is the tutorial's design. My work was building it, assembling it, and documenting it, which meant measuring every part, explaining why features like the captive nut and serrated teeth exist, and building the interactive 3D page.
 
 ## Assembly
 
-PLACEHOLDER: How the joints move together, and one thing you would change if you built it again.
+The base holds the arm and the lower arm link turns on top of it, then the upper arm link pivots at the elbow, and the wrist and gripper sit at the end. If I built it again, I would cut material out of the lower arm link. At 198.6 cm³ it is about a third of the whole arm.
 
 ## Parts
 
@@ -97,50 +97,50 @@ All eight parts, in the order they were modeled. Together they use about 578 cm�
 **How it works.** The body is one extrusion with shaping cuts mirrored for symmetry, a pivot hole at the base, and two linear patterns: the slots and the teeth.
 
 - **Hex pocket.** A hex nut sits inside and can't rotate, so the bolt can be tightened from the other side with one tool. This is called a captive nut.
-- **Three slots.** They cut material and weight, which also means a shorter print and less filament. PLACEHOLDER: confirm against the tutorial whether they have another purpose.
+- **Three slots.** They cut material and weight, which also means a shorter print and less filament.
 - **Serrated teeth.** They put the same grip force onto a much smaller area, so the pressure goes up and the teeth dig in slightly. That locks the object in place instead of relying only on friction, which (F = μN) doesn't depend on contact area.
 
 ### 2. Gripper Actuator
 
 **Role.** Drives the gripper jaws.
 
-**How it works.** PLACEHOLDER: How the actuator moves the jaws, and how it connects to the jaw's pivot hole.
+**How it works.** It holds both jaws at their pivot holes and rotates the gripper into the best position to pick things up.
 
 ### 3. Wrist Module
 
 **Role.** The wrist joint between the arm and the gripper.
 
-**How it works.** PLACEHOLDER: What motion the wrist gives the arm, and how it connects to the gripper actuator.
+**How it works.** It connects the gripper actuator to the rest of the arm and tilts the gripper up and down through more than 180 degrees.
 
 ### 4. Rotary Yoke Joint
 
 **Role.** A rotary joint in the arm.
 
-**How it works.** PLACEHOLDER: Which axis this joint rotates about, and which parts it connects.
+**How it works.** A U shaped yoke that holds the wrist between its two arms, so the wrist can pivot on a pin through both sides.
 
 ### 5. Shoulder Drive Unit
 
 **Role.** Drives the shoulder joint.
 
-**How it works.** PLACEHOLDER: What drives the shoulder, and which parts it connects.
+**How it works.** It connects the upper arm link to the rotary yoke joint.
 
 ### 6. Upper Arm Link
 
 **Role.** The structural link of the upper arm.
 
-**How it works.** PLACEHOLDER: Which joints the link connects, and how it carries the load.
+**How it works.** It runs from the elbow to the shoulder drive unit. The scalloped edges cut weight while the thick side walls keep it stiff when it bends.
 
 ### 7. Lower Arm Link
 
 **Role.** The structural link of the lower arm.
 
-**How it works.** PLACEHOLDER: Which joints the link connects, and how it carries the load.
+**How it works.** It sits on the base turret at the bottom and carries the elbow bolt circle at the top. It is the biggest part, at 198.6 cm³, because it carries the weight of everything above it.
 
 ### 8. Base
 
 **Role.** Holds the arm upright and carries the first rotating joint.
 
-**How it works.** PLACEHOLDER: How the base rotates, and how the lower arm link mounts to it.
+**How it works.** Four feet spread the load so the arm doesn't tip. The lower arm link's ring sits on top and turns around the center pin.
 
 ## Next
 

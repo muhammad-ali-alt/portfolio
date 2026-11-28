@@ -29,4 +29,4 @@ credit: Terps Racing Baja SAE, powertrain subteam, University of Maryland.
 
 ## Next
 
-PLACEHOLDER: Fill in as decisions are made. The first CAD, the latch choice and why, and any numbers (mass, clearances, packaging envelope) belong here.
+Choose between the push hook and opposing tension latch, choose the material, then make the first CAD of the two half case.

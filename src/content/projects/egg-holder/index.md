@@ -39,10 +39,10 @@ specs:
   - { label: Capacity, value: 4 eggs }
 revisions:
   - rev: A
-    date: 2026-11-24  # PLACEHOLDER: the real date you made this version
+    date: 2026-11-24
     note: Lightweight version. Solid outer wall replaced with two rings joined by vertical struts.
   - rev: B
-    date: 2026-11-24  # PLACEHOLDER: the real date you made this version
+    date: 2026-11-24
     note: Full version. Solid wall all the way around, to compare sturdiness.
 credit: Terps Rockets, liquids subteam, University of Maryland.
 ---
@@ -80,10 +80,10 @@ The lightweight version uses **55% less material**. The question the two version
 
 Both are rotatable in 3D at the top of this page, and in the CAD library: [lightweight](/cad/egg-holder-light/), [full](/cad/egg-holder-full/).
 
-PLACEHOLDER: Which version you picked and why, once you have print weights or drop test results.
+I have not picked one yet. Next I will print both, weigh them, and drop test them from the same height to see if the full wall's extra stiffness is worth more than double the mass.
 
 ## Design thinking
 
 An egg breaks when force is concentrated on a small area of the shell. That makes this the opposite problem from a gripper's serrated teeth (see the [robotic arm](/work/robotic-arm/)): the holder should spread the load over as much of the shell as possible to keep the pressure low.
 
-PLACEHOLDER: How the prototype holds each egg, what you changed from the original CAD, and test results once you have them.
+Each egg rests in its own circular cutout in the center plate, so it can't slide into the others. A newer version adds a hole through the middle for a rod, which is part of the rocket, to pass through. The team is still working out how to fit as many eggs as possible.
