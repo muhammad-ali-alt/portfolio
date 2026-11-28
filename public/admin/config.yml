@@ -155,6 +155,7 @@ collections:
           - { label: Label, name: label, widget: string }
           - { label: URL, name: url, widget: string }
           - { label: Kind, name: kind, widget: select, options: [GitHub, Docs, Demo, Video, Paper, Other], default: Other }
+      - { label: 'Explore: photo for the callouts', name: hotspotsImage, widget: image, required: false, hint: 'Optional. A photo to put the callout markers on. Uses the cover image if empty.' }
       - label: 'Explore: callouts on the cover image'
         name: hotspots
         widget: list

@@ -14,6 +14,17 @@ cover: ./cover.png
 coverAlt: The Over Terrain Vehicle assembly, with mecanum wheels, electronics deck, crane mast and arms
 model: /models/otv.glb
 modelPoster: ./cover.png
+hotspotsImage: /uploads/otv/otv-closeup.jpg
+hotspots:
+  - { x: 0.71, y: 0.27, label: Mecanum wheels, body: "Rollers set at 45 degrees let the vehicle slide sideways and drive in any direction without turning first." }
+  - { x: 0.28, y: 0.56, label: Ultrasonic sensor, body: "Measures the distance to obstacles so the vehicle can find its way through the course on its own." }
+  - { x: 0.47, y: 0.42, label: Motor drivers, body: "Boards that take signals from the microcontroller and power the drive motors." }
+  - { x: 0.52, y: 0.15, label: Battery pack, body: "The 12 V pack that powers the motors." }
+  - { x: 0.31, y: 0.25, label: Crane mast, body: "The mast for the crane that lifts the puck." }
+  - { x: 0.58, y: 0.52, label: Drive motor, body: "One of the drive motors. A blocked drive motor dragged a wheel and pulled the vehicle into right angle turns, so I redesigned the motor mount and the wheel to shaft connection." }
+gallery:
+  - { src: /uploads/otv/otv-side.jpg, kind: Photo, caption: "The finished vehicle in the lab." }
+  - { src: /uploads/otv/otv-front.jpg, kind: Photo, caption: "Head on view, with the electronics deck and the mecanum wheels behind the crane mast." }
 modelOrientation: 0deg -90deg 0deg
 modelOrbit: 135deg 68deg 95%
 credit: ENES100 Introduction to Engineering Design, University of Maryland, Fall 2025. Team Builders, eight members. The CAD models were made by teammate Sierra Stamper.

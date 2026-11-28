@@ -114,6 +114,7 @@ const projects = defineCollection({
 
       // ── explorers for non 3D work ──
       // annotated image: markers on the cover (x, y from 0 to 1) that open a panel
+      hotspotsImage: z.string().optional(), // a photo for the callouts; the cover is used if empty
       hotspots: z.array(z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1), label: z.string(), body: z.string().default(''), image: img(image).optional() })).default([]),
       // build stages or a walkthrough, stepped through in order
       stages: z.array(z.object({ title: z.string(), body: z.string().default(''), image: img(image).optional(), caption: z.string().optional() })).default([]),

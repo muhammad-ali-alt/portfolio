@@ -14,7 +14,7 @@ const d = project.data;
 {v.extras.map((k) => (
   <section class="explore">
     <div class="section-head"><span class="label">Explore</span><h2 id={`x-${k}`}>{EXPLORE_TITLES[k as keyof typeof EXPLORE_TITLES]}</h2><span></span></div>
-    {k === 'annotated' && <AnnotatedViewer src={v.cover!} alt={d.coverAlt ?? d.title} number={d.number} title={d.title} spots={v.hotspots} />}
+    {k === 'annotated' && <AnnotatedViewer src={v.calloutImage!} alt={d.hotspotsImage ? `${d.title}, photo of the build` : d.coverAlt ?? d.title} number={d.number} title={d.title} spots={v.hotspots} />}
     {k === 'stages' && <StagesViewer number={d.number} title={d.title} stages={v.stages} />}
     {k === 'software' && <SoftwareViewer number={d.number} title={d.title} screens={v.screens} snippets={v.snippets} demo={d.demo} />}
     {k === 'data' && <DataViewer number={d.number} title={d.title} charts={v.charts} />}

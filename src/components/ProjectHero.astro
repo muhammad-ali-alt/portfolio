@@ -19,7 +19,7 @@ const d = project.data;
   {v.hero === 'assembly' && v.assembly && <AssemblyViewer src={d.model!} poster={poster} number={d.number} title={d.title} orbit={d.modelOrbit} tools={d.tools} parts={v.assembly.parts} center={v.assembly.center} explode={d.explode} />}
   {v.hero === 'model' && <ModelViewer src={d.model!} alt={`3D model of ${d.title}`} number={d.number} orientation={d.modelOrientation} orbit={d.modelOrbit} poster={poster} />}
   {v.hero === 'compare' && <PartsCarousel parts={d.models} number={d.number} title={d.title} />}
-  {v.hero === 'annotated' && <AnnotatedViewer src={v.cover!} alt={d.coverAlt ?? d.title} number={d.number} title={d.title} spots={v.hotspots} />}
+  {v.hero === 'annotated' && <AnnotatedViewer src={v.calloutImage!} alt={d.hotspotsImage ? `${d.title}, photo of the build` : d.coverAlt ?? d.title} number={d.number} title={d.title} spots={v.hotspots} />}
   {v.hero === 'stages' && <StagesViewer number={d.number} title={d.title} stages={v.stages} />}
   {v.hero === 'software' && <SoftwareViewer number={d.number} title={d.title} screens={v.screens} snippets={v.snippets} demo={d.demo} />}
   {v.hero === 'data' && <DataViewer number={d.number} title={d.title} charts={v.charts} />}
