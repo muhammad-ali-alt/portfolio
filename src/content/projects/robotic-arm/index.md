@@ -2,7 +2,7 @@
 title: Desktop Robotic Arm
 number: MA-004
 summary: A six axis desktop robotic arm modeled in SolidWorks, about 287 mm tall, built from eight parts I modeled one at a time and then assembled.
-date: 2026-11-23
+date: 2026-11-01
 status: In progress
 context: Personal
 category: Engineering Design
@@ -35,7 +35,7 @@ contributions:
 credit: Based on the 6-Axis Robotic Arm Series tutorial by CADelics on YouTube (youtube.com/playlist?list=PLZ_tR6vSrEUxeC8R52mZiqgnymwje6BQU).
 revisions:
   - rev: A
-    date: 2026-11-23
+    date: 2026-11-01
     note: Gripper Jaw modeled.
   - rev: B
     date: 2026-11-24
