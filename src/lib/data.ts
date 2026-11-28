@@ -59,7 +59,7 @@ export const achievements = load('achievements.json', z.object({
 
 // Home page sections: titles, visibility and order. Unknown ids are ignored and
 // missing ones are added back, so the CMS can never break the home page layout.
-const HOME_IDS = ['contents', 'featured', 'fields', 'about'] as const;
+const HOME_IDS = ['glance', 'contents', 'featured', 'fields', 'about'] as const;
 const homeRaw = load('home.json', z.object({
   lede: str, statement: str,
   heroImage: str, heroImageAlt: str, heroArt: z.boolean().default(false), heroCredit: str, heroVideoMobile: str, heroVideoCredit: str, heroImageMobile: str,

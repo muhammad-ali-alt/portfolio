@@ -8,8 +8,9 @@ import remarkMath from 'remark-math';
 import remarkRehype from 'remark-rehype';
 import rehypeKatex from 'rehype-katex';
 import rehypeStringify from 'rehype-stringify';
+import rehypeHidePlaceholders from './hide-placeholders.mjs';
 
-const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMath).use(remarkRehype).use(rehypeKatex).use(rehypeStringify);
+const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMath).use(remarkRehype).use(rehypeKatex).use(rehypeHidePlaceholders).use(rehypeStringify);
 export const md = (text: string | undefined) => (text ? String(processor.processSync(text)) : '');
 /** Inline markdown (for one line strings like the home statement): strips the outer <p>. */
 export const mdInline = (text: string | undefined) => md(text).replace(/^<p>|<\/p>\s*$/g, '');

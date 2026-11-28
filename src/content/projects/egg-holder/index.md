@@ -25,6 +25,15 @@ charts:
         points:
           - { x: Rev A lightweight, y: 38.5 }
           - { x: Rev B full, y: 85.0 }
+overview: FAR-OUT 2026-27 awards payload points for eggs that are launched and returned unbroken, 10 points per egg and up to 500 points. This holder carries four eggs, and it comes in two iterations that answer one question. Is the extra stiffness of a solid wall worth more than double the mass?
+role: Modified the existing egg holder CAD into two iterations, then tuned the print settings and 3D printed a PLA prototype.
+challenges:
+  - challenge: Trade stiffness against mass inside a fixed envelope.
+    solution: Two versions in the same 120.6 × 63.5 × 120.7 mm envelope. One has a solid wall. The other has two rings joined by struts and uses **55% less material** (38.5 vs 85.0 cm³).
+  - challenge: Print a prototype that is strong and fits.
+    solution: Tuned the print settings for strength and fit, 3 perimeters and 20% cubic infill.
+learned:
+  - An egg breaks when force concentrates on a small area of the shell, so a holder should spread the load and keep the pressure low. That is the opposite job from a gripper's serrated teeth.
 specs:
   - { label: Envelope, value: 120.6 × 63.5 × 120.7 mm (both versions) }
   - { label: Capacity, value: 4 eggs }
@@ -37,10 +46,6 @@ revisions:
     note: Full version. Solid wall all the way around, to compare sturdiness.
 credit: Terps Rockets, liquids subteam, University of Maryland.
 ---
-
-## The goal
-
-FAR-OUT 2026-27 awards payload points for eggs that are launched and returned unbroken: **10 points per egg, up to 500 points**.
 
 ## Rules the design has to meet
 

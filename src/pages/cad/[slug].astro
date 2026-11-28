@@ -13,6 +13,8 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
+const first = d.images[0]?.src;
+const ogImage = !first ? undefined : typeof first === 'string' ? first : (await getImage({ src: first, width: 1200, format: 'png' })).src;
 const poster = !d.modelPoster ? undefined : typeof d.modelPoster === 'string' ? d.modelPoster : (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src;
 const project = await linkedProject(d.project);
 const specs = [
@@ -26,7 +28,7 @@ const specs = [
   ['Formats', d.formats.join(', ')],
 ].filter(([, v]) => v);
 ---
-<Base title={d.title} description={d.summary} sheet={`${d.number} · ${d.title}`}>
+<Base title={d.title} description={d.summary} sheet={`${d.number} · ${d.title}`} image={ogImage} type="article">
   <article class="wrap">
     <header class="head">
       <a class="label back" href="/cad/">← CAD library</a>

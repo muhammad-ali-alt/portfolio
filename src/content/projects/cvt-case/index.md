@@ -9,6 +9,8 @@ category: Engineering Design
 disciplines: [Mechanical Design, Manufacturing]
 tools: [SolidWorks]
 featured: true
+overview: The case around the continuously variable transmission on the Terps Racing Baja car is being redesigned for tighter mounting, faster maintenance access, and a detachable layout that splits into two halves. The project is in the research stage.
+role: Researching the redesign as a member of the powertrain subteam.
 credit: Terps Racing Baja SAE, powertrain subteam, University of Maryland.
 ---
 

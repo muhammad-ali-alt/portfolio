@@ -14,10 +14,20 @@ interface Props {
   sheet: string; // which "sheet" of the site this is, shown in the footer title block
   admin?: boolean; // admin pages: hidden from search engines, no closing section
   hero?: boolean; // home page: the header sits over a full bleed cover
+  image?: string; // link preview image (LinkedIn, Slack, iMessage); defaults to /og.jpg
+  type?: 'website' | 'article';
 }
-const { title, description = site.description, sheet, admin = false, hero = false } = Astro.props;
-const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}, ${site.school}`;
+const { title, description = site.description, sheet, admin = false, hero = false, image = '/og.jpg', type = 'website' } = Astro.props;
 const path = Astro.url.pathname;
+const ogImage = new URL(image, Astro.site).href;
+const pageUrl = new URL(path, Astro.site).href;
+// Who this site is about, for search engines
+const person = path === '/' ? JSON.stringify({
+  '@context': 'https://schema.org', '@type': 'Person', name: site.name, url: new URL('/', Astro.site).href, image: ogImage,
+  jobTitle: `${site.role} student`, email: `mailto:${site.email}`, sameAs: site.links.filter((l) => l.href).map((l) => l.href),
+  alumniOf: { '@type': 'CollegeOrUniversity', name: site.school }, knowsAbout: ['Mechanical design', 'SolidWorks', '3D printing', 'Fabrication', 'MATLAB', 'Python'],
+}) : null;
+const fullTitle = title ? `${title} · ${site.name}` : `${site.name} · ${site.role}, ${site.school}`;
 
 const nav = [
   { n: '01', label: 'Work', href: '/work/' },
@@ -45,6 +55,17 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
     {admin && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="author" content={site.name} />
+    <link rel="sitemap" href="/sitemap.xml" />
+    {person && <script type="application/ld+json" set:html={person} />}
     <meta name="theme-color" content={themeBg} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="canonical" href={new URL(path, Astro.site)} />
@@ -92,10 +113,8 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
               </a>
             </li>
           ))}
-          <li class="nav-studio">
-            <a href="/studio/" aria-current={path.startsWith('/studio') ? 'page' : undefined}>
-              <span class="studio-dot" aria-hidden="true"></span>Customize
-            </a>
+          <li class="nav-cta">
+            <a href={`mailto:${site.email}`}>Contact</a>
           </li>
         </ul>
       </nav>
@@ -145,7 +164,6 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
             <span>{site.name}, {site.school}</span>
           </div>
         </div>
-        <p class="hint label">Press <kbd>G</kbd> to see the construction grid.</p>
       </div>
     </footer>}
 
@@ -202,14 +220,11 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
   .wordmark:hover { color: inherit; }
 
   nav ul { list-style: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--nav-gap); margin: 0; padding: 0; }
-  .nav-studio { padding-left: var(--nav-gap); border-left: var(--bw) solid var(--rule); }
-  .nav-studio a { font-family: var(--f-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--graphite); align-items: center; }
-  .nav-studio a:hover { color: var(--accent-ink); }
-  .studio-dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    background: conic-gradient(var(--accent) 0 25%, var(--ink) 0 50%, var(--rule) 0 75%, var(--surface) 0);
-    border: var(--bw) solid var(--ink);
-  }
+  /* the one call to action in the header */
+  .nav-cta { padding-left: calc(var(--nav-gap) * 0.5); }
+  .nav-cta a { padding: 8px 16px; border-radius: var(--radius-btn, 999px); background: var(--accent); color: var(--on-accent); border: 0; align-items: center; }
+  .nav-cta a:hover { background: var(--ink); color: var(--paper); }
+  .nav-cta a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   nav a {
     font-family: var(--f-heading);
     font-size: 0.95rem;
@@ -224,7 +239,7 @@ const themeBg = (publishedSettings.scheme === 'dark' ? publishedSettings.darkCol
   @media (max-width: 560px) {
     .wm-text .label { display: none; }
     nav ul { gap: 2px 14px; }
-    .nav-studio { padding-left: 0; border-left: 0; }
+    .nav-cta { display: none; } /* phones: the cover and every page footer already have contact buttons */
     nav a { font-size: 0.88rem; }
     .nav-n { display: none; }
   }

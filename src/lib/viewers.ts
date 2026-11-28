@@ -98,8 +98,8 @@ export function pageHeadings(d: Data) {
   return [
     d.overview && { slug: 'c-overview', text: 'Overview' },
     (d.role || d.contributions.length) && { slug: 'c-role', text: 'My role' },
-    d.challenges.length && { slug: 'c-challenges', text: 'Challenges' },
     d.learned.length && { slug: 'c-learned', text: 'What I learned' },
+    d.challenges.length && { slug: 'c-challenges', text: 'Challenges' },
     ...p.extras.map((k) => ({ slug: `x-${k}`, text: EXPLORE_TITLES[k as keyof typeof EXPLORE_TITLES] })),
   ].filter(Boolean) as { slug: string; text: string }[];
 }

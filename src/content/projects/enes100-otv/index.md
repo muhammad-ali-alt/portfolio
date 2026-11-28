@@ -17,36 +17,30 @@ modelPoster: ./cover.png
 modelOrientation: 0deg -90deg 0deg
 modelOrbit: 135deg 68deg 95%
 credit: ENES100 Introduction to Engineering Design, University of Maryland, Fall 2025. Team Builders, eight members. The CAD models were made by a teammate.
+overview: The Over Terrain Vehicle had to drive itself through an obstacle course, read a duty cycle signal, detect whether a puck was magnetic, and lift the puck with a crane. The CAD came from a teammate; my job was turning those models into parts that actually fit and worked.
+role: Fabrication and propulsion on an eight person team.
+contributions:
+  - Printed every 3D printed part on the vehicle
+  - Laser cut and drilled the chassis
+  - Worked on the propulsion system
+challenges:
+  - challenge: The rear wheel mounts didn't fit.
+    solution: Sanding the first print did not fix it, so I adjusted the design and printed it again. It took **five prints** to get a mount that fit properly.
+  - challenge: The vehicle would not drive straight.
+    solution: I worked through it one cause at a time. A blocked drive motor was dragging one wheel, so I redesigned the motor mount and the wheel to shaft connection. The drift that was left came from the two motors running at different speeds.
+learned:
+  - Fixing the obvious problem first made the smaller one visible.
+
 ---
 
-## Mission
-
-The Over Terrain Vehicle had to drive itself through an obstacle course, read a duty cycle signal, detect whether a puck was magnetic, and lift the puck with a crane.
-
-## My role
-
-- Printed every 3D printed part on the vehicle
-- Laser cut and drilled the chassis
-- Worked on the propulsion system
-
-The CAD models were made by a teammate. My work was turning those models into parts that actually fit and worked.
-
-## Problem 1: the rear wheel mounts didn't fit
-
-The first rear wheel mount print did not fit. Sanding it down did not fix it, so I adjusted the design and printed it again. It took **five prints** to get a mount that fit properly.
-
-## Problem 2: the vehicle drifted
-
-During testing the vehicle would not drive straight. I worked through it one cause at a time:
+## Debugging the drift, step by step
 
 1. **Found a blocked drive motor.** It was dragging one wheel and pulling the vehicle into right angle turns.
 2. **Redesigned the motor mount and the wheel to shaft connection** so the motor turned freely.
 3. **Traced the remaining drift to unequal motor speeds.** With the mechanical problem gone, the leftover drift came from the two motors not spinning at the same speed.
 
+The full notes are in the notebook: [five prints for one wheel mount](/notebook/2025-10-15-wheel-mount-five-prints/) and [tracing why the vehicle drifted](/notebook/2025-11-10-tracing-vehicle-drift/).
+
 ## What I took from it
 
 PLACEHOLDER: One or two sentences in your own words. What would you do differently on the next team build?
-
-<!-- Photos: add any pictures of the vehicle, the chassis or the printed mounts to this folder,
-then reference them like this:  ![Rear wheel mount, print 5](./mount.jpg)
-and set `cover: ./your-photo.jpg` at the top. -->

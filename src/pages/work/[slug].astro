@@ -28,6 +28,8 @@ const { Content, headings } = await render(project);
 const poster = !d.modelPoster ? undefined : isUpload(d.modelPoster) ? d.modelPoster : (await getImage({ src: d.modelPoster, width: 1400, format: 'webp' })).src;
 // How this project is presented (src/lib/viewers.ts) and the data its viewers need
 const v = await prepare(project);
+// link preview image: the project's cover (PNG keeps transparent renders clean)
+const ogImage = d.cover ? (typeof d.cover === 'string' ? d.cover : (await getImage({ src: d.cover, width: 1200, format: 'png' })).src) : undefined;
 // Sections added in the CMS come first, then any write up in the body.
 const slugify = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const sections = d.sections.map((s) => ({ ...s, slug: `s-${slugify(s.title)}`, html: md(s.body) }));
@@ -36,7 +38,7 @@ const relatedCad = (await getCad()).filter((c) => c.data.project === project.id)
 const relatedNotes = (await getNotebook()).filter((n) => n.data.project === project.id);
 const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
 ---
-<Base title={d.title} description={d.summary} sheet={`${d.number} · ${d.title}`}>
+<Base title={d.title} description={d.summary} sheet={`${d.number} · ${d.title}`} image={ogImage} type="article">
   <article class="wrap">
     <header class="p-head" data-edit={edit} data-edit-label="Edit project">
       <a class="back label" href="/work/">← Index of work</a>
@@ -142,13 +144,13 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
     <!-- Switch between projects without going back to the index -->
     {all.length > 1 && (
       <nav class="switch" aria-label="Other projects">
-        <a class="switch-end" href={`/work/${prev.id}/`} rel="prev"><span aria-hidden="true">←</span><span class="label">Previous</span></a>
+        <a class="switch-end" href={`/work/${prev.id}/`} rel="prev" aria-label={`Previous project: ${prev.data.title}`}><span aria-hidden="true">←</span><span class="label">Previous</span></a>
         <ol>
           {all.map((p) => (
             <li><a href={`/work/${p.id}/`} aria-current={p.id === project.id ? 'page' : undefined} title={p.data.title}><span class="mono">{p.data.number}</span><span class="t">{p.data.title}</span>{plan(p.data).hero === 'assembly' && <span class="dot" aria-label="interactive 3D"></span>}</a></li>
           ))}
         </ol>
-        <a class="switch-end" href="/work/"><span class="label">All work</span></a>
+        <a class="switch-end" href="/work/" aria-label="All work"><span class="label">All work</span></a>
       </nav>
     )}
 
@@ -194,6 +196,7 @@ const edit = `/admin/#/collections/projects/entries/${project.id}/index`;
   @media (max-width: 760px) {
     .tblock { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .tblock .wide { grid-column: span 2; grid-template-columns: 1fr; }
+    .tblock > div:nth-child(5) { grid-column: span 2; }
   }
 
   .hero > :global(.mv) + .parts { margin-top: clamp(32px, 5vw, 64px); }

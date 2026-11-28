@@ -23,7 +23,7 @@ const d = project.data;
   {v.hero === 'stages' && <StagesViewer number={d.number} title={d.title} stages={v.stages} />}
   {v.hero === 'software' && <SoftwareViewer number={d.number} title={d.title} screens={v.screens} snippets={v.snippets} demo={d.demo} />}
   {v.hero === 'data' && <DataViewer number={d.number} title={d.title} charts={v.charts} />}
-  {!v.hero && <Plate src={undefined} number={d.number} ratio="21 / 9" />}
+  {!v.hero && <Plate src={undefined} number={d.number} ratio="6 / 1" />}
   {v.hero === 'image' && <Plate src={d.cover} alt={d.coverAlt} number={d.number} ratio="auto" eager sizes="100vw" />}
 
   {v.carousel && (

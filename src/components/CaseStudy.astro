@@ -6,6 +6,7 @@ import { mdInline } from '../lib/markdown';
 interface Props { project: CollectionEntry<'projects'> }
 const d = Astro.props.project.data;
 const ICON: Record<string, string> = { GitHub: '⌥', Docs: '¶', Demo: '▶', Video: '▶', Paper: '§', Other: '↗' };
+const hasRole = !!(d.role || d.contributions.length), pair = hasRole && d.learned.length > 0;
 const any = !!(d.overview || d.role || d.contributions.length || d.challenges.length || d.learned.length || d.links.length);
 ---
 {any && (
@@ -17,10 +18,16 @@ const any = !!(d.overview || d.role || d.contributions.length || d.challenges.le
       </div>
     )}
     {(d.role || d.contributions.length > 0) && (
-      <div class="c-block">
+      <div class:list={['c-block', pair ? 'c-left' : 'c-full']}>
         <h2 class="label" id="c-role">My role</h2>
         {d.role && <p class="c-role" set:html={mdInline(d.role)} />}
         {d.contributions.length > 0 && <ul class="c-list">{d.contributions.map((c) => <li set:html={mdInline(c)} />)}</ul>}
+      </div>
+    )}
+    {d.learned.length > 0 && (
+      <div class:list={['c-block', pair ? 'c-right' : 'c-full']}>
+        <h2 class="label" id="c-learned">What I learned</h2>
+        <ul class="c-list">{d.learned.map((c) => <li set:html={mdInline(c)} />)}</ul>
       </div>
     )}
     {d.challenges.length > 0 && (
@@ -36,14 +43,8 @@ const any = !!(d.overview || d.role || d.contributions.length || d.challenges.le
         </ol>
       </div>
     )}
-    {d.learned.length > 0 && (
-      <div class="c-block">
-        <h2 class="label" id="c-learned">What I learned</h2>
-        <ul class="c-list">{d.learned.map((c) => <li set:html={mdInline(c)} />)}</ul>
-      </div>
-    )}
     {d.links.length > 0 && (
-      <div class="c-block">
+      <div class="c-block c-full">
         <h2 class="label">Links</h2>
         <ul class="c-links">{d.links.map((l) => <li><a class="btn" href={l.url} target={/^https?:/.test(l.url) ? '_blank' : undefined} rel="noopener"><span aria-hidden="true">{ICON[l.kind]}</span> {l.label}<span class="visually-hidden"> ({l.kind})</span></a></li>)}</ul>
       </div>
@@ -54,8 +55,9 @@ const any = !!(d.overview || d.role || d.contributions.length || d.challenges.le
 <style>
   .case { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; margin: 0 0 clamp(32px, 5vw, 64px); border-top: calc(var(--bw) * 1.5) solid var(--ink); }
   .c-block { padding: 18px 20px 20px 0; border-bottom: var(--bw) solid var(--rule); min-width: 0; }
-  .c-block:nth-child(2n) { padding-left: 20px; border-left: var(--bw) solid var(--rule); }
-  .c-over, .c-wide { grid-column: 1 / -1; padding-left: 0 !important; border-left: 0 !important; }
+  .c-over, .c-wide, .c-full { grid-column: 1 / -1; }
+  .c-left { padding-right: 24px; }
+  .c-right { padding-left: 24px; border-left: var(--bw) solid var(--rule); }
   .c-block h2.label { margin: 0 0 10px; font-size: 0.72rem; }
   .c-lead { margin: 0; max-width: 62ch; font-size: clamp(1.05rem, 1rem + 0.3vw, 1.25rem); line-height: 1.5; }
   .c-role { margin: 0 0 10px; font-family: var(--f-heading); font-weight: 550; }
@@ -64,11 +66,12 @@ const any = !!(d.overview || d.role || d.contributions.length || d.challenges.le
   .c-ch li { display: grid; grid-template-columns: 2.2rem 1fr; gap: 6px; }
   .c-ch .n { color: var(--accent-ink); font-size: 0.85rem; padding-top: 2px; }
   .c-q { margin: 0 0 6px; font-family: var(--f-heading); font-weight: 600; }
-  .c-a { margin: 0; color: var(--graphite); }
+  .c-a { margin: 0; color: var(--ink); }
+  .c-a .label { margin-right: 4px; color: var(--accent-ink); }
   .c-links { list-style: none; margin: 0; padding: 0; display: flex; gap: 8px; flex-wrap: wrap; }
   .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   @media (max-width: 760px) {
     .case { grid-template-columns: 1fr; }
-    .c-block:nth-child(2n) { padding-left: 0; border-left: 0; }
+    .c-left, .c-right { grid-column: 1 / -1; padding-left: 0; padding-right: 0; border-left: 0; }
   }
 </style>

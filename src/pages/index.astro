@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Plate from '../components/Plate.astro';
 import ProfileCard from '../components/ProfileCard.astro';
 import AsciiPond from '../components/AsciiPond.astro';
-import { site, about, home, homeSection } from '../lib/data';
+import { site, about, home, homeSection, education, experience, skills } from '../lib/data';
 import { mdInline } from '../lib/markdown';
 import { getProjects, getFeatured, getToolUsage, getCad, getNotebook, fmtMonth } from '../lib/content';
 
@@ -23,6 +23,16 @@ const contents = [
   { n: '05', title: 'About', href: '/about/', desc: 'Who is behind the work', count: null },
 ];
 const [lead, ...rest] = featured;
+
+// "At a glance": everything a recruiter needs in one screen, all from the site's own data
+const school = education[0];
+const teams = experience.filter((e) => e.type === 'Team');
+const toolGroups = skills.filter((g) => ['Design', 'Making', 'Programming and data'].includes(g.group));
+const contact = [
+  { label: 'Email', href: `mailto:${site.email}`, primary: true },
+  ...site.links.filter((l) => l.href).map((l) => ({ label: l.label, href: l.href, primary: false })),
+  ...(site.resume ? [{ label: 'Resume (PDF)', href: site.resume, primary: false }] : []),
+];
 ---
 <Base sheet="00 · Cover" hero={home.heroArt && !!home.heroImage}>
   <!-- COVER ─────────────────────────────────────────── -->
@@ -67,7 +77,14 @@ const [lead, ...rest] = featured;
       </div>
 
       <div class="cover-foot">
-        <p class="lede" data-edit="/admin/#/collections/pages/entries/home" data-edit-label="Edit introduction">{home.lede}</p>
+        <div class="lede-wrap">
+          <p class="lede" data-edit="/admin/#/collections/pages/entries/home" data-edit-label="Edit introduction">{home.lede}</p>
+          <div class="cover-cta">
+            <a class="cta cta-primary" href="/work/">See the work →</a>
+            <a class="cta" href={`mailto:${site.email}`}>Email me</a>
+            {site.resume && <a class="cta" href={site.resume}>Resume</a>}
+          </div>
+        </div>
         {current && (
           <a class="now" href={`/work/${current.id}/`}>
             <span class="label">On the bench now</span>
@@ -85,6 +102,49 @@ const [lead, ...rest] = featured;
   <!-- Home sections: order, titles and visibility come from src/data/home.json (CMS: Site and About, Home page) -->
   {home.sections.filter((sec) => sec.visible).map(({ id }) => (
     <Fragment>
+      {id === 'glance' && (
+  <section class="wrap glance" aria-labelledby="glance-h">
+    <div class="section-head">
+      <span class="label">{homeSection('glance').label}</span>
+      <h2 id="glance-h">{homeSection('glance').title}</h2>
+      <span class="label">{projects.length} projects · {cad.length} CAD models</span>
+    </div>
+    <dl class="glance-grid">
+      <div class="g-cell g-seek">
+        <dt class="label">Looking for</dt>
+        <dd>{site.cta.replace(/^I am looking for an? /i, '').replace(/\.$/, '').replace(/^./, (c) => c.toUpperCase())}</dd>
+      </div>
+      {school && (
+        <div class="g-cell">
+          <dt class="label">Education</dt>
+          <dd><strong>{school.institution}</strong><span>{school.program}{school.field && ` · ${school.field}`}</span><span class="mono">{school.dates}</span></dd>
+        </div>
+      )}
+      {teams.length > 0 && (
+        <div class="g-cell">
+          <dt class="label">Teams</dt>
+          <dd>{teams.map((t) => <span><strong>{t.org.split(',')[0]}</strong>, {t.role.toLowerCase()}</span>)}</dd>
+        </div>
+      )}
+      <div class="g-cell g-tools">
+        <dt class="label">Tools I use</dt>
+        <dd>{toolGroups.map((g) => <span class="g-row"><span class="mono g-k">{g.group}</span><span>{g.items.map((i) => i.name).join(' · ')}</span></span>)}</dd>
+      </div>
+      <div class="g-cell g-contact">
+        <dt class="label">Contact</dt>
+        <dd>{contact.map((c) => <a class:list={['cta', { 'cta-primary': c.primary }]} href={c.href} rel={c.primary ? undefined : 'me'}>{c.label}</a>)}<span class="mono g-mail">{site.email}</span></dd>
+      </div>
+      <div class="g-cell g-work">
+        <dt class="label">Built and documented</dt>
+        <dd>
+          {projects.slice().sort((a, b) => a.data.number.localeCompare(b.data.number)).map((p) => (
+            <a href={`/work/${p.id}/`}><span class="mono">{p.data.number}</span> {p.data.title}<span class="mono g-st" data-status={p.data.status}>{p.data.status}</span></a>
+          ))}
+        </dd>
+      </div>
+    </dl>
+  </section>
+      )}
       {id === 'contents' && (
   <section class="wrap toc" aria-labelledby="toc-h">
     <div class="section-head">
@@ -435,4 +495,50 @@ const [lead, ...rest] = featured;
   .specs div { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding: 10px 0; border-bottom: var(--bw) solid var(--rule); }
   .specs dd { margin: 0; font-family: var(--f-heading); font-size: 0.98rem; }
   @media (max-width: 760px) { .about-grid { grid-template-columns: 1fr; } }
+
+  /* cover call to action */
+  .lede-wrap { display: grid; gap: 18px; }
+  .cover-cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cta {
+    display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: var(--radius-btn, 999px);
+    font: 600 0.9rem/1 var(--f-heading); text-decoration: none; border: var(--bw) solid var(--rule); color: var(--ink);
+    transition: background calc(0.2s * var(--speed)), color calc(0.2s * var(--speed)), border-color calc(0.2s * var(--speed));
+  }
+  .cta:hover { border-color: var(--ink); }
+  .cta-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .cta-primary:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .cta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .cover-bleed .cta:not(.cta-primary) { color: #f4efe7; border-color: rgb(244 239 231 / 0.45); background: rgb(12 13 13 / 0.35); }
+  .cover-bleed .cta:not(.cta-primary):hover { border-color: #f4efe7; }
+
+  /* at a glance */
+  .glance { margin-top: clamp(48px, 7vw, 96px); }
+  .glance-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 16px 0 0; border-top: calc(var(--bw) * 1.5) solid var(--ink); border-left: var(--bw) solid var(--rule); }
+  .g-cell { padding: 16px 18px 20px; border-right: var(--bw) solid var(--rule); border-bottom: var(--bw) solid var(--rule); min-width: 0; }
+  .g-cell dt { margin-bottom: 10px; }
+  .g-cell dd { margin: 0; display: grid; gap: 6px; font-family: var(--f-heading); font-size: 1rem; line-height: 1.35; }
+  .g-cell dd strong { font-weight: 650; }
+  .g-cell dd .mono { font-size: 0.75rem; color: var(--graphite); }
+  .g-seek dd { font-family: var(--f-display); font-size: clamp(1.25rem, 1rem + 0.9vw, 1.7rem); font-weight: var(--w-heading); line-height: 1.15; color: var(--accent-ink); }
+  .g-tools { grid-column: span 2; }
+  .g-row { display: grid; grid-template-columns: 11rem 1fr; gap: 12px; align-items: baseline; }
+  .g-k { text-transform: uppercase; letter-spacing: 0.06em; }
+  .g-work { grid-column: 1 / -1; }
+  .g-work dd { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; }
+  @media (max-width: 700px) { .g-work dd { grid-template-columns: 1fr; } }
+  .g-work dd a { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: var(--bw) solid var(--rule); text-decoration: none; }
+  .g-work dd a:hover { color: var(--accent-ink); }
+  .g-st { margin-left: auto; }
+  .g-contact dd { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
+  .g-mail { flex-basis: 100%; margin-top: 4px; }
+  @media (max-width: 900px) {
+    .glance-grid { grid-template-columns: 1fr 1fr; }
+    .g-tools, .g-work { grid-column: 1 / -1; }
+  }
+  .g-work dd a .mono:first-child { white-space: nowrap; }
+  @media (max-width: 600px) {
+    .glance .section-head > .label:last-child { display: none; }
+    .glance-grid { grid-template-columns: 1fr; }
+    .g-row { grid-template-columns: 1fr; gap: 2px; }
+  }
 </style>

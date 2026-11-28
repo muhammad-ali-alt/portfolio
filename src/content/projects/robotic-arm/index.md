@@ -24,6 +24,9 @@ models:
   - { src: /models/lower-arm-link.glb, node: Lower Arm Link, role: "The structural link of the lower arm.", volume: 198.6 cm³, label: Lower Arm Link, image: ./lower-arm.png, note: 157.5 × 142.5 × 70.0 mm, orbit: 35deg 65deg 105% }
   - { src: /models/base.glb, node: Base, role: "Holds the arm upright and carries the first rotating joint.", volume: 190.7 cm³, label: Base, image: ./base.png, note: 140.0 × 41.0 × 140.0 mm, orbit: 35deg 65deg 105% }
 coverAlt: The full six axis robotic arm assembly in SolidWorks, side view
+overview: A six axis desktop robotic arm, modeled part by part in SolidWorks by following the CADelics tutorial series, then assembled and documented. Eight parts, nine components (the gripper jaw is used twice), about 287 mm tall and about 578 cm³ of material.
+learned:
+  - "Serrated teeth don't add friction: friction force is F = μN, and contact area isn't in it. They raise pressure, the same force on a smaller area, so the teeth dig in and lock the object in place. Full worked example in the [notebook](/notebook/2026-11-23-teeth-pressure/)."
 role: Modeled all eight parts and put them together into the full assembly in SolidWorks, following the CADelics 6 axis robotic arm series.
 contributions:
   - Modeled each part on its own, using part modeling, linear patterns and mirror features
@@ -69,8 +72,6 @@ PLACEHOLDER: One or two sentences. What should the arm do when it is finished? H
 PLACEHOLDER: I am building this by following a tutorial series, then changing it. Write down here which parts follow the tutorial and which parts are your own decisions. Recruiters respect an honest "I learned this from X, then I changed Y because Z" much more than a copied model with no explanation.
 
 ## Assembly
-
-The full arm is about 287 mm tall and made of nine components: the eight parts below, with the gripper jaw used twice. Rotate it at the top of this page.
 
 PLACEHOLDER: How the joints move together, and one thing you would change if you built it again.
 

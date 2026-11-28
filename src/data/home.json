@@ -6,10 +6,16 @@
   "heroArt": true,
   "sections": [
     {
+      "id": "glance",
+      "title": "At a glance",
+      "label": "For recruiters",
+      "visible": true
+    },
+    {
       "id": "contents",
       "title": "Contents",
       "label": "Index",
-      "visible": true
+      "visible": false
     },
     {
       "id": "featured",
