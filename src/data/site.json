@@ -17,7 +17,8 @@
       "href": "https://github.com/muhammad-ali-alt"
     }
   ],
-  "resume": "",
+  "resume": "/files/muhammad-ali-resume-mechanical.pdf",
   "closing": "Looking for someone to design, build, test and write it down?",
-  "cta": "I am looking for a summer 2027 mechanical engineering internship."
+  "cta": "I am looking for a summer 2027 mechanical engineering internship.",
+  "resumeData": "/files/muhammad-ali-resume-data.pdf"
 }

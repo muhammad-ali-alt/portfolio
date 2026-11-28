@@ -14,7 +14,8 @@
         "BMGT230 Business Statistics",
         "UNIV305 Global Career Accelerator"
       ],
-      "achievements": []
+      "achievements": [],
+      "gpa": "3.43"
     },
     {
       "institution": "Crofton High School, Crofton MD",
@@ -27,7 +28,8 @@
         "AP Computer Science Principles",
         "Honors Engineering Design"
       ],
-      "achievements": []
+      "achievements": [],
+      "gpa": ""
     }
   ]
 }

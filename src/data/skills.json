@@ -6,7 +6,7 @@
         {
           "name": "SolidWorks",
           "since": "2026",
-          "note": "Learning: parts, patterns, mirror features"
+          "note": "Foundational: parts, assemblies, linear patterns, mirror features"
         }
       ]
     },
@@ -22,6 +22,11 @@
           "name": "Laser cutting",
           "since": "2025",
           "note": "Cut and drilled the ENES100 chassis"
+        },
+        {
+          "name": "Drilling",
+          "since": "2025",
+          "note": "Drilled the ENES100 chassis"
         },
         {
           "name": "Hand tools and assembly",
@@ -52,6 +57,16 @@
           "name": "Python",
           "since": "2026",
           "note": "ENME202 coursework"
+        },
+        {
+          "name": "JavaScript",
+          "since": "",
+          "note": ""
+        },
+        {
+          "name": "Java",
+          "since": "",
+          "note": ""
         },
         {
           "name": "Excel",
@@ -117,6 +132,31 @@
           "name": "Intro to Cybersecurity, Intro to Networks",
           "since": "2024",
           "note": "Cisco Networking Academy"
+        }
+      ]
+    },
+    {
+      "group": "Languages",
+      "items": [
+        {
+          "name": "English",
+          "since": "",
+          "note": "Fluent"
+        },
+        {
+          "name": "Urdu",
+          "since": "",
+          "note": "Fluent"
+        },
+        {
+          "name": "Hindi",
+          "since": "",
+          "note": "Conversational"
+        },
+        {
+          "name": "Punjabi",
+          "since": "",
+          "note": "Conversational"
         }
       ]
     }

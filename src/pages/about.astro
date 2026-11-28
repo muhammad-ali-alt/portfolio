@@ -104,7 +104,7 @@ const involvement = experience.filter((e) => !WORK.includes(e.type));
           {education.map((e) => (
             <li>
               <span class="mono when">{e.dates}</span>
-              <span class="role"><strong>{e.institution}</strong><span>{e.program}{e.field && ` · ${e.field}`}</span></span>
+              <span class="role"><strong>{e.institution}</strong><span>{e.program}{e.field && ` · ${e.field}`}</span>{e.gpa && <span class="mono">GPA {e.gpa}</span>}</span>
               <span class="jnote">
                 {e.description && <span>{e.description} </span>}
                 {e.coursework.length > 0 && <span class="course">{e.coursework.join(' · ')}</span>}
@@ -290,13 +290,13 @@ const involvement = experience.filter((e) => !WORK.includes(e.type));
 
   .history { margin-top: clamp(64px, 9vw, 120px); }
   .jobs, .inv { list-style: none; margin: 0; padding: 0; }
-  .jobs li { display: grid; grid-template-columns: 11rem minmax(0, 1.2fr) minmax(0, 1.5fr); gap: 1rem; padding: 16px 0; border-bottom: var(--bw) solid var(--rule); align-items: baseline; }
+  .jobs > li { display: grid; grid-template-columns: 11rem minmax(0, 1.2fr) minmax(0, 1.5fr); gap: 1rem; padding: 16px 0; border-bottom: var(--bw) solid var(--rule); align-items: baseline; }
   .when { color: var(--graphite); }
   .role { display: grid; gap: 2px; }
   .role strong { font-family: var(--f-heading); font-weight: 600; font-size: 1.15rem; }
   .role span { color: var(--graphite); font-size: 0.95rem; }
   .jnote { font-size: 0.98rem; line-height: 1.45; }
-  @media (max-width: 760px) { .jobs li { grid-template-columns: 1fr; gap: 4px; } }
+  @media (max-width: 760px) { .jobs > li { grid-template-columns: 1fr; gap: 4px; } }
   .inv-head { margin-top: clamp(40px, 6vw, 64px); }
   .inv li { padding: 12px 0; border-bottom: var(--bw) solid var(--rule); font-family: var(--f-heading); font-size: 1.05rem; }
   .inv .when { margin-left: 8px; }
@@ -305,7 +305,8 @@ const involvement = experience.filter((e) => !WORK.includes(e.type));
   .iss { color: var(--graphite); }
   @media (max-width: 640px) { .ach { grid-template-columns: 1fr; gap: 2px; } }
   .course { display: block; margin-top: 4px; color: var(--graphite); font-size: 0.9rem; }
-  .hl { margin: 6px 0 0; padding-left: 1.1em; }
+  .hl { margin: 8px 0 0; padding-left: 1.1em; list-style: disc; display: grid; gap: 4px; color: var(--graphite); font-size: 0.94rem; }
+  .hl li { padding: 0; border: 0; }
   .bio :global(p) { font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem); line-height: 1.55; max-width: 58ch; }
   .bio :global(p:first-child)::first-letter { font-family: var(--f-display); font-weight: var(--w-display); font-size: 3.3em; float: left; line-height: 0.85; margin: 0.06em 0.1em 0 0; color: var(--emph); }
   .notes { margin-top: clamp(56px, 8vw, 100px); max-width: 60ch; }

@@ -31,7 +31,8 @@ const toolGroups = skills.filter((g) => ['Design', 'Making', 'Programming and da
 const contact = [
   { label: 'Email', href: `mailto:${site.email}`, primary: true },
   ...site.links.filter((l) => l.href).map((l) => ({ label: l.label, href: l.href, primary: false })),
-  ...(site.resume ? [{ label: 'Resume (PDF)', href: site.resume, primary: false }] : []),
+  ...(site.resume ? [{ label: site.resumeData ? 'Resume, mechanical' : 'Resume', href: site.resume, primary: false }] : []),
+  ...(site.resumeData ? [{ label: 'Resume, data', href: site.resumeData, primary: false }] : []),
 ];
 ---
 <Base sheet="00 · Cover" hero={home.heroArt && !!home.heroImage}>
@@ -82,7 +83,7 @@ const contact = [
           <div class="cover-cta">
             <a class="cta cta-primary" href="/work/">See the work →</a>
             <a class="cta" href={`mailto:${site.email}`}>Email me</a>
-            {site.resume && <a class="cta" href={site.resume}>Resume</a>}
+            {site.resume && <a class="cta" href={site.resume}>Resume (PDF)</a>}
           </div>
         </div>
         {current && (
@@ -117,7 +118,7 @@ const contact = [
       {school && (
         <div class="g-cell">
           <dt class="label">Education</dt>
-          <dd><strong>{school.institution}</strong><span>{school.program}{school.field && ` · ${school.field}`}</span><span class="mono">{school.dates}</span></dd>
+          <dd><strong>{school.institution}</strong><span>{school.program}{school.field && ` · ${school.field}`}</span><span class="mono">{school.dates}{school.gpa && ` · GPA ${school.gpa}`}</span></dd>
         </div>
       )}
       {teams.length > 0 && (

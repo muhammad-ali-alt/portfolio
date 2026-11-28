@@ -430,7 +430,8 @@ collections:
             fields:
               - { label: Label, name: label, widget: string }
               - { label: URL, name: href, widget: string, pattern: ['^(https?://.+)?$', 'Must start with https://'] }
-          - { label: Resume (PDF), name: resume, widget: file, required: false, media_folder: /public/uploads/files, public_folder: /uploads/files }
+          - { label: Resume, mechanical (PDF), name: resume, widget: file, required: false, media_folder: /public/uploads/files, public_folder: /uploads/files, hint: 'The main resume. Remove your street address and phone number before uploading: this file is public.' }
+          - { label: Resume, data and analytics (PDF), name: resumeData, widget: file, required: false, media_folder: /public/uploads/files, public_folder: /uploads/files, hint: 'Optional second resume for data roles.' }
           - { label: Closing line, name: closing, widget: string }
           - { label: Call to action, name: cta, widget: string, required: false }
 
@@ -452,6 +453,7 @@ collections:
             fields:
               - { label: Institution, name: institution, widget: string }
               - { label: Degree or program, name: program, widget: string, required: false }
+              - { label: GPA, name: gpa, widget: string, required: false, hint: 'Leave empty to hide it.' }
               - { label: Field of study, name: field, widget: string, required: false }
               - { label: Dates, name: dates, widget: string, required: false, hint: 'e.g. Fall 2025 to May 2029 (expected)' }
               - { label: Description, name: description, widget: text, required: false }

@@ -25,7 +25,7 @@ export const site = load('site.json', z.object({
   name: z.string().min(1), initials: str, wordmark: str, role: str, school: str, year: str, description: str,
   email: z.string().email(),
   links: z.array(z.object({ label: z.string(), href: z.string().url().or(z.literal('')) })).default([]),
-  resume: str, closing: str, cta: str,
+  resume: str, resumeData: str, closing: str, cta: str,
 }), siteJson);
 
 export const about = load('about.json', z.object({
@@ -49,7 +49,7 @@ export const experience = load('experience.json', z.object({
 }), experienceJson).items;
 
 export const education = load('education.json', z.object({
-  items: z.array(z.object({ institution: z.string(), program: str, field: str, dates: str, description: str, coursework: list, achievements: list })),
+  items: z.array(z.object({ institution: z.string(), program: str, field: str, dates: str, gpa: str, description: str, coursework: list, achievements: list })),
 }), educationJson).items;
 
 export const ACHIEVEMENT_TYPES = ['Award', 'Competition', 'Certificate', 'Recognition', 'Publication', 'Other'] as const;
